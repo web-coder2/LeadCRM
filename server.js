@@ -219,7 +219,6 @@ app.get('/api/leads', authenticateJWT, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).send('Доступ запрещен');
   }
-  const leads = readData('data.json');
   res.json(leads);
 });
 
@@ -231,8 +230,6 @@ app.put('/api/leads/:index', authenticateJWT, (req, res) => {
 
   const index = parseInt(req.params.index);
   const { status, isSend } = req.body;
-
-  const leads = readData('data.json');
 
   if (index >= 0 && index < leads.length) {
     leads[index].status = status;
@@ -250,11 +247,14 @@ app.delete('/api/leads/:index', authenticateJWT, (req, res) => {
     return res.status(403).send('Доступ запрещен');
   }
   const index = parseInt(req.params.index);
-  const leads = readData('data.json');
 
   if (index >= 0 && index < leads.length) {
     leads.splice(index, 1);
     writeData('data.json', leads);
+
+    // Update leads array in memory
+    leads = readData('data.json'); // Reload data from the file
+
     res.status(200).send('Лид успешно удален');
   } else {
     res.status(404).send('Лид не найден');
