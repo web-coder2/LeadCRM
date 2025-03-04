@@ -1,86 +1,164 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const path = require('path');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 3000;
 
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static('public')); // Для отдачи статических файлов (html, css, js)
+app.use(express.static('public'));
+app.use(cookieParser());
 
-// Временные пользователи (в реальном проекте храните в БД)
+const secretKey = 'yourSecretKey';
+
 const users = [
-  { username: 'admin', password: 'password', role: 'admin' },
-  { username: 'ledorub', password: 'password', role: 'ledorub' },
-  { username: 'user1', password: 'password', role: 'ledorub' },
-  { username: 'user2', password: 'password', role: 'admin' },
+  { login: 'admin', password: 'admin123', name: 'Holo', role: 'admin' },
+  { login: 'leadorub', password: 'pass1', name: 'alevtina', role: 'leadorub' },
+  { login: 'leadorub2', password: 'pass2', name: 'Denis lk', role: 'leadorub' }
 ];
 
-let leads = []; // Инициализируем массив leads
-
-// Функция для чтения данных из data.json
-const loadLeads = () => {
+const readLeads = () => {
   try {
     const data = fs.readFileSync('data.json', 'utf8');
-    leads = JSON.parse(data);
+    return JSON.parse(data);
   } catch (err) {
     console.error('Error reading data.json:', err);
-    leads = []; // Если файл не существует или пуст, начинаем с пустого массива
+    return [];
   }
 };
 
-// Функция для записи данных в data.json
-const saveLeads = () => {
-  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+// Helper function to write leads to data.json
+const writeLeads = (leads) => {
+  try {
+    fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+  } catch (err) {
+    console.error('Error writing to data.json:', err);
+  }
 };
 
-loadLeads(); // Загружаем данные при старте сервера
+// Authentication Middleware
+const authenticateJWT = (req, res, next) => {
+  const token = req.cookies.token;
 
+  if (token) {
+    jwt.verify(token, secretKey, (err, user) => {
+      if (err) {
+        return res.redirect('/login.html');
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.redirect('/login.html');
+  }
+};
+
+
+// Login route
 app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = users.find(u => u.username === username && u.password === password);
+  const { login, password } = req.body;
+
+  const user = users.find(u => u.login === login && u.password === password);
 
   if (user) {
-    res.json({ success: true, role: user.role });
+    const token = jwt.sign({ login: user.login, role: user.role }, secretKey);
+    res.cookie('token', token, { httpOnly: true });
+    if (user.role === 'admin') {
+      res.redirect('/admin.html');
+    } else if (user.role === 'leadorub') {
+      res.redirect('/leadorub.html');
+    } else {
+       res.send('Неизвестная роль');
+    }
   } else {
-    res.status(401).json({ success: false, message: 'Неверные учетные данные' });
+    res.status(401).send('Неверные учетные данные');
   }
 });
 
-app.get('/leads', (req, res) => {
-    res.json(leads);
+// Logout route
+app.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/login.html');
 });
 
-app.post('/leads', (req, res) => {
-    const newLead = { ...req.body, status: 'created' };
-    leads.push(newLead);
-    saveLeads();
-    res.json({ message: 'Лид успешно добавлен' });
+// GET leads (for admin)
+app.get('/api/leads', authenticateJWT, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).send('Доступ запрещен');
+}
+const leads = readLeads();
+res.json(leads);
 });
 
-app.put('/leads/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const updatedLead = req.body;
+// POST lead (for leadorub)
+app.post('/api/leads', authenticateJWT, (req, res) => {
+if (req.user.role !== 'leadorub') {
+  return res.status(403).send('Доступ запрещен');
+}
+const { phone, client_name, comment } = req.body;
+const newLead = {
+  phone,
+  client_name,
+  comment,
+  status: 'created',
+  isSend: false
+};
 
-  leads = leads.map((lead, index) => (index === id ? { ...lead, ...updatedLead } : lead));
-  saveLeads();
-  res.json({ message: 'Лид успешно обновлен' });
+const leads = readLeads();
+leads.push(newLead);
+writeLeads(leads);
+
+res.status(201).send('Лид успешно создан');
 });
 
-app.delete('/leads/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    leads = leads.filter((_, index) => index !== id);
-    saveLeads();
-    res.json({ message: 'Лид успешно удален' });
+// PUT lead (for admin - update)
+app.put('/api/leads/:index', authenticateJWT, (req, res) => {
+if (req.user.role !== 'admin') {
+  return res.status(403).send('Доступ запрещен');
+}
+
+const index = parseInt(req.params.index);
+const { status, isSend } = req.body;
+
+const leads = readLeads();
+
+if (index >= 0 && index < leads.length) {
+  leads[index].status = status;
+  leads[index].isSend = isSend;
+  writeLeads(leads);
+  res.status(200).send('Лид успешно обновлен');
+} else {
+  res.status(404).send('Лид не найден');
+}
 });
 
+// DELETE lead (for admin)
+app.delete('/api/leads/:index', authenticateJWT, (req, res) => {
+if (req.user.role !== 'admin') {
+  return res.status(403).send('Доступ запрещен');
+}
+const index = parseInt(req.params.index);
+const leads = readLeads();
 
-//  Отдаем login.html по умолчанию
+if (index >= 0 && index < leads.length) {
+  leads.splice(index, 1);
+  writeLeads(leads);
+  res.status(200).send('Лид успешно удален');
+} else {
+  res.status(404).send('Лид не найден');
+}
+});
+
+// Route to serve the login page initially
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.redirect('/login.html');
 });
+
 
 app.listen(port, () => {
-  console.log(`Сервер запущен на http://localhost:${port}`);
+    console.log(`Server listening at http://localhost:${port}`);
 });
