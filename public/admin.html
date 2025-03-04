@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+      body {
+          font-family: sans-serif;
+      }
+      .table th, .table td {
+          vertical-align: middle;
+      }
+    </style>
+</head>
+<body>
+
+<div id="admin-app" class="container mt-4">
+    <h1>Admin Panel</h1>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Phone</th>
+            <th>Name</th>
+            <th>Comment</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(lead, index) in leads" :key="index">
+            <td>{{ index }}</td>
+            <td><input type="text" v-model="lead.phone"></td>
+            <td><input type="text" v-model="lead.name"></td>
+            <td><input type="text" v-model="lead.comment"></td>
+            <td>
+                <select v-model="lead.status">
+                    <option value="created">Created</option>
+                    <option value="hold">Hold</option>
+                    <option value="transfer">Transfer</option>
+                </select>
+            </td>
+            <td>
+                <button class="btn btn-primary btn-sm" @click="updateLead(index)">Update</button>
+                <button class="btn btn-danger btn-sm" @click="deleteLead(index)">Delete</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="./vue/admin.js"></script>
+</body>
+</html>
