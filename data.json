@@ -3,21 +3,18 @@
     "phone": "123-456-7890",
     "client_name": "John Doe",
     "comment": "Initial Contact",
-    "status": "transfer",
-    "isSend": false
+    "status": "created",
+    "isSend": true,
+    "broker": "broker1",
+    "starter": "leadorub"
   },
   {
-    "phone": "89999999999",
-    "client_name": "qwdqwdqwdqwd",
-    "comment": "ifhwoeijfojwepofjwepofjpwoejfpoewjfoieqriojqeoifj opwj[f",
-    "status": "transfer",
-    "isSend": false
-  },
-  {
-    "phone": "123123",
-    "client_name": "qwdqdqdq",
-    "comment": "zccxz123123wqwdqwd",
+    "phone": "987-654-3210",
+    "client_name": "Jane Smith",
+    "comment": "Follow up next week",
     "status": "hold",
-    "isSend": false
+    "isSend": true,
+    "broker": "broker2",
+    "starter": "leadorub"
   }
 ]

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Broker kabinet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+
+        .table-container {
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Broker - {{ userName }}</h2>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+
+    <div class="mb-3">
+        <label>ты щяс в <span :style="{'color' : userStatus ? 'green' : 'red'}">{{ userStatus ? 'online' : 'offline' }}</span></label>
+        <input type="checkbox" v-model="userStatus" @change="updateStatus">
+        <p>Если ты перестанешь работать то убери галку верху и если ты начнешь работать то поставь галку верху</p>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Телефон</th>
+                <th>Имя клиента</th>
+                <th>Комментарий</th>
+                <th>обработан ?</th>
+                <!--<th>Actions</th>-->
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(lead, index) in leads" :key="lead.phone">
+                <td>{{ lead.phone }}</td>
+                <td>{{ lead.client_name }}</td>
+                <td>{{ lead.comment }}</td>
+                <td>
+                    <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                    <span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>
+                </td>
+                <!--<td>
+                    <button class="btn btn-primary btn-sm" @click="updateLead(index, lead)">Update</button>
+                </td>-->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            userName: '',
+            leads: [],
+            userStatus: false
+        },
+        mounted() {
+            this.fetchProfile();
+            this.fetchLeads();
+        },
+        methods: {
+            fetchProfile() {
+                fetch('/api/broker/profile')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.userName = data.name;
+                        this.userStatus = data.status;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            fetchLeads() {
+                fetch('/api/broker/leads')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.leads = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            updateStatus() {
+                fetch('/api/broker/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({status: this.userStatus})
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Status updated successfully');
+                        } else {
+                            console.error('Failed to update status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            updateLead(index, lead) {
+                fetch(`/api/broker/leads/${index}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ isSend: lead.isSend })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Lead updated successfully');
+                    } else {
+                        console.error('Failed to update lead');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    });
+</script>
+</body>
+</html>

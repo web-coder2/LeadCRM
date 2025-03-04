@@ -1,0 +1,44 @@
+[
+  {
+    "login": "admin",
+    "password": "admin123",
+    "name": "Holo",
+    "role": "admin",
+    "status": true
+  },
+  {
+    "login": "leadorub",
+    "password": "pass1",
+    "name": "Leadorub User",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "leadorub2",
+    "password": "pass2",
+    "name": "Leadorub User 2",
+    "role": "leadorub",
+    "status": false
+  },
+  {
+    "login": "broker1",
+    "password": "brok123",
+    "name": "Broker One",
+    "role": "broker",
+    "status": false
+  },
+  {
+    "login": "broker2",
+    "password": "brok321",
+    "name": "Broker Two",
+    "role": "broker",
+    "status": false
+  },
+  {
+    "login": "web-coder",
+    "password": "web-coder",
+    "name": "web-coder",
+    "role": "admin",
+    "status": true
+  }
+]

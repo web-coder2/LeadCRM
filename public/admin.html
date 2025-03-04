@@ -1,122 +1,241 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-  <style>
-    body {
-      padding-top: 50px;
-      background-color: #f8f9fa;
-    }
-    .table-container {
-      margin: auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      overflow-x: auto; /* Add horizontal scroll for small screens */
-    }
-  </style>
+    <title>Admin kabinet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+
+        .table-container {
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* Add horizontal scroll for small screens */
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="app">
+<div class="container" id="app">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Admin - Leads Management</h2>
-      <a href="/logout" class="btn btn-danger">Logout</a>
+        <h2>Admin - Leads Management</h2>
+        <a href="/logout" class="btn btn-danger">Logout</a>
     </div>
 
-    <div class="table-container">
-      <table class="table table-striped">
+    <!-- User Management -->
+    <h3>User Management</h3>
+    <form @submit.prevent="createUser">
+        <div class="form-row">
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Login" v-model="newUser.login" required>
+            </div>
+            <div class="col">
+                <input type="password" class="form-control" placeholder="Password" v-model="newUser.password"
+                       required>
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Name" v-model="newUser.name" required>
+            </div>
+            <div class="col">
+                <select class="form-control" v-model="newUser.role" required>
+                    <option value="leadorub">Leadorub</option>
+                    <option value="broker">Broker</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Create User</button>
+            </div>
+        </div>
+        <div v-if="userMessage" class="mt-3 alert alert-success">
+            {{ userMessage }}
+        </div>
+    </form>
+
+    <table class="table table-striped mt-3">
         <thead>
-          <tr>
-            <th>Phone</th>
-            <th>Client Name</th>
-            <th>Comment</th>
-            <th>Status</th>
-            <th>Is Sent</th>
-            <th>Actions</th>
-          </tr>
+        <tr>
+            <th>Логин</th>
+            <th>Имя</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
         </thead>
         <tbody>
-          <tr v-for="(lead, index) in leads" :key="index">
-            <td>{{ lead.phone }}</td>
-            <td>{{ lead.client_name }}</td>
-            <td>{{ lead.comment }}</td>
+        <tr v-for="user in users" :key="user.login">
+            <td>{{ user.login }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.role }}</td>
+            <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
             <td>
-              <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
-                <option value="created">Created</option>
-                <option value="hold">Hold</option>
-                <option value="transfer">Transfer</option>
-                <option value="нецелевой">Нецелевой</option>
-              </select>
+                <button class="btn btn-danger btn-sm" @click="deleteUser(user.login)"
+                        :disabled="user.login === 'admin'">Delete
+                </button>
             </td>
-            <td>
-              <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
-            </td>
-            <td>
-              <button class="btn btn-danger btn-sm" @click="deleteLead(index)">Delete</button>
-            </td>
-          </tr>
+        </tr>
         </tbody>
-      </table>
-    </div>
-  </div>
+    </table>
 
-  <script>
+    <!-- Lead Management -->
+    <h3>Lead Management</h3>
+    <div class="table-container">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Телефон</th>
+                <th>Имя клиента</th>
+                <th>Коментарий к звонку</th>
+                <th>Статус лида</th>
+                <th>Обработан ?</th>
+                <th>Какой брокер должен обработать</th>
+                <th>Какой Ледоруб создал</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(lead, index) in leads" :key="index">
+                <td>{{ lead.phone }}</td>
+                <td>{{ lead.client_name }}</td>
+                <td>{{ lead.comment }}</td>
+                <td>
+                    <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
+                        <option value="created">Created</option>
+                        <option value="hold">Hold</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="нецелевой">Нецелевой</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                </td>
+                <td>{{lead.broker}}</td>
+                <td>{{lead.starter}}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" @click="deleteLead(index)">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
     new Vue({
-      el: '#app',
-      data: {
-        leads: []
-      },
-      mounted() {
-        this.fetchLeads();
-      },
-      methods: {
-        fetchLeads() {
-          fetch('/api/leads')
-            .then(response => response.json())
-            .then(data => {
-              this.leads = data;
-            })
-            .catch(error => {
-              console.error('Error:', error);
-            });
-        },
-        updateLead(index, lead) {
-          fetch(`/api/leads/${index}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
+        el: '#app',
+        data: {
+            leads: [],
+            users: [],
+            newUser: {
+                login: '',
+                password: '',
+                name: '',
+                role: 'leadorub'
             },
-            body: JSON.stringify({ status: lead.status, isSend: lead.isSend })
-          })
-          .then(response => {
-            if (!response.ok) {
-              console.error('Failed to update lead');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
+            userMessage: null
         },
-        deleteLead(index) {
-          fetch(`/api/leads/${index}`, {
-            method: 'DELETE'
-          })
-          .then(response => {
-            if (response.ok) {
-              this.fetchLeads(); // Refresh the list
-            } else {
-              console.error('Failed to delete lead');
+        mounted() {
+            this.fetchLeads();
+            this.fetchUsers();
+        },
+        methods: {
+            fetchLeads() {
+                fetch('/api/leads')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.leads = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            fetchUsers() {
+                fetch('/api/admin/users')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.users = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            createUser() {
+                fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.newUser)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            this.userMessage = 'User created successfully!';
+                            this.newUser = { login: '', password: '', name: '', role: 'leadorub' };
+                            this.fetchUsers();
+                        } else {
+                            this.userMessage = 'Failed to create user.';
+                          }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.userMessage = 'Error creating user.';
+                    });
+            },
+            deleteUser(login) {
+                fetch(`/api/admin/users/${login}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            this.fetchUsers();
+                        } else {
+                            console.error('Failed to delete user');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            updateLead(index, lead) {
+                fetch(`/api/leads/${index}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({status: lead.status, isSend: lead.isSend})
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Failed to update lead');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            },
+            deleteLead(index) {
+                fetch(`/api/leads/${index}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            this.fetchLeads(); // Refresh the list
+                        } else {
+                            console.error('Failed to delete lead');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
         }
-      }
     });
-  </script>
+</script>
 </body>
 </html>
