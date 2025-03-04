@@ -3,127 +3,171 @@
 <head>
     <title>Admin kabinet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <style>
-        body {
-            padding-top: 50px;
-            background-color: #f8f9fa;
-        }
-
-        .table-container {
-            margin: auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto; /* Add horizontal scroll for small screens */
-        }
-    </style>
 </head>
 <body>
-<div class="container" id="app">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Admin - Leads Management</h2>
-        <a href="/logout" class="btn btn-danger">Logout</a>
-    </div>
+<div id="app">
 
-    <!-- User Management -->
-    <h3>User Management</h3>
-    <form @submit.prevent="createUser">
-        <div class="form-row">
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Login" v-model="newUser.login" required>
-            </div>
-            <div class="col">
-                <input type="password" class="form-control" placeholder="Password" v-model="newUser.password" required>
-            </div>
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Name" v-model="newUser.name" required>
-            </div>
-            <div class="col">
-                <select class="form-control" v-model="newUser.role" required>
-                    <option value="leadorub">Leadorub</option>
-                    <option value="broker">Broker</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Create User</button>
-            </div>
+    <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+        <div style="display: flex; align-items: center;">
+            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
+            <p class="navbar-brand" style="font-family: cursive;">HBA-LeadCRM</p>
         </div>
-        <div v-if="userMessage" class="mt-3 alert alert-success">
-            {{ userMessage }}
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="/logout" class="text-danger">Выйти</a>
+                </li>
+            </ul>
         </div>
-    </form>
+    </nav>
 
-    <table class="table table-striped mt-3">
-        <thead>
-        <tr>
-            <th style="white-space: nowrap;">Логин</th>
-            <th style="white-space: nowrap;">Имя</th>
-            <th style="white-space: nowrap;">Роль</th>
-            <th style="white-space: nowrap;">Статус</th>
-            <th style="white-space: nowrap;">Действия</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="user in users" :key="user.login">
-            <td>{{ user.login }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.role }}</td>
-            <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
-            <td>
-                <button class="btn btn-danger btn-sm" @click="deleteUser(user.login)"
-                        :disabled="user.login === 'admin'">Delete
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="main-block">
 
-    <!-- Lead Management -->
-    <h3>Lead Management</h3>
-    <div class="table-container">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th style="white-space: nowrap;">Телефон</th>
-                <th style="white-space: nowrap;">Имя клиента</th>
-                <th style="white-space: nowrap;">Коментарий к звонку</th>
-                <th style="white-space: nowrap;">Статус лида</th>
-                <th style="white-space: nowrap;">Обработан ?</th>
-                <th style="white-space: nowrap;">Какой брокер должен обработать</th>
-                <th style="white-space: nowrap;">Какой Ледоруб создал</th>
-                <th style="white-space: nowrap;">Действия</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(lead, index) in leads" :key="index">
-                <td>{{ lead.phone }}</td>
-                <td>{{ lead.client_name }}</td>
-                <td>{{ lead.comment }}</td>
-                <td>
-                    <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
-                        <option value="created">Created</option>
-                        <option value="hold">Hold</option>
-                        <option value="transfer">Transfer</option>
-                        <option value="нецелевой">Нецелевой</option>
+        <h3 class="mt-5 mb-3">Создать нового юзера</h3>
+        <form @submit.prevent="createUser" class="mt-5">
+            <div class="form-row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Login" v-model="newUser.login" required>
+                </div>
+                <div class="col">
+                    <input type="password" class="form-control" placeholder="Password" v-model="newUser.password" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name" v-model="newUser.name" required>
+                </div>
+                <div class="col">
+                    <select class="form-control" v-model="newUser.role" required>
+                        <option value="leadorub">ледоруб</option>
+                        <option value="broker">брокер</option>
+                        <option value="admin">Админ</option>
                     </select>
-                </td>
-                <td>
-                    <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
-                </td>
-                <td>{{lead.broker}}</td>
-                <td>{{lead.starter}}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm" @click="deleteLead(index)">Delete</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                </div>
+                <div class="col mb-5">
+                    <button type="submit" class="btn btn-primary">создать юзера</button>
+                </div>
+            </div>
+            <div v-if="userMessage" class="mt-3 alert alert-success">
+                {{ userMessage }}
+            </div>
+        </form>
+
+        <div class="table-container">
+            <table class="table table-striped mt-3">
+                <thead>
+                <tr>
+                    <th style="white-space: nowrap;">Логин</th>
+                    <th style="white-space: nowrap;">Имя</th>
+                    <th style="white-space: nowrap;">Роль</th>
+                    <th style="white-space: nowrap;">Статус</th>
+                    <th style="white-space: nowrap;">Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="user in users" :key="user.login">
+                    <td>{{ user.login }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.role }}</td>
+                    <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.login === 'admin'">Удалить юзера
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="mt-5 mb-5">Таблица с лидами</h3>
+        <div class="table-container mb-5">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="table-column2">Телефон</th>
+                    <th class="table-column2">Имя клиента</th>
+                    <th class="table-column">Коментарий к звонку</th>
+                    <th class="table-column2">Статус лида</th>
+                    <th class="table-column2">Обработан ?</th>
+                    <th class="table-column">Какой брокер должен обработать</th>
+                    <th class="table-column">Какой Ледоруб создал</th>
+                    <th class="table-column">Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(lead, index) in leads" :key="index">
+                    <td>{{ lead.phone }}</td>
+                    <td>{{ lead.client_name }}</td>
+                    <td>{{ lead.comment }}</td>
+                    <td>
+                        <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
+                            <option value="created">Created</option>
+                            <option value="hold">Hold</option>
+                            <option value="transfer">Transfer</option>
+                            <option value="нецелевой">Нецелевой</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                    </td>
+                    <td>{{lead.broker}}</td>
+                    <td>{{lead.starter}}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @click="deleteLead(index)">Удалить лид</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<style type="text/css">
+
+.main-block {
+    margin-left: 10%;
+    width: 80%;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-column {
+    white-space: nowrap;
+    width: 200px;
+}
+
+.table-column2 {
+    white-space: nowrap;
+    width: 100px;
+}
+
+@media (max-width: 480px) {
+    .form-row {
+        display: block;
+    }
+    .form-control {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .btn-primary {
+        width: 100%;
+    }
+}
+
+
+</style>
+
 
 <script>
     new Vue({
@@ -146,23 +190,23 @@
         methods: {
             fetchLeads() {
                 fetch('/api/leads')
-                    .then(response => response.json())
-                    .then(data => {
-                        this.leads = data;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    this.leads = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             },
             fetchUsers() {
                 fetch('/api/admin/users')
-                    .then(response => response.json())
-                    .then(data => {
-                        this.users = data;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    this.users = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             },
             createUser() {
                 fetch('/api/admin/users', {
@@ -172,34 +216,34 @@
                     },
                     body: JSON.stringify(this.newUser)
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            this.userMessage = 'User created successfully!';
-                            this.newUser = { login: '', password: '', name: '', role: 'leadorub' };
-                            this.fetchUsers();
-                        } else {
-                            this.userMessage = 'Failed to create user.';
-                          }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        this.userMessage = 'Error creating user.';
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        this.userMessage = 'User created successfully!';
+                        this.newUser = { login: '', password: '', name: '', role: 'leadorub' };
+                        this.fetchUsers();
+                    } else {
+                        this.userMessage = 'Failed to create user.';
+                      }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.userMessage = 'Error creating user.';
+                });
             },
             deleteUser(login) {
                 fetch(`/api/admin/users/${login}`, {
                     method: 'DELETE'
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            this.fetchUsers();
-                        } else {
-                            console.error('Failed to delete user');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        this.fetchUsers();
+                    } else {
+                        console.error('Failed to delete user');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             },
             updateLead(index, lead) {
                 fetch(`/api/leads/${index}`, {
@@ -209,29 +253,29 @@
                     },
                     body: JSON.stringify({status: lead.status, isSend: lead.isSend})
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            console.error('Failed to update lead');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Failed to update lead');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             },
             deleteLead(index) {
                 fetch(`/api/leads/${index}`, {
                     method: 'DELETE'
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            this.fetchLeads(); // Refresh the list
-                        } else {
-                            console.error('Failed to delete lead');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        this.fetchLeads();
+                    } else {
+                        console.error('Failed to delete lead');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             }
         }
     });
