@@ -95,11 +95,12 @@
                     <th class="table-column2">Телефон</th>
                     <th class="table-column2">Имя клиента</th>
                     <th class="table-column">Коментарий к звонку</th>
-                    <th class="table-column2">Статус лида</th>
+                    <th class="table-column2">Статус лида на момент</th>
                     <th class="table-column2">Обработан ?</th>
-                    <th class="table-column">Какой брокер должен обработать</th>
-                    <th class="table-column">Какой Ледоруб создал</th>
-                    <th class="table-column">Назначить брокера (если лид без брокера)</th>
+                    <th class="table-column">Какому брокеру</th>
+                    <th class="table-column2">Какой Ледоруб</th>
+                    <!--<th class="table-column">Назначить брокера (если лид без брокера)</th>-->
+                    <th class="table-column">Назначить брокера</th>
                     <th class="table-column">Действия</th>
                 </tr>
                 </thead>
@@ -122,7 +123,8 @@
                     <td>{{lead.broker}}</td>
                     <td>{{lead.starter}}</td>
                     <td>
-                        <select class="form-control" v-if="lead.broker == '' " v-model="lead.newBroker" @change="assignBroker(index, lead)">
+                        <!--<select class="form-control" v-if="lead.broker == '' " v-model="lead.newBroker" @change="assignBroker(index, lead)">-->
+                        <select class="form-control" v-model="lead.newBroker" @change="assignBroker(index, lead)">
                             <option v-for="broker in brokers" :key="broker.login" :value="broker.login">{{ broker.name }}</option>
                         </select>        
                     </td>

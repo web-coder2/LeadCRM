@@ -18,7 +18,7 @@
     "password": "asd",
     "name": "asd",
     "role": "broker",
-    "status": true
+    "status": false
   },
   {
     "login": "zxc",
