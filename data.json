@@ -4,7 +4,7 @@
     "client_name": "123",
     "comment": "312",
     "status": "created",
-    "isSend": true,
+    "isSend": false,
     "broker": "denis",
     "starter": "qwerty"
   },
@@ -15,7 +15,7 @@
     "status": "created",
     "broker": "denis",
     "starter": "qwerty",
-    "isSend": true
+    "isSend": false
   },
   {
     "phone": "3123127",
@@ -24,14 +24,14 @@
     "status": "created",
     "broker": "denis",
     "starter": "qwerty",
-    "isSend": true
+    "isSend": false
   },
   {
     "phone": "73213123123",
     "client_name": "123123123",
     "comment": "123123123",
     "status": "created",
-    "isSend": true,
+    "isSend": false,
     "broker": "denis",
     "starter": "qwerty"
   },
@@ -40,7 +40,7 @@
     "client_name": "eqweqweqwe",
     "comment": "asdasdasd",
     "status": "created",
-    "isSend": true,
+    "isSend": false,
     "broker": "denis",
     "starter": "qwerty"
   },
@@ -49,7 +49,7 @@
     "client_name": "23125125125",
     "comment": "12412521521422",
     "status": "created",
-    "isSend": true,
+    "isSend": false,
     "broker": "denis",
     "starter": "qwerty"
   },
@@ -58,7 +58,7 @@
     "client_name": "2342qwr2234",
     "comment": "dqwdsdqsd",
     "status": "created",
-    "isSend": true,
+    "isSend": false,
     "broker": "denis",
     "starter": "qwerty"
   }

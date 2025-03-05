@@ -59,8 +59,13 @@
                     <td>{{ lead.client_name }}</td>
                     <td>{{ lead.comment }}</td>
                     <td>
-                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
-                        <span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>
+                        <!--<input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">-->
+                        <button
+                        class="btn"
+                        :class="getColorSend(lead.isSend)"
+                        @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
+                            {{ lead.isSend? 'Да' : 'Нет' }}</button>
+                        <!--<span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>-->
                     </td>
                     <!--<td>
                         <button class="btn btn-primary btn-sm" @click="updateLead(index, lead)">Update</button>
@@ -143,6 +148,13 @@
             }
         },
         methods: {
+            getColorSend(item) {
+                if (item == true) {
+                    return "btn-success"
+                } else if (item == false) {
+                    return "btn-danger"
+                }
+            },
             fetchProfile() {
                 fetch('/api/broker/profile')
                     .then(response => response.json())

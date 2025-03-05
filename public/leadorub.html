@@ -43,7 +43,7 @@
             </div>
             <div class="form-group">
                 <label for="comment">Коментарий к звонку:</label>
-                <textarea class="form-control" id="comment" v-model="newLead.comment" rows="3"></textarea>
+                <textarea class="form-control" id="comment" v-model="newLead.comment" rows="3" required></textarea>
             </div>
             <button type="submit" class="btn btn-success">Создать лид</button>
         </form>
@@ -73,7 +73,7 @@
         el: '#app',
         data: {
             newLead: {
-                phone: '7',
+                phone: '+7',
                 client_name: '',
                 comment: ''
             },
@@ -88,18 +88,18 @@
                     },
                     body: JSON.stringify(this.newLead)
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            this.message = 'Лид успешно создан!';
-                            this.newLead = {phone: '7', client_name: '', comment: ''}; // Reset the form
-                        } else {
-                            this.message = 'Ошибка создания лида.';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        this.message = 'Ошибка при отправке запроса.';
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        this.message = 'Лид успешно создан!';
+                        this.newLead = {phone: '+7', client_name: '', comment: ''};
+                    } else {
+                        this.message = 'Ошибка создания лида.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.message = 'Ошибка при отправке запроса.';
+                });
             }
         }
     });

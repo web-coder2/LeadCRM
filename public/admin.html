@@ -96,7 +96,7 @@
                     <th class="table-column2">Имя клиента</th>
                     <th class="table-column">Коментарий к звонку</th>
                     <th class="table-column2">Статус лида на момент</th>
-                    <th class="table-column2">Обработан ?</th>
+                    <th class="table-column">Обработан ?</th>
                     <th class="table-column">Какому брокеру</th>
                     <th class="table-column2">Какой Ледоруб</th>
                     <!--<th class="table-column">Назначить брокера (если лид без брокера)</th>-->
@@ -118,7 +118,13 @@
                         </select>
                     </td>
                     <td>
-                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                        <!--<input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">-->
+                        <button 
+                        class="btn" 
+                        :class="getColorSend(lead.isSend)"
+                        @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
+                            {{ lead.isSend ? 'Обработан' : 'Не обработан' }}
+                        </button>
                     </td>
                     <td>{{lead.broker}}</td>
                     <td>{{lead.starter}}</td>
@@ -224,6 +230,13 @@
             }
         },
         methods: {
+            getColorSend(item) {
+                if (item == true) {
+                    return "btn-success"
+                } else if (item == false) {
+                    return "btn-danger"
+                }
+            },
             fetchLeads() {
                 fetch('/api/leads')
                 .then(response => response.json())
