@@ -37,13 +37,13 @@
         <form @submit.prevent="createUser" class="mt-5">
             <div class="form-row">
                 <div class="col">
-                    <input type="text" class="form-control" placeholder="Login" v-model="newUser.login" required>
+                    <input type="text" class="form-control" placeholder="Логин" v-model="newUser.login" required>
                 </div>
                 <div class="col">
-                    <input type="password" class="form-control" placeholder="Password" v-model="newUser.password" required>
+                    <input type="password" class="form-control" placeholder="Пароль" v-model="newUser.password" required>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control" placeholder="Name" v-model="newUser.name" required>
+                    <input type="text" class="form-control" placeholder="Имя" v-model="newUser.name" required>
                 </div>
                 <div class="col">
                     <select class="form-control" v-model="newUser.role" required>
@@ -99,6 +99,7 @@
                     <th class="table-column2">Обработан ?</th>
                     <th class="table-column">Какой брокер должен обработать</th>
                     <th class="table-column">Какой Ледоруб создал</th>
+                    <th class="table-column">Назначить брокера (если лид без брокера)</th>
                     <th class="table-column">Действия</th>
                 </tr>
                 </thead>
@@ -120,6 +121,11 @@
                     </td>
                     <td>{{lead.broker}}</td>
                     <td>{{lead.starter}}</td>
+                    <td>
+                        <select class="form-control" v-if="lead.broker == '' " v-model="lead.newBroker" @change="assignBroker(index, lead)">
+                            <option v-for="broker in brokers" :key="broker.login" :value="broker.login">{{ broker.name }}</option>
+                        </select>        
+                    </td>
                     <td>
                         <button class="btn btn-danger btn-sm" @click="deleteLead(index)">Удалить лид</button>
                     </td>
@@ -186,6 +192,11 @@
         mounted() {
             this.fetchLeads();
             this.fetchUsers();
+        },
+        computed: {
+            brokers() {
+                return this.users.filter(user => user.role === 'broker');
+            }
         },
         methods: {
             fetchLeads() {
@@ -276,6 +287,25 @@
                 .catch(error => {
                     console.error('Error:', error);
                 });
+            },
+            assignBroker(index, lead) {
+              fetch(`/api/leads/${index}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ broker: lead.newBroker })
+              })
+              .then(response => {
+                if (response.ok) {
+                  this.fetchLeads();
+                } else {
+                  console.error('Failed to assign broker');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
             }
         }
     });

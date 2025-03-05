@@ -1,38 +1,36 @@
 [
   {
-    "phone": "899999999",
-    "client_name": "qwerty client",
-    "comment": "qwerrty comment text",
-    "status": "created",
-    "isSend": false,
+    "phone": "7892348923488",
+    "client_name": "889238482348",
+    "comment": "8988fuhwnjsnvj",
     "broker": "zxc",
     "starter": "qwerty"
   },
   {
-    "phone": "89123456",
-    "client_name": "йцукенг",
-    "comment": "йцукен фывфыв чямчя",
+    "phone": "7fwefwefwefw",
+    "client_name": "efwefwefwef",
+    "comment": "wefwefwe",
     "status": "created",
     "isSend": false,
-    "broker": "zxc",
+    "broker": "",
     "starter": "qwerty"
   },
   {
-    "phone": "89123123",
-    "client_name": "123123 test",
-    "comment": "test test test test",
+    "phone": "7qdqwdqwdqw",
+    "client_name": "dqwdqwdq",
+    "comment": "wdqwdqwdqw",
     "status": "created",
     "isSend": false,
-    "broker": "zxc",
+    "broker": "asd",
     "starter": "qwerty"
   },
   {
-    "phone": "89312321",
-    "client_name": "321 321 test",
-    "comment": "tester tester 321",
+    "phone": "7123123123123",
+    "client_name": "123123123123",
+    "comment": "123123123123",
     "status": "created",
     "isSend": false,
-    "broker": "zxc",
+    "broker": "asd",
     "starter": "qwerty"
   }
 ]

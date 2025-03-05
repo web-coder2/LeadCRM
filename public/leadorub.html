@@ -73,7 +73,7 @@
         el: '#app',
         data: {
             newLead: {
-                phone: '',
+                phone: '7',
                 client_name: '',
                 comment: ''
             },
@@ -91,7 +91,7 @@
                     .then(response => {
                         if (response.ok) {
                             this.message = 'Лид успешно создан!';
-                            this.newLead = {phone: '', client_name: '', comment: ''}; // Reset the form
+                            this.newLead = {phone: '7', client_name: '', comment: ''}; // Reset the form
                         } else {
                             this.message = 'Ошибка создания лида.';
                         }

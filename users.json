@@ -18,13 +18,13 @@
     "password": "asd",
     "name": "asd",
     "role": "broker",
-    "status": false
+    "status": true
   },
   {
     "login": "zxc",
     "password": "zxc",
     "name": "zxc",
     "role": "broker",
-    "status": true
+    "status": false
   }
 ]

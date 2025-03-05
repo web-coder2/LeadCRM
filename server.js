@@ -58,16 +58,18 @@ const authenticateJWT = (req, res, next) => {
 
 // Get next available broker in round-robin fashion
 let brokerIndex = 0;
-const getNextAvailableBroker = () => {
-    const activeBrokers = users.filter(user => user.role === 'broker' && user.status);
+const getNextAvailableBroker = (onlineOnly = true) => {
+  let brokers = users.filter(user => user.role === 'broker');
+  if (onlineOnly) {
+      brokers = brokers.filter(user => user.status);
+  }
+  if (brokers.length === 0) {
+      return null;
+  }
 
-    if (activeBrokers.length === 0) {
-        return null;
-    }
-
-    const broker = activeBrokers[brokerIndex % activeBrokers.length].login;
-    brokerIndex = (brokerIndex + 1) % activeBrokers.length;
-    return broker;
+  const broker = brokers[brokerIndex % brokers.length].login;
+  brokerIndex = (brokerIndex + 1) % brokers.length;
+  return broker;
 };
 
 
@@ -94,7 +96,11 @@ app.post('/login', (req, res) => {
                 res.send('Unknown role');
         }
     } else {
-        res.status(401).send('Invalid credentials');
+        // Set an error cookie
+        res.cookie('loginError', 'Invalid login credentials', { maxAge: 5000 }); // Expires in 5 seconds
+
+        // Redirect to login page
+        res.redirect('/login.html');
     }
 });
 
@@ -144,10 +150,22 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
     if (req.user.role !== 'leadorub') return res.status(403).send('Forbidden');
 
     const { phone, client_name, comment } = req.body;
-    const broker = getNextAvailableBroker();
+    let broker = getNextAvailableBroker();
 
+    // If no online brokers, assign offline brokers in a round-robin fashion
     if (!broker) {
-        return res.status(500).send('No active brokers available.');
+        broker = getNextAvailableBroker(false); // Pass false to allow offline brokers  (убрать параметр false если нужно чтобы автоматические на оффлайн бркоеров переводились лиды)
+        broker = ""
+      /*
+        // Commented out example of how to assign offline brokers using the same round-robin logic
+        let offlineBrokers = users.filter(user => user.role === 'broker');
+
+        if (offlineBrokers.length === 0) {
+            return res.status(500).send('No brokers available.');
+        }
+        broker = offlineBrokers[brokerIndex % offlineBrokers.length].login;
+        brokerIndex = (brokerIndex + 1) % offlineBrokers.length;
+      */
     }
 
     const newLead = {
@@ -229,11 +247,15 @@ app.put('/api/leads/:index', authenticateJWT, (req, res) => {
   }
 
   const index = parseInt(req.params.index);
-  const { status, isSend } = req.body;
+  const { status, isSend, broker } = req.body;
 
   if (index >= 0 && index < leads.length) {
     leads[index].status = status;
     leads[index].isSend = isSend;
+    // Update broker if provided
+    if (broker) {
+      leads[index].broker = broker;
+    }
     writeData('data.json', leads);
     res.status(200).send('Лид успешно обновлен');
   } else {
