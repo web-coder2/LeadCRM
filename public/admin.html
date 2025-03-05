@@ -135,6 +135,20 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-5">
+            <h4 style="color: black;">Прогресс по лидам</h4>
+            <div class="progress mt-3 mb-5">
+                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated"
+                    :style="{'width': this.leadProgress + '%'}"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    :class="progressColors[leadColor]"
+                    >
+                    {{ leadProgress }}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -187,8 +201,9 @@
                 login: '',
                 password: '',
                 name: '',
-                role: 'leadorub'
+                role: 'leadorub',
             },
+            progressColors: ['bg-dark', 'bg-secondary', 'bg-danger', 'bg-warning', 'bg-primary'],
             userMessage: null
         },
         mounted() {
@@ -198,6 +213,14 @@
         computed: {
             brokers() {
                 return this.users.filter(user => user.role === 'broker');
+            },
+            leadProgress() {
+                let totalLeads = this.leads.length;
+                let processedLeads = this.leads.filter(lead => lead.isSend).length;
+                return Math.round((processedLeads / totalLeads) * 100);
+            },
+            leadColor() {
+                return Math.floor(this.leadProgress * this.progressColors.length / 100)
             }
         },
         methods: {

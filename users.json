@@ -14,17 +14,17 @@
     "status": true
   },
   {
-    "login": "asd",
-    "password": "asd",
-    "name": "asd",
+    "login": "denis",
+    "password": "denis",
+    "name": "denis",
     "role": "broker",
-    "status": false
+    "status": true
   },
   {
-    "login": "zxc",
-    "password": "zxc",
-    "name": "zxc",
+    "login": "bankir",
+    "password": "bankir",
+    "name": "bankir",
     "role": "broker",
-    "status": false
+    "status": true
   }
 ]
