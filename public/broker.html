@@ -33,6 +33,7 @@
         </nav>
 
         <div class="mb-5 mt-5" style="margin-left: 10%; width: 80%;">
+            <h3>Личный кабинет <i style="color: green; font-size: 34px;">{{ userName }}</i></h3>
             <label>ты щяс в <strong :style="{'color' : userStatus ? 'green' : 'red'}">{{ userStatus ? 'online' : 'offline' }}</strong></label>
             <input type="checkbox" v-model="userStatus" @change="updateStatus">
             <p>Если ты перестанешь работать то убери галку верху и если ты начнешь работать то поставь галку верху</p>
@@ -84,7 +85,7 @@
                     aria-valuemax="100"
                     :class="progressColors[leadColor]"
                     >
-                    {{ leadProgress }}
+                    {{ leadProgress ? leadProgress : "Нет лидов" }}
                 </div>
             </div>
         </div>

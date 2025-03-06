@@ -65,8 +65,8 @@
             <table class="table table-striped mt-3">
                 <thead>
                 <tr>
-                    <th style="white-space: nowrap;">Логин</th>
                     <th style="white-space: nowrap;">Имя</th>
+                    <th style="white-space: nowrap;">Логин</th>
                     <th style="white-space: nowrap;">Роль</th>
                     <th style="white-space: nowrap;">Статус</th>
                     <th style="white-space: nowrap;">Действия</th>
@@ -74,12 +74,12 @@
                 </thead>
                 <tbody>
                 <tr v-for="user in users" :key="user.login">
+                    <td><img class="imger" :src="user.role == 'admin' ? 'admin.jpeg' : 'logo.jpg' "> {{ user.name }}</td>
                     <td>{{ user.login }}</td>
-                    <td>{{ user.name }}</td>
                     <td>{{ user.role }}</td>
                     <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
                     <td>
-                        <button class="btn btn-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.login === 'admin'">Удалить юзера
+                        <button class="btn btn-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role === 'admin'">Удалить юзера
                         </button>
                     </td>
                 </tr>
@@ -151,7 +151,7 @@
                     aria-valuemax="100"
                     :class="progressColors[leadColor]"
                     >
-                    {{ leadProgress }}
+                    {{ leadProgress ? leadProgress : 'Нет лидов' }}
                 </div>
             </div>
         </div>
@@ -191,6 +191,12 @@
     .btn-primary {
         width: 100%;
     }
+}
+
+.imger {
+    height: 30px;
+    width: 30px;
+    border-radius: 30px;
 }
 
 
