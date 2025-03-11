@@ -264,6 +264,11 @@
                 });
             },
             createUser() {
+                this.newUser['login'] = this.newUser['login'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, '');
+                this.newUser['password'] = this.newUser['password'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, '');
+                this.newUser['name'] = this.newUser['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, '');
+
+                console.log(this.newUser)
                 fetch('/api/admin/users', {
                     method: 'POST',
                     headers: {
