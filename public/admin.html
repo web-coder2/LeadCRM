@@ -92,10 +92,11 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
+                    <th class="table-column">Даат лида созданого</th>
                     <th class="table-column2">Телефон</th>
                     <th class="table-column2">Имя клиента</th>
                     <th class="table-column">Коментарий к звонку</th>
-                    <th class="table-column2">Статус лида на момент</th>
+                    <!-- <th class="table-column2">Статус лида на момент</th> -->
                     <th class="table-column">Обработан ?</th>
                     <th class="table-column">Какому брокеру</th>
                     <th class="table-column2">Какой Ледоруб</th>
@@ -106,25 +107,26 @@
                 </thead>
                 <tbody>
                 <tr v-for="(lead, index) in leads" :key="index">
+                    <td>{{ lead.date }}</td>
                     <td>{{ lead.phone }}</td>
                     <td>{{ lead.client_name }}</td>
                     <td>{{ lead.comment }}</td>
-                    <td>
+                    <!-- <td>
                         <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
                             <option value="created">Created</option>
                             <option value="hold">Hold</option>
                             <option value="transfer">Transfer</option>
                             <option value="нецелевой">Нецелевой</option>
                         </select>
-                    </td>
+                    </td> -->
                     <td>
-                        <!--<input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">-->
-                        <button 
+                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                        <!-- <button 
                         class="btn" 
                         :class="getColorSend(lead.isSend)"
                         @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
                             {{ lead.isSend ? 'Обработан' : 'Не обработан' }}
-                        </button>
+                        </button> -->
                     </td>
                     <td>{{lead.broker}}</td>
                     <td>{{lead.starter}}</td>

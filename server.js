@@ -1,4 +1,4 @@
-
+const dayjs = require('dayjs')
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const port = 3000;
+const PORT = 3000;
 const secretKey = 'yourSecretKey';
 
 // Middleware
@@ -37,6 +37,7 @@ const writeData = (filename, data) => {
 // Load data
 let users = readData('users.json');
 let leads = readData('data.json');
+let generalLeads = readData('generalLeads.json');
 
 // Authentication Middleware
 const authenticateJWT = (req, res, next) => {
@@ -154,8 +155,8 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
 
     // If no online brokers, assign offline brokers in a round-robin fashion
     if (!broker) {
-        broker = getNextAvailableBroker(false); // Pass false to allow offline brokers  (убрать параметр false если нужно чтобы автоматические на оффлайн бркоеров переводились лиды)
-        broker = ""
+        //broker = getNextAvailableBroker(false); // Pass false to allow offline brokers  (убрать параметр false если нужно чтобы автоматические на оффлайн бркоеров переводились лиды)
+        //broker = ""
       /*
         // Commented out example of how to assign offline brokers using the same round-robin logic
         let offlineBrokers = users.filter(user => user.role === 'broker');
@@ -166,17 +167,34 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
         broker = offlineBrokers[brokerIndex % offlineBrokers.length].login;
         brokerIndex = (brokerIndex + 1) % offlineBrokers.length;
       */
+
+
+        const newLead = {
+            phone,
+            client_name,
+            comment,
+            isSend: false,
+            broker: '',
+            starter: req.user.name,
+            date: dayjs(new Date).format('YYYY-MM-DD-HH:mm:ss')
+        };
+
+        generalLeads.push(newLead)
+        writeData('generalLeads.json', generalLeads)
     }
 
     const newLead = {
         phone,
         client_name,
         comment,
-        status: 'created',
         isSend: false,
         broker: broker,
-        starter: req.user.login
+        starter: req.user.name,
+        date: dayjs(new Date).format('YYYY-MM-DD-HH:mm:ss')
     };
+
+    console.log(newLead)
+    console.log(req.user)
 
     leads.push(newLead);
     writeData('data.json', leads);
@@ -288,6 +306,6 @@ app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server listening at http://localhost:${PORT}`);
 });

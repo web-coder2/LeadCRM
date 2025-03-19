@@ -44,6 +44,7 @@
                 <thead>
                 <tr>
                     <th class="table-column2">Скопировать номер</th>
+                    <th class="table-column">lead date созданого</th>
                     <th class="table-column2">Телефон</th>
                     <th class="table-column2">Имя клиента</th>
                     <th class="table-column">Комментарий</th>
@@ -56,16 +57,17 @@
                     <td @click="copyToClipboard(lead.phone)">
                         <button class="btn btn-primary btn-sm">Скопировать</button>
                     </td>
+                    <td>{{ lead.date }}</td>
                     <td>{{ lead.phone }}</td>
                     <td>{{ lead.client_name }}</td>
                     <td>{{ lead.comment }}</td>
                     <td>
-                        <!--<input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">-->
-                        <button
+                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                        <!-- <button
                         class="btn"
                         :class="getColorSend(lead.isSend)"
                         @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
-                            {{ lead.isSend? 'Да' : 'Нет' }}</button>
+                            {{ lead.isSend? 'Да' : 'Нет' }}</button> -->
                         <!--<span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>-->
                     </td>
                     <!--<td>
@@ -78,12 +80,11 @@
         <div class="mt-5 container-fluid">
             <h4 style="color: black;">Прогресс брокера</h4>
             <div class="progress mt-3 mb-5">
-                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated"
+                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated bg-dark"
                     :style="{'width': this.leadProgress + '%'}"
                     role="progressbar"
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    :class="progressColors[leadColor]"
                     >
                     {{ leadProgress ? leadProgress : "Нет лидов" }}
                 </div>
@@ -132,7 +133,6 @@
             userName: '',
             leads: [],
             userStatus: false,
-            progressColors: ['bg-dark', 'bg-secondary', 'bg-danger', 'bg-warning', 'bg-primary']
         },
         mounted() {
             this.fetchProfile();
@@ -143,9 +143,6 @@
                 let totalLeads = this.leads.length;
                 let processedLeads = this.leads.filter(lead => lead.isSend).length;
                 return Math.round((processedLeads / totalLeads) * 100);
-            },
-            leadColor() {
-                return Math.floor(this.leadProgress * this.progressColors.length / 100)
             }
         },
         methods: {

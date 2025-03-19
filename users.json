@@ -5,5 +5,19 @@
     "name": "Holo",
     "role": "admin",
     "status": true
+  },
+  {
+    "login": "asd",
+    "password": "asd",
+    "name": "asd",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "qwerty",
+    "password": "qwerty",
+    "name": "qwerty",
+    "role": "broker",
+    "status": true
   }
 ]
