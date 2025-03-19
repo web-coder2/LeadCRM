@@ -34,30 +34,41 @@
     <div class="form-container mt-5">
         <form @submit.prevent="createLead">
             <div class="form-group">
-                <label for="phone">Телефон:</label>
-                <input type="text" class="form-control" id="phone" v-model="newLead.phone" required>
+                <label for="phone" class="text-light">Телефон:</label>
+                <input type="text" class="form-control bg-dark text-light" id="phone" v-model="newLead.phone" required>
             </div>
             <div class="form-group">
-                <label for="client_name">Имя клиента:</label>
-                <input type="text" class="form-control" id="client_name" v-model="newLead.client_name" required>
+                <label for="client_name" class="text-light">Имя клиента:</label>
+                <input type="text" class="form-control bg-dark text-light" id="client_name" v-model="newLead.client_name" required>
             </div>
             <div class="form-group">
-                <label for="comment">Коментарий к звонку:</label>
-                <textarea class="form-control" id="comment" v-model="newLead.comment" rows="3" required></textarea>
+                <label for="comment" class="text-light">Коментарий к звонку:</label>
+                <textarea class="form-control bg-dark text-light" id="comment" v-model="newLead.comment" rows="3" required></textarea>
             </div>
-            <button type="submit" class="btn btn-success">Создать лид</button>
+            <button type="submit" class="btn btn-outline-danger">Создать лид</button>
         </form>
-        <div v-if="message" class="mt-3 alert alert-success">
+        <div v-if="message" class="mt-3 alert bg-dark text-danger">
             {{ message }}
         </div>
     </div>
 </div>
 
 <style>
+
+body {
+    background-color: rgb(20, 20, 20);
+}
     
 .form-container {
-    margin-left: 10%;
-    width: 80%;
+    margin-left: 20%;
+    padding: 20px 20px;
+    width: 60%;
+    border-radius: 30px;
+    border-color: rgb(214, 37, 37);
+    /* я крч думаю везде въебать вот этой хуйни ну а хули зато заубеено ну хули нет шоли */
+    -webkit-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
+    -moz-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
+    box-shadow: 0px 2px 23px 25px rgba(191, 28, 28, 0.319);
 }
 
 @media (max-width: 480px) {

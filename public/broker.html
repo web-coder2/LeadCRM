@@ -32,61 +32,63 @@
             </div>
         </nav>
 
-        <div class="mb-5 mt-5" style="margin-left: 10%; width: 80%;">
-            <h3>Личный кабинет <i style="color: green; font-size: 34px;">{{ userName }}</i></h3>
-            <label>ты щяс в <strong :style="{'color' : userStatus ? 'green' : 'red'}">{{ userStatus ? 'online' : 'offline' }}</strong></label>
-            <input type="checkbox" v-model="userStatus" @change="updateStatus">
-            <p>Если ты перестанешь работать то убери галку верху и если ты начнешь работать то поставь галку верху</p>
-        </div>
+        <div class="broker-div">
+            <div class="mb-5 mt-5" style="margin-left: 10%; width: 80%;">
+                <h3 class="text-light">Личный кабинет <i style="color: rgb(218, 182, 22); font-size: 34px;">{{ userName }}</i></h3>
+                <label class="text-light">ты щяс в <strong :style="{'color' : userStatus ? 'green' : 'red'}">{{ userStatus ? 'online' : 'offline' }}</strong></label>
+                <input type="checkbox" v-model="userStatus" @change="updateStatus">
+                <p class="text-light">Если ты перестанешь работать то убери галку верху и если ты начнешь работать то поставь галку верху</p>
+            </div>
 
-        <div class="table-container">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th class="table-column2">Скопировать номер</th>
-                    <th class="table-column">lead date созданого</th>
-                    <th class="table-column2">Телефон</th>
-                    <th class="table-column2">Имя клиента</th>
-                    <th class="table-column">Комментарий</th>
-                    <th class="table-column2">обработан ?</th>
-                    <!--<th>Actions</th>-->
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(lead, index) in leads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
-                    <td @click="copyToClipboard(lead.phone)">
-                        <button class="btn btn-primary btn-sm">Скопировать</button>
-                    </td>
-                    <td>{{ lead.date }}</td>
-                    <td>{{ lead.phone }}</td>
-                    <td>{{ lead.client_name }}</td>
-                    <td>{{ lead.comment }}</td>
-                    <td>
-                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
-                        <!-- <button
-                        class="btn"
-                        :class="getColorSend(lead.isSend)"
-                        @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
-                            {{ lead.isSend? 'Да' : 'Нет' }}</button> -->
-                        <!--<span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>-->
-                    </td>
-                    <!--<td>
-                        <button class="btn btn-primary btn-sm" @click="updateLead(index, lead)">Update</button>
-                    </td>-->
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-5 container-fluid">
-            <h4 style="color: black;">Прогресс брокера</h4>
-            <div class="progress mt-3 mb-5">
-                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated bg-dark"
-                    :style="{'width': this.leadProgress + '%'}"
-                    role="progressbar"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    >
-                    {{ leadProgress ? leadProgress : "Нет лидов" }}
+            <div class="table-container">
+                <table class="table table-striped" style="background-color: rgb(21, 20, 20); color: white;">
+                    <thead class="bg-warning text-light">
+                    <tr>
+                        <th class="table-column2">Скопировать номер</th>
+                        <th class="table-column">lead date созданого</th>
+                        <th class="table-column2">Телефон</th>
+                        <th class="table-column2">Имя клиента</th>
+                        <th class="table-column">Комментарий</th>
+                        <th class="table-column2">обработан ?</th>
+                        <!--<th>Actions</th>-->
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(lead, index) in leads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
+                        <td @click="copyToClipboard(lead.phone)">
+                            <button class="btn btn-outline-warning">Скопировать</button>
+                        </td>
+                        <td>{{ lead.date }}</td>
+                        <td>{{ lead.phone }}</td>
+                        <td>{{ lead.client_name }}</td>
+                        <td>{{ lead.comment }}</td>
+                        <td>
+                            <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                            <!-- <button
+                            class="btn"
+                            :class="getColorSend(lead.isSend)"
+                            @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
+                                {{ lead.isSend? 'Да' : 'Нет' }}</button> -->
+                            <!--<span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>-->
+                        </td>
+                        <!--<td>
+                            <button class="btn btn-primary btn-sm" @click="updateLead(index, lead)">Update</button>
+                        </td>-->
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-5 container-fluid">
+                <h4 class="text-light">Прогресс брокера</h4>
+                <div class="progress mt-3 mb-5">
+                    <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated"
+                        :style="{'width': this.leadProgress + '%'}"
+                        role="progressbar"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        >
+                        {{ leadProgress ? leadProgress : "Нет лидов" }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,6 +96,23 @@
 </div>
 
 <style>
+
+body {
+    background-color: rgb(23, 22, 22);
+}
+
+.broker-div {
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+    margin-left: 5%;
+    padding: 20px 20px;
+    width: 90%;
+    border-radius: 30px;
+    border-color: rgb(214, 37, 37);
+    -webkit-box-shadow: 0px 2px 11px 35px rgba(190, 164, 31, 0.319);
+    -moz-box-shadow: 0px 2px 11px 35px rgba(190, 164, 31, 0.319);
+    box-shadow: 0px 2px 23px 25px rgba(190, 164, 31, 0.319);
+}
     
 .table-container {
     width: 100%;
