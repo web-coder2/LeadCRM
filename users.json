@@ -18,6 +18,6 @@
     "password": "qwerty",
     "name": "qwerty",
     "role": "broker",
-    "status": true
+    "status": false
   }
 ]

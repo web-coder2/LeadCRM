@@ -41,14 +41,14 @@
             </div>
 
             <div class="table-container">
-                <table class="table table-striped" style="background-color: rgb(21, 20, 20); color: white;">
+                <table class="table table-striped table-bordered" style="background-color: rgb(21, 20, 20); color: white;">
                     <thead class="bg-warning text-light">
                     <tr>
                         <th class="table-column2">Скопировать номер</th>
-                        <th class="table-column">lead date созданого</th>
+                        <th class="table-column2">lead date созданого</th>
                         <th class="table-column2">Телефон</th>
                         <th class="table-column2">Имя клиента</th>
-                        <th class="table-column">Комментарий</th>
+                        <th class="table-column2">Комментарий</th>
                         <th class="table-column2">обработан ?</th>
                         <!--<th>Actions</th>-->
                     </tr>
@@ -76,6 +76,33 @@
                         </td>-->
                     </tr>
                     </tbody>
+                </table>
+            </div>
+            <div class="table-container mt-5">
+                <h5 class="text-light">Смотри тут будет таблица с лидами у которых не назначен брокер она таблица была видна 
+                всем бркоерам так что когда ты ее возьмеш лид из нее он будет твой а у других он не покажется так работает логика</h5>
+                <table class="table table-striped mt-5 table-bordered" style="background-color: rgb(21, 20, 20); color: white;">
+                    <thead class="bg-warning text-light">
+                        <tr>
+                            <th class="table-column2">Взять лид?</th>
+                            <th class="table-column">lead date созданого</th>
+                            <th class="table-column2">Телефон</th>
+                            <th class="table-column2">Имя клиента</th>
+                            <th class="table-column">Комментарий</th>
+                            <!--<th>Actions</th>-->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(lead, index) in noBrokerLeads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
+                            <td>
+                                <button class="btn btn-outline-warning" @click="getLeadToSelf(index, login)">Взять лид</button>
+                            </td>
+                            <td>{{ lead.date }}</td>
+                            <td>{{ lead.phone }}</td>
+                            <td>{{ lead.client_name }}</td>
+                            <td>{{ lead.comment }}</td>
+                        </tr>
+                        </tbody>
                 </table>
             </div>
             <div class="mt-5 container-fluid">
@@ -151,11 +178,14 @@ body {
         data: {
             userName: '',
             leads: [],
+            noBrokerLeads: [],
             userStatus: false,
+            login: '',
         },
         mounted() {
             this.fetchProfile();
             this.fetchLeads();
+            this.fetchNoBrokerLeads()
         },
         computed: {
             leadProgress() {
@@ -172,12 +202,32 @@ body {
                     return "btn-danger"
                 }
             },
+            getLeadToSelf(index, login) {
+                fetch(`/api/broker/nonleads/${index}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ login: login })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Lead updated successfully');
+                    } else {
+                        console.error('Failed to update lead');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            },
             fetchProfile() {
                 fetch('/api/broker/profile')
                     .then(response => response.json())
                     .then(data => {
                         this.userName = data.name;
                         this.userStatus = data.status;
+                        this.login = data.login
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -192,6 +242,16 @@ body {
                     .catch(error => {
                         console.error('Error:', error);
                     });
+            },
+            fetchNoBrokerLeads() {
+                fetch('/api/broker/nonLeads')
+                    .then(resp => resp.json())
+                    .then(data => {
+                        this.noBrokerLeads = data
+                    })
+                    .catch(err => {
+                        console.log('Пизда: ', err)
+                    })
             },
             updateStatus() {
                 fetch('/api/broker/profile', {

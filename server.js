@@ -37,7 +37,6 @@ const writeData = (filename, data) => {
 // Load data
 let users = readData('users.json');
 let leads = readData('data.json');
-let generalLeads = readData('generalLeads.json');
 
 // Authentication Middleware
 const authenticateJWT = (req, res, next) => {
@@ -155,8 +154,8 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
 
     // If no online brokers, assign offline brokers in a round-robin fashion
     if (!broker) {
-        //broker = getNextAvailableBroker(false); // Pass false to allow offline brokers  (убрать параметр false если нужно чтобы автоматические на оффлайн бркоеров переводились лиды)
-        //broker = ""
+        broker = getNextAvailableBroker(false); // Pass false to allow offline brokers  (убрать параметр false если нужно чтобы автоматические на оффлайн бркоеров переводились лиды)
+        broker = ""
       /*
         // Commented out example of how to assign offline brokers using the same round-robin logic
         let offlineBrokers = users.filter(user => user.role === 'broker');
@@ -168,19 +167,6 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
         brokerIndex = (brokerIndex + 1) % offlineBrokers.length;
       */
 
-
-        const newLead = {
-            phone,
-            client_name,
-            comment,
-            isSend: false,
-            broker: '',
-            starter: req.user.name,
-            date: dayjs(new Date).format('YYYY-MM-DD-HH:mm:ss')
-        };
-
-        generalLeads.push(newLead)
-        writeData('generalLeads.json', generalLeads)
     }
 
     const newLead = {
@@ -208,6 +194,33 @@ app.get('/api/broker/leads', authenticateJWT, (req, res) => {
     const brokerLeads = leads.filter(lead => lead.broker === req.user.login);
     res.json(brokerLeads);
 });
+
+
+app.get('/api/broker/nonLeads', authenticateJWT, (req, res) => {
+    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
+    const nonameLeads = leads.filter(lead => lead.broker === "");
+    res.json(nonameLeads);
+})
+
+app.put('/api/broker/nonleads/:index', authenticateJWT, (req, res) => {
+    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
+
+    const leadIDX = parseInt(req.params.index)
+    const brokerLogin = req.body.login
+
+
+    const noneBrokerLeads = leads.filter(lead => lead.broker === '');
+
+    if (leadIDX >= 0 && leadIDX < noneBrokerLeads.length) {
+        noneBrokerLeads[leadIDX].broker = brokerLogin
+        writeData('data.json', noneBrokerLeads);
+        res.status(200).send('Lead updated successfully');
+    } else {
+        res.status(404).send('Lead not found');
+    }
+
+})
+
 
 app.put('/api/broker/leads/:index', authenticateJWT, (req, res) => {
     if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
