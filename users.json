@@ -7,24 +7,87 @@
     "status": true
   },
   {
-    "login": "asd",
-    "password": "asd",
-    "name": "asd",
+    "login": "linlinlinochka@gmail.com",
+    "password": "qwertyuiop123A",
+    "name": "Аделина",
     "role": "leadorub",
     "status": true
   },
   {
-    "login": "qwerty",
-    "password": "qwerty",
-    "name": "qwerty",
+    "login": "vornach2@mail.ru",
+    "password": "qwertyuiop123A",
+    "name": "Никита",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "ser_bueno@mail.ru",
+    "password": "qwertyuiop123A",
+    "name": "Денис",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "morozoff.moroz-2014@yandex.ru",
+    "password": "qwertyuiop123A",
+    "name": "Илья",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "ron.4441.ron@gmail.com",
+    "password": "qwertyuiop123A",
+    "name": "Костя",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "7311@mail.ru",
+    "password": "Bsh3Jge6BNsz",
+    "name": "ДенисДон",
     "role": "broker",
     "status": true
   },
   {
-    "login": "zxc",
-    "password": "zxc",
-    "name": "zxc",
+    "login": "bbroker@yandex.ru",
+    "password": "eINwh1pG",
+    "name": "ЭдуардХищник",
     "role": "broker",
+    "status": true
+  },
+  {
+    "login": "162@mail.ru",
+    "password": "dvY5RJja",
+    "name": "МихаилКруг",
+    "role": "broker",
+    "status": false
+  },
+  {
+    "login": "541@mail.ru",
+    "password": "1YDu3Q3q",
+    "name": "ВолодяБанкир",
+    "role": "broker",
+    "status": true
+  },
+  {
+    "login": "821@mail.ru",
+    "password": "mfkekosW51wv",
+    "name": "АндрейРаста",
+    "role": "broker",
+    "status": true
+  },
+  {
+    "login": "678@mail.ru",
+    "password": "geUcfD15",
+    "name": "ДмитрийВоин",
+    "role": "broker",
+    "status": true
+  },
+  {
+    "login": "zeleninakamila@yandex.ru",
+    "password": "qwertyuiop123A",
+    "name": "Камила",
+    "role": "leadorub",
     "status": true
   }
 ]
