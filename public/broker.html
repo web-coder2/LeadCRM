@@ -203,6 +203,7 @@ body {
                 }
             },
             getLeadToSelf(index, login) {
+                console.log(index, login)
                 fetch(`/api/broker/nonleads/${index}`, {
                     method: 'PUT',
                     headers: {
@@ -220,6 +221,8 @@ body {
                 .catch(error => {
                     console.error('Error:', error);
                 });
+                this.fetchLeads();
+                this.fetchNoBrokerLeads()
             },
             fetchProfile() {
                 fetch('/api/broker/profile')

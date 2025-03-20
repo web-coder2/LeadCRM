@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const croner = require('./croner.js')
 
 const app = express();
 const PORT = 3000;
@@ -179,9 +180,6 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
         date: dayjs(new Date).format('YYYY-MM-DD-HH:mm:ss')
     };
 
-    console.log(newLead)
-    console.log(req.user)
-
     leads.push(newLead);
     writeData('data.json', leads);
     res.status(201).send('Lead created successfully');
@@ -202,24 +200,53 @@ app.get('/api/broker/nonLeads', authenticateJWT, (req, res) => {
     res.json(nonameLeads);
 })
 
-app.put('/api/broker/nonleads/:index', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
-
-    const leadIDX = parseInt(req.params.index)
-    const brokerLogin = req.body.login
-
-
-    const noneBrokerLeads = leads.filter(lead => lead.broker === '');
-
-    if (leadIDX >= 0 && leadIDX < noneBrokerLeads.length) {
-        noneBrokerLeads[leadIDX].broker = brokerLogin
-        writeData('data.json', noneBrokerLeads);
-        res.status(200).send('Lead updated successfully');
-    } else {
-        res.status(404).send('Lead not found');
+app.put('/api/broker/nonleads/:index', authenticateJWT, async (req, res) => {
+    if (req.user.role !== 'broker') {
+        return res.status(403).send('Forbidden');
     }
 
-})
+    const leadIDX = parseInt(req.params.index); // Индекс в списке лидов БЕЗ брокера
+    const brokerLogin = req.body.login; // Логин брокера для присвоения
+
+    // Проверка входных данных
+    if (isNaN(leadIDX)) {
+        return res.status(400).send('Invalid index provided');
+    }
+
+    if (!brokerLogin) {
+        return res.status(400).send('Broker login is required in the request body');
+    }
+
+    try {
+        // 1. Получаем список лидов БЕЗ брокера (broker === '')
+        const noneBrokerLeads = leads.filter(lead => lead.broker === ''); // Фильтруем массив leads
+
+
+        // 2. Проверяем, что индекс находится в пределах допустимого диапазона
+        if (leadIDX >= 0 && leadIDX < noneBrokerLeads.length) {
+
+            // 3. Находим соответствующий lead в оригинальном массиве leads
+            const leadToUpdate = noneBrokerLeads[leadIDX]; // Получаем lead из отфильтрованного массива
+            const actualLeadIndex = leads.findIndex(lead => lead.phone === leadToUpdate.phone); // Ищем lead по phone в основном массиве
+
+            if (actualLeadIndex === -1) {
+                return res.status(404).send('Lead not found in main leads array');
+            }
+
+            // 4. Присваиваем brokerLogin выбранному lead
+            leads[actualLeadIndex].broker = brokerLogin; // Обновляем broker
+
+            // 5. Сохраняем изменения
+            await writeData('data.json', leads);
+            res.status(200).send('Lead updated successfully');
+        } else {
+            res.status(404).send('Lead not found');
+        }
+    } catch (error) {
+        console.error("Error updating lead:", error);
+        res.status(500).send('Failed to update lead');
+    }
+});
 
 
 app.put('/api/broker/leads/:index', authenticateJWT, (req, res) => {
@@ -278,11 +305,15 @@ app.put('/api/leads/:index', authenticateJWT, (req, res) => {
   }
 
   const index = parseInt(req.params.index);
-  const { status, isSend, broker } = req.body;
+  //const { status, isSend, broker } = req.body;
+
+  const isSend = req.body.isSend 
+  const broker = req.body.broker
+
+  const isSend2 = isSend == true ? true : false
 
   if (index >= 0 && index < leads.length) {
-    leads[index].status = status;
-    leads[index].isSend = isSend;
+    leads[index].isSend = isSend2;
     // Update broker if provided
     if (broker) {
       leads[index].broker = broker;

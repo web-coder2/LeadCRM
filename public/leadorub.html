@@ -45,9 +45,9 @@
                 <label for="comment" class="text-light">Коментарий к звонку:</label>
                 <textarea class="form-control bg-dark text-light" id="comment" v-model="newLead.comment" rows="3" required></textarea>
             </div>
-            <button type="submit" class="btn btn-outline-danger">Создать лид</button>
+            <button type="submit" class="btn btn-outline-primary">Создать лид</button>
         </form>
-        <div v-if="message" class="mt-3 alert bg-dark text-danger">
+        <div v-if="message" class="mt-3 alert bg-dark text-primary">
             {{ message }}
         </div>
     </div>
@@ -66,9 +66,9 @@ body {
     border-radius: 30px;
     border-color: rgb(214, 37, 37);
     /* я крч думаю везде въебать вот этой хуйни ну а хули зато заубеено ну хули нет шоли */
-    -webkit-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
-    -moz-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
-    box-shadow: 0px 2px 23px 25px rgba(191, 28, 28, 0.319);
+    -webkit-box-shadow: 0px 2px 11px 35px rgba(37, 77, 187, 0.319);
+    -moz-box-shadow: 0px 2px 11px 35px rgba(37, 77, 187, 0.319);
+    box-shadow: 0px 2px 23px 25px rgba(37, 77, 187, 0.319);
 }
 
 @media (max-width: 480px) {
