@@ -177,7 +177,7 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
         isSend: false,
         broker: broker,
         starter: req.user.name,
-        date: dayjs(new Date).format('YYYY-MM-DD-HH:mm:ss')
+        date: dayjs(new Date).format('YYYY-MM-DD')
     };
 
     leads.push(newLead);

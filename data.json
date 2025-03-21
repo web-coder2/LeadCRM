@@ -1,163 +1,162 @@
 [
   {
+    "date": "2024-03-17",
     "phone": "+7 (900) 986-55-07",
     "client_name": "не уточнила",
     "comment": "неудобно было говорить, просит перезвонить после 18.00",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
-    
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-18",
     "phone": "+7 (963) 963-15-05",
     "client_name": "не уточнил",
     "comment": "Покупка актуальна, просит перезвонить после 19.00",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-18",
     "phone": "+7(923) 750-70-07",
     "client_name": "Денис",
     "comment": "МСК/Подмосковье, евродвушка,по бюджету не уточнил. Ждет звонка, просит на ватсап варианты.",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-18",
     "phone": "+7(939) 854-48-63",
     "client_name": "не уточнил",
     "comment": "Покупка актуальна, ждет звонка в 16.00-17.00",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-18",
     "phone": "+7(910) 540-03-10",
     "client_name": "Сергей Юрьевич",
     "comment": "Подмосковье, до 30м2,бюджет не уточнил.Ждет сейчас звонка.",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-18",
     "phone": "+7(910) 226-56-66",
     "client_name": "Владимир",
     "comment": "Заинтересован, попросил позвонить к концу недели",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "ron.4441.ron@gmail.com",
-    "date": "2025-03-20-16:11:02"
+    "starter": "ron.4441.ron@gmail.com"
   },
   {
+    "date": "2024-03-18",
     "phone": "+7 (927) 337-15-57",
     "client_name": "Марат",
     "comment": "В ближайшие 3 месяца, 8млн",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "ron.4441.ron@gmail.com",
-    "date": "2025-03-20-16:11:02"
+    "starter": "ron.4441.ron@gmail.com"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7(985) 270-08-75",
     "client_name": "Наталья",
     "comment": "Перезвонить после 17:00, заинтересована, 10млн",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "ron.4441.ron@gmail.com",
-    "date": "2025-03-20-16:11:02"
+    "starter": "ron.4441.ron@gmail.com"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7(994) 776-77-76",
     "client_name": "Сергей",
     "comment": "Москва, 10млн, в ближайшие 3 месяца, ожидает звонка",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "ron.4441.ron@gmail.com",
-    "date": "2025-03-20-16:11:02"
+    "starter": "ron.4441.ron@gmail.com"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7 (978) 841-46-99",
     "client_name": "Татьяна",
     "comment": "Москва, если цены устроят то в ближайшие 3 месяца",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "ron.4441.ron@gmail.com",
-    "date": "2025-03-20-16:11:02"
+    "starter": "ron.4441.ron@gmail.com"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7(916) 569-47-83",
     "client_name": "Сергей",
     "comment": "5 млн, Парус 3 жилой комплекс",
     "isSend": false,
-    "broker": "541@mail.ru",
-    "starter": "ron.4441.ron@gmail.com",
-    "date": "2025-03-20-16:11:02"
+    "broker": "",
+    "starter": "ron.4441.ron@gmail.com"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7(903) 547-59-56",
     "client_name": "Любовь",
     "comment": "2-3кк,именно район Поварово, бюджет не уточнила.",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7(986) 719-43-54",
     "client_name": "Даниил",
     "comment": "Рассматривает МСК\\Нов.Москва\\Питер, до 11 млн.Ждет звонка.",
     "isSend": true,
     "broker": "541@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-19",
     "phone": "+7(928) 315-89-16",
     "client_name": "не уточнила",
     "comment": "Просит перезвонить в 18.00,было неудобно говорить.",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-20",
     "phone": "+7(965) 663-53-33",
     "client_name": "Лиана",
     "comment": "2кк с чистовой отделкой ,до 6млн,г.Уфа,Калининский р-н",
     "broker": "541@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-20",
     "phone": "+7(985) 831-77-67",
     "client_name": "не уточнил",
     "comment": "Рассматривает Лобня, неудобно говорить, на работе. Просит перезвонить после 19.00",
     "broker": "541@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-20",
     "phone": "+7(961) 248-97-33",
     "client_name": "не уточнил",
     "comment": "МСК,2кк,с ремонтом, рядом с метро ,до 20 млн. Ждет звонка с предложениями!!!!",
     "isSend": false,
-    "broker": "541@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "broker": "",
+    "starter": "zeleninakamila@yandex.ru"
   },
   {
+    "date": "2024-03-20",
     "phone": "+7 (931) 951-10-81",
     "client_name": "не уточнил",
     "comment": "Актуально, просил перезвонить в 18.30,уточнит параметры+просит направить предложения в ватсап.",
     "isSend": true,
     "broker": "7311@mail.ru",
-    "starter": "zeleninakamila@yandex.ru",
-    "date": "2025-03-20-16:11:02"
+    "starter": "zeleninakamila@yandex.ru"
   }
 ]

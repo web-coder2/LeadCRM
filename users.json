@@ -46,14 +46,14 @@
     "password": "Bsh3Jge6BNsz",
     "name": "ДенисДон",
     "role": "broker",
-    "status": true
+    "status": false
   },
   {
     "login": "bbroker@yandex.ru",
     "password": "eINwh1pG",
     "name": "ЭдуардХищник",
     "role": "broker",
-    "status": true
+    "status": false
   },
   {
     "login": "162@mail.ru",
@@ -67,21 +67,21 @@
     "password": "1YDu3Q3q",
     "name": "ВолодяБанкир",
     "role": "broker",
-    "status": true
+    "status": false
   },
   {
     "login": "821@mail.ru",
     "password": "mfkekosW51wv",
     "name": "АндрейРаста",
     "role": "broker",
-    "status": true
+    "status": false
   },
   {
     "login": "678@mail.ru",
     "password": "geUcfD15",
     "name": "ДмитрийВоин",
     "role": "broker",
-    "status": true
+    "status": false
   },
   {
     "login": "zeleninakamila@yandex.ru",
