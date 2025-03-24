@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 </head>
 <body>
 <div id="app">
@@ -32,6 +33,15 @@
     </nav>
 
     <div class="form-container mt-5">
+
+        <div class="mb-5 mt-3">
+            <h6 class="text-light">Личный кобинет <span class="text-primary">{{ userName }}</span></h6>
+            <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ userLogin }}</span></h6>
+            <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ userLogin }}</span></h6>
+            <h6 class="text-light">Лидов за этот день <span class="text-primary">{{ leadToday }}</span></h6>
+
+        </div>
+
         <form @submit.prevent="createLead">
             <div class="form-group">
                 <label for="phone" class="text-light">Телефон:</label>
@@ -88,7 +98,18 @@ body {
                 client_name: '',
                 comment: ''
             },
-            message: null
+            message: null,
+            userName: "",
+            userLogin: "",
+            allLeads: null,
+            // данные для получения кол-во лидов за промежутки времени
+            leadToday: 0,
+            leadLastWeek: 0,
+            leadThisWeek: 0,
+        },
+        mounted() {
+            this.fetchProfile()
+            this.fetchLeads()
         },
         methods: {
             createLead() {
@@ -111,6 +132,38 @@ body {
                     console.error('Error:', error);
                     this.message = 'Ошибка при отправке запроса.';
                 });
+            },
+            fetchProfile() {
+                fetch('/api/broker/profile')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.userName = data.name;
+                        this.userLogin = data.login
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                });
+            },
+            async fetchLeads() {
+                await fetch('/api/leads')
+                .then(response => response.json())
+                .then(data => {
+                    this.allLeads = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+                console.log(this.userLogin, '....', this.userName)
+
+                for (let i = 0; i < this.allLeads.length; i++) {
+                    if (this.allLeads[i]['starter'] == this.userName || this.allLeads[i]['starter'] == this.userLogin) {
+                        if (this.allLeads[i]['date'] == dayjs(new Date).format("YYYY-MM-DD")) {
+                            this.leadToday++
+                        }
+                    }
+                }
+                console.log(this.leadToday)
             }
         }
     });

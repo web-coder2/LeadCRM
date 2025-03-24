@@ -134,6 +134,7 @@
         </div>
 
         <div class="table-container mb-5">
+            <h5 class="text-warning mb-5">Таблица с нефильтроваными (всеми лидами)</h5>
             <table class="table table-striped table-dark table-bordered" v-if="sorterStatus">
                 <thead class="bg-danger text-light">
                 <tr>
@@ -337,11 +338,27 @@ body {
 
                 this.fitlerLeads = []
 
-                for (let i = 0; i < this.leads.length; i++) {
-                    if (this.filterBroker == this.leads[i].broker && this.filterDate == "Invalid Date") {
-                        this.fitlerLeads.push(this.leads[i])
-                    } else if (this.filterBroker == this.leads[i].broker && this.filterDate == this.leads[i].date) {
-                        this.fitlerLeads.push(this.leads[i])
+                if (this.filterDate == "Invalid Date") {
+                    for (let i = 0; i < this.leads.length; i++) {
+                        if (this.leads[i]['broker'] == this.filterBroker) {
+                            this.fitlerLeads.push(this.leads[i])
+                        }
+                    }
+                } else if (this.filterBroker == "admin" || this.filterBroker == "") {
+                    for (let i = 0; i < this.leads.length; i++) {
+                        if (this.leads[i]['date'] == this.filterDate) {
+                            this.fitlerLeads.push(this.leads[i])
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < this.leads.length; i++) {
+                        console.log(this.leads[i]['date'], '.....', this.filterDate)
+                        console.log(this.leads[i]['broker'], '.....', this.filterBroker)
+
+                        if (this.leads[i]['date'] == this.filterDate && this.leads[i]['broker'] == this.filterBroker) {
+                            this.fitlerLeads.push(this.leads[i])
+                            console.log('321')
+                        }
                     }
                 }
 
