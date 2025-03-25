@@ -36,9 +36,9 @@
 
         <div class="mb-5 mt-3">
             <h6 class="text-light">Личный кобинет <span class="text-primary">{{ userName }}</span></h6>
-            <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ userLogin }}</span></h6>
-            <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ userLogin }}</span></h6>
-            <h6 class="text-light">Лидов за этот день <span class="text-primary">{{ leadToday }}</span></h6>
+            <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ leadLastWeek }} лидов</span></h6>
+            <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ leadThisWeek }} лидов</span></h6>
+            <h6 class="text-light">Лидов за этот день <span class="text-primary">{{ leadToday }} лидов</span></h6>
 
         </div>
 
@@ -154,16 +154,42 @@ body {
                     console.error('Error:', error);
                 });
 
-                console.log(this.userLogin, '....', this.userName)
+
+                //console.log(this.userLogin, '....', this.userName)
+                
+                let dayofThisWeek = dayjs(new Date).day()
+
+                let startLastWeek = dayjs(dayjs(new Date).subtract(6 + dayofThisWeek, 'days')).format('YYYY-MM-DD')
+                let startNowWeek = dayjs(dayjs(new Date).subtract(dayofThisWeek - 1, 'days')).format("YYYY-MM-DD")
+                
+                let endNowWeek = dayjs(dayjs(new Date).day(7)).format('YYYY-MM-DD')
+                let endLastWeek = dayjs(dayjs(new Date).subtract(dayofThisWeek, 'days')).format('YYYY-MM-DD')
+
+                console.log(startLastWeek)
+                console.log(endLastWeek)
 
                 for (let i = 0; i < this.allLeads.length; i++) {
+
+                    //console.log(this.allLeads[i]['date'] >= startLastWeek && this.allLeads[i]['date'] <= endLastWeek)
+
                     if (this.allLeads[i]['starter'] == this.userName || this.allLeads[i]['starter'] == this.userLogin) {
                         if (this.allLeads[i]['date'] == dayjs(new Date).format("YYYY-MM-DD")) {
                             this.leadToday++
+                        } else if (this.allLeads[i]['date'] <= endNowWeek && this.allLeads[i]['date'] >= startNowWeek) {
+                            // здесь я буду проверять на эту неедлю 
+                            this.leadThisWeek ++ 
+                        } if (this.allLeads[i]['date'] >= startLastWeek && this.allLeads[i]['date'] <= endLastWeek) {
+                            this.leadLastWeek++
+                            console.log('asdasd')
                         }
                     }
                 }
+
+                this.leadThisWeek += this.leadToday
+
                 console.log(this.leadToday)
+                console.log(this.leadThisWeek)
+                console.log(this.leadLastWeek)
             }
         }
     });
