@@ -35,15 +35,21 @@
     <div class="form-container mt-5">
 
         <div class="mb-5 mt-3">
-            <h6 class="text-light">Личный кобинет <span class="text-primary">{{ userName }}</span></h6>
+            <h4 class="text-light">Личный кобинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h4>
+            <h4 class="text-warning mt-5 mb-3">Статистика лидоруба</h4>
             <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ leadLastWeek }} лидов</span></h6>
             <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ leadThisWeek }} лидов</span></h6>
             <h6 class="text-light">Лидов за этот день <span class="text-primary">{{ leadToday }} лидов</span></h6>
-
         </div>
 
+        <!--<div class="progress w-100 mt-5 mb-5" style="height: 40px">
+            <div class="progress-bar bg-dark progress-bar-striped progress-bar-animated" :style="{ width: leadLastWeekWidth + '%' }"><h3 class="text-light">{{ leadLastWeek }}</h3></div>
+            <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" :style="{ width: leadThisWeekWidth + '%' }"><h3 class="text-light">{{ leadThisWeek }}</h3></div>
+            <div class="progress-bar bg-dark progress-bar-striped progress-bar-animated" :style="{ width: leadTodayWidth + '%' }"><h3 class="text-light">{{ leadToday }}</h3></div>
+        </div>-->
+
         <form @submit.prevent="createLead">
-            <div class="form-group">
+            <div class="form-group mt-5">
                 <label for="phone" class="text-light">Телефон:</label>
                 <input type="text" class="form-control bg-dark text-light" id="phone" v-model="newLead.phone" required>
             </div>
@@ -85,6 +91,10 @@ body {
     .btn-success {
         width: 100%;
     }
+    .form-container {
+        margin-left: 5%;
+        width: 90%;
+    }
 }
 
 </style>
@@ -106,6 +116,10 @@ body {
             leadToday: 0,
             leadLastWeek: 0,
             leadThisWeek: 0,
+
+            leadTodayWidth: 0,
+            leadThisWeekWidth: 0,
+            leadLastWeekWidth: 0,
         },
         mounted() {
             this.fetchProfile()
@@ -187,9 +201,10 @@ body {
 
                 this.leadThisWeek += this.leadToday
 
-                console.log(this.leadToday)
-                console.log(this.leadThisWeek)
-                console.log(this.leadLastWeek)
+                this.leadLastWeekWidth = this.leadLastWeek / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
+                this.leadThisWeekWidth = this.leadThisWeek / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
+                this.leadTodayWidth = this.leadToday / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
+
             }
         }
     });
