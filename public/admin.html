@@ -341,7 +341,8 @@ body {
         methods: {
             resetFilters() {
                 this.filterBroker = ""
-                this.filterDate = dayjs(new Date).format("YYYY-MM-DD")
+                this.filterDate = null
+                this.filterLeaders = ""
             },
             saveFilters() {
 
