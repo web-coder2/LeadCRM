@@ -2,13 +2,32 @@ const dayjs = require('dayjs')
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const path = require('path')
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const croner = require('./croner.js')
+const mongoose = require('mongoose')
+const dotenv = require('dotenv')
 
+
+
+const UserModel = require("./models/users.js")
+const RoleModel = require("./models/ranks.js")
+const LeadsModel = require("./models/leads.js")
+
+
+
+dotenv.config()
 const app = express();
 const PORT = 3000;
 const secretKey = 'yourSecretKey';
+
+
+const MONGO_URL = process.env.DATABASE_URL
+const MONGO_USER = process.env.DATABASE_USERNAME
+const MONGO_PASS = process.env.DATABASE_PASSWORD
+const MONGO_PORT = process.env.DATABASE_PORT
+const DATABASE_NAME = process.env.DATABASE_NAME
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -350,6 +369,44 @@ app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
 
+
+app.get('/api/role/getRoles', async (req, res) => {
+    let allRoles = await RoleModel.find()
+    //console.log(allRoles)
+    res.json({'roles' : allRoles})
+    //res.sendStatus(200)
+})
+
+app.post('/api/role/add', (req, res) => {
+    let newRole = req.body.newRole
+    try {
+        let roleModel = RoleModel({
+            role : newRole
+        })
+
+        roleModel.save()
+        res.sendStatus(200)
+
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
+})
+
+
+async function startApp() {
+    try {
+        const uri = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_URL}:${MONGO_PORT}/${DATABASE_NAME}?authSource=admin`
+        console.log(uri)
+        await mongoose.connect(uri)
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+
 app.listen(PORT, () => {
+    startApp()
     console.log(`Server listening at http://localhost:${PORT}`);
 });

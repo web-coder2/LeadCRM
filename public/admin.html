@@ -48,12 +48,14 @@
                 </div>
                 <div class="col">
                     <select class="form-control bg-dark text-light" v-model="newUser.role" required>
-                        <option value="leadorub">ледоруб</option>
+                        <!--<option value="leadorub">ледоруб</option>
                         <option value="broker">брокер</option>
-                        <option value="admin">Админ</option>
+                        <option value="admin">Админ</option>-->
+                        <option v-for="(item, idx) in allRoles" :value="item.role">{{ item.role }}</option>
                     </select>
                 </div>
-                <div class="col mb-5">
+                <div class="col mb-5 d-flex">
+                    <button class="btn btn-outline-success mr-3" data-toggle="modal" data-target="#newRole">добавить роль</button>
                     <button type="submit" class="btn btn-outline-danger">создать юзера</button>
                 </div>
             </div>
@@ -61,6 +63,27 @@
                 {{ userMessage }}
             </div>
         </form>
+
+
+        <div class="modal" id="newRole">
+            <div class="modal-dialog">
+              <div class="modal-content bg-dark">
+          
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title text-light">добавить новую роль</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+          
+                <!-- Modal body -->
+                <div class="modal-body d-flex">
+                  <input class="form-control bg-dark text-light" placeholder="название роли" v-model="newRoleInput">
+                  <button class="btn btn-outline-success ml-3" @click="addNewRole()">добавить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
         <div class="table-container">
             <table class="table table-striped mt-3 table-dark table-bordered">
@@ -320,6 +343,8 @@ body {
                 name: '',
                 role: 'leadorub',
             },
+            newRoleInput: '',
+            allRoles: null,
             //filterDate: dayjs(new Date).format('YYYY-MM-DD'),
 
             filterDate: null,
@@ -339,6 +364,7 @@ body {
         async beforeMount() {
             await this.fetchLeads();
             await this.fetchUsers();
+            await this.getAllRoles()
         },
         computed: {
             brokers() {
@@ -357,6 +383,24 @@ body {
                 //this.filterLeaders = ""
                 this.filterLeaders = ""
                 this.filterIsSend = "qwerty"
+            },
+            async addNewRole() {
+                await fetch('/api/role/add', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({'newRole' : this.newRoleInput})
+                })
+                this.newRoleInput = ""
+            },
+            async getAllRoles() {
+                await fetch('/api/role/getRoles')
+                .then(resp => resp.json())
+                .then(data => {
+                    this.allRoles = data.roles
+                    console.log(this.allRoles)
+                })
             },
             saveFilters() {
 
