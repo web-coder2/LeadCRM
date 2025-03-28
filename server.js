@@ -130,32 +130,32 @@ app.get('/logout', (req, res) => {
     res.redirect('/login.html');
 });
 
-// API Endpoints - Require Authentication
 app.get('/api/user', authenticateJWT, (req, res) => {
     res.json({ user: req.user });
 });
 
-// Admin API Endpoints
 app.get('/api/admin/users', authenticateJWT, (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
     res.json(users);
 });
 
-app.post('/api/admin/users', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
+// app.post('/api/admin/users', authenticateJWT, (req, res) => {
+//     if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
 
-    const { login, password, name, role } = req.body;
-    const newUser = { login, password, name, role, status: true };
-    users.push(newUser);
-    writeData('users.json', users);
-    res.status(201).send('User created successfully');
-});
+//     const { login, password, name, role } = req.body;
+//     const newUser = { login, password, name, role, status: true };
+//     users.push(newUser);
+//     writeData('users.json', users);
+//     res.status(201).send('User created successfully');
+// });
+
+
+
 
 app.delete('/api/admin/users/:login', authenticateJWT, (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
     const { login } = req.params;
 
-    // Prevent deletion of the admin user
     if (login === 'admin') {
         return res.status(400).send('Cannot delete the admin user.');
     }
@@ -172,21 +172,9 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
     const { phone, client_name, comment } = req.body;
     let broker = getNextAvailableBroker();
 
-    // If no online brokers, assign offline brokers in a round-robin fashion
     if (!broker) {
-        broker = getNextAvailableBroker(false); // Pass false to allow offline brokers  (убрать параметр false если нужно чтобы автоматические на оффлайн бркоеров переводились лиды)
+        broker = getNextAvailableBroker(false);
         broker = ""
-      /*
-        // Commented out example of how to assign offline brokers using the same round-robin logic
-        let offlineBrokers = users.filter(user => user.role === 'broker');
-
-        if (offlineBrokers.length === 0) {
-            return res.status(500).send('No brokers available.');
-        }
-        broker = offlineBrokers[brokerIndex % offlineBrokers.length].login;
-        brokerIndex = (brokerIndex + 1) % offlineBrokers.length;
-      */
-
     }
 
     const newLead = {
@@ -205,7 +193,6 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
 });
 
 
-// Broker API
 app.get('/api/broker/leads', authenticateJWT, (req, res) => {
     if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
     const brokerLeads = leads.filter(lead => lead.broker === req.user.login);
@@ -224,10 +211,9 @@ app.put('/api/broker/nonleads/:index', authenticateJWT, async (req, res) => {
         return res.status(403).send('Forbidden');
     }
 
-    const leadIDX = parseInt(req.params.index); // Индекс в списке лидов БЕЗ брокера
-    const brokerLogin = req.body.login; // Логин брокера для присвоения
+    const leadIDX = parseInt(req.params.index);
+    const brokerLogin = req.body.login;
 
-    // Проверка входных данных
     if (isNaN(leadIDX)) {
         return res.status(400).send('Invalid index provided');
     }
@@ -237,25 +223,19 @@ app.put('/api/broker/nonleads/:index', authenticateJWT, async (req, res) => {
     }
 
     try {
-        // 1. Получаем список лидов БЕЗ брокера (broker === '')
-        const noneBrokerLeads = leads.filter(lead => lead.broker === ''); // Фильтруем массив leads
+        const noneBrokerLeads = leads.filter(lead => lead.broker === '');
 
-
-        // 2. Проверяем, что индекс находится в пределах допустимого диапазона
         if (leadIDX >= 0 && leadIDX < noneBrokerLeads.length) {
 
-            // 3. Находим соответствующий lead в оригинальном массиве leads
-            const leadToUpdate = noneBrokerLeads[leadIDX]; // Получаем lead из отфильтрованного массива
-            const actualLeadIndex = leads.findIndex(lead => lead.phone === leadToUpdate.phone); // Ищем lead по phone в основном массиве
+            const leadToUpdate = noneBrokerLeads[leadIDX];
+            const actualLeadIndex = leads.findIndex(lead => lead.phone === leadToUpdate.phone);
 
             if (actualLeadIndex === -1) {
                 return res.status(404).send('Lead not found in main leads array');
             }
 
-            // 4. Присваиваем brokerLogin выбранному lead
-            leads[actualLeadIndex].broker = brokerLogin; // Обновляем broker
+            leads[actualLeadIndex].broker = brokerLogin;
 
-            // 5. Сохраняем изменения
             await writeData('data.json', leads);
             res.status(200).send('Lead updated successfully');
         } else {
@@ -276,7 +256,7 @@ app.put('/api/broker/leads/:index', authenticateJWT, (req, res) => {
     const brokerLeads = leads.filter(lead => lead.broker === req.user.login);
 
     if (index >= 0 && index < brokerLeads.length) {
-        const leadIndex = leads.findIndex(lead => lead.phone === brokerLeads[index].phone); // Find actual index in the leads array
+        const leadIndex = leads.findIndex(lead => lead.phone === brokerLeads[index].phone);
         if (leadIndex !== -1) {
             leads[leadIndex].isSend = isSend;
             writeData('data.json', leads);
@@ -290,7 +270,6 @@ app.put('/api/broker/leads/:index', authenticateJWT, (req, res) => {
 });
 
 app.get('/api/broker/profile', authenticateJWT, (req, res) => {
-    //if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
     const user = users.find(u => u.login === req.user.login);
     res.json(user);
 });
@@ -309,22 +288,16 @@ app.put('/api/broker/profile', authenticateJWT, (req, res) => {
   res.status(200).send('Profile updated successfully');
 });
 
-// Lead Management API (Admin)
 app.get('/api/leads', authenticateJWT, (req, res) => {
-  //if (req.user.role !== 'admin') {
-  //  return res.status(403).send('Доступ запрещен');
-  //}
   res.json(leads);
 });
 
-// PUT lead (for admin - update)
 app.put('/api/leads/:index', authenticateJWT, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).send('Доступ запрещен');
   }
 
   const index = parseInt(req.params.index);
-  //const { status, isSend, broker } = req.body;
 
   const isSend = req.body.isSend 
   const broker = req.body.broker
@@ -333,10 +306,11 @@ app.put('/api/leads/:index', authenticateJWT, (req, res) => {
 
   if (index >= 0 && index < leads.length) {
     leads[index].isSend = isSend2;
-    // Update broker if provided
+
     if (broker) {
       leads[index].broker = broker;
     }
+
     writeData('data.json', leads);
     res.status(200).send('Лид успешно обновлен');
   } else {
@@ -344,7 +318,6 @@ app.put('/api/leads/:index', authenticateJWT, (req, res) => {
   }
 });
 
-// DELETE lead (for admin)
 app.delete('/api/leads/:index', authenticateJWT, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).send('Доступ запрещен');
@@ -355,8 +328,7 @@ app.delete('/api/leads/:index', authenticateJWT, (req, res) => {
     leads.splice(index, 1);
     writeData('data.json', leads);
 
-    // Update leads array in memory
-    leads = readData('data.json'); // Reload data from the file
+    leads = readData('data.json');
 
     res.status(200).send('Лид успешно удален');
   } else {
@@ -364,7 +336,6 @@ app.delete('/api/leads/:index', authenticateJWT, (req, res) => {
   }
 });
 
-// Initial Route
 app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
@@ -372,9 +343,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/role/getRoles', async (req, res) => {
     let allRoles = await RoleModel.find()
-    //console.log(allRoles)
     res.json({'roles' : allRoles})
-    //res.sendStatus(200)
 })
 
 app.post('/api/role/add', (req, res) => {
@@ -391,6 +360,33 @@ app.post('/api/role/add', (req, res) => {
         console.log(err)
         res.sendStatus(500)
     }
+})
+
+
+app.post('/api/admin/users', authenticateJWT, (req, res) => {
+    if (req.user.role !== 'admin') return res.status(403).send('Не доступно')
+
+    try {
+        const login = req.body.login 
+        const password = req.body.password
+        const name = req.body.name 
+        const role = req.body.role
+
+        let newUser = UserModel({
+            name: name,
+            login: login,
+            password: password,
+            role: role
+        })
+
+        newUser.save()
+        res.sendStatus(200)
+
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+
 })
 
 
