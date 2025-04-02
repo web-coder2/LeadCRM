@@ -82,5 +82,19 @@
     "name": "Камила",
     "role": "leadorub",
     "status": true
+  },
+  {
+    "login": "achkasovarkady97@yandex.ru",
+    "password": "qwertyuiop123A",
+    "name": "Аркадий",
+    "role": "leadorub",
+    "status": true
+  },
+  {
+    "login": "crazydanila16@gmail.com",
+    "password": "QWERTYUIOP123a",
+    "name": "ДанилЛД",
+    "role": "leadorub",
+    "status": true
   }
 ]
