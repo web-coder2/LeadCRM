@@ -19,12 +19,14 @@ const leadSchema = new Schema({
         type: Boolean
     },
     "broker": {
-        type: Schema.Types.ObjectId,
+        //type: Schema.Types.ObjectId,
+        type: String,
         ref: "UsersSchema",
-        required: true
+        required: false
     },
     "starter": {
-        type: Schema.Types.ObjectId,
+        //type: Schema.Types.ObjectId,
+        type: String,
         ref: "UsersSchema",
         required: true
     },

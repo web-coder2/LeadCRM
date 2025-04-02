@@ -95,7 +95,7 @@
                     <tbody>
                         <tr v-for="(lead, index) in noBrokerLeads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
                             <td>
-                                <button class="btn btn-outline-warning" @click="getLeadToSelf(index, login)">Взять лид</button>
+                                <button class="btn btn-outline-warning" @click="getLeadToSelf(lead._id, login)">Взять лид</button>
                             </td>
                             <td>{{ lead.date }}</td>
                             <td>{{ lead.phone }}</td>

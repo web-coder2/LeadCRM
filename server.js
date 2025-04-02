@@ -29,34 +29,20 @@ const MONGO_PASS = process.env.DATABASE_PASSWORD
 const MONGO_PORT = process.env.DATABASE_PORT
 const DATABASE_NAME = process.env.DATABASE_NAME
 
+// апишки и хуишки стороних сервисов 
+const SKOROZVON_API = process.env.SKOROZVON_API
+
+
+
+
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(cookieParser());
 
-// Helper functions to read/write JSON data
-const readData = (filename) => {
-    try {
-        const data = fs.readFileSync(filename, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error(`Error reading ${filename}:`, err);
-        return [];
-    }
-};
 
-const writeData = (filename, data) => {
-    try {
-        fs.writeFileSync(filename, JSON.stringify(data, null, 2));
-    } catch (err) {
-        console.error(`Error writing to ${filename}:`, err);
-    }
-};
 
-// Load data
-let users = readData('users.json');
-let leads = readData('data.json');
 
 // Authentication Middleware
 const authenticateJWT = (req, res, next) => {
@@ -76,31 +62,20 @@ const authenticateJWT = (req, res, next) => {
     }
 };
 
-// Get next available broker in round-robin fashion
 let brokerIndex = 0;
-const getNextAvailableBroker = (onlineOnly = true) => {
-  let brokers = users.filter(user => user.role === 'broker');
-  if (onlineOnly) {
-      brokers = brokers.filter(user => user.status);
-  }
-  if (brokers.length === 0) {
-      return null;
-  }
 
-  const broker = brokers[brokerIndex % brokers.length].login;
-  brokerIndex = (brokerIndex + 1) % brokers.length;
-  return broker;
-};
+app.post('/login', async (req, res) => {
 
+    const login = req.body.login
+    const password = req.body.password
 
-// Login route
-app.post('/login', (req, res) => {
-    const { login, password } = req.body;
-    const user = users.find(u => u.login === login && u.password === password);
+    const user = await UserModel.findOne({'login' : login, 'password' : password})
 
     if (user) {
+        const userObject = user.toObject()
         const token = jwt.sign({ login: user.login, role: user.role, name: user.name }, secretKey);
         res.cookie('token', token, { httpOnly: true });
+
 
         switch (user.role) {
             case 'admin':
@@ -116,13 +91,10 @@ app.post('/login', (req, res) => {
                 res.send('Unknown role');
         }
     } else {
-        // Set an error cookie
-        res.cookie('loginError', 'Invalid login credentials', { maxAge: 5000 }); // Expires in 5 seconds
-
-        // Redirect to login page
+        res.cookie('loginError', 'Invalid login credentials', { maxAge: 5000 });  
         res.redirect('/login.html');
     }
-});
+})
 
 // Logout route
 app.get('/logout', (req, res) => {
@@ -134,207 +106,160 @@ app.get('/api/user', authenticateJWT, (req, res) => {
     res.json({ user: req.user });
 });
 
-app.get('/api/admin/users', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
-    res.json(users);
-});
-
-// app.post('/api/admin/users', authenticateJWT, (req, res) => {
-//     if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
-
-//     const { login, password, name, role } = req.body;
-//     const newUser = { login, password, name, role, status: true };
-//     users.push(newUser);
-//     writeData('users.json', users);
-//     res.status(201).send('User created successfully');
-// });
-
-
-
-
-app.delete('/api/admin/users/:login', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
-    const { login } = req.params;
-
-    if (login === 'admin') {
-        return res.status(400).send('Cannot delete the admin user.');
-    }
-
-    users = users.filter(user => user.login !== login);
-    writeData('users.json', users);
-    res.status(200).send('User deleted successfully');
-});
-
 // Leadorub API
 app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
     if (req.user.role !== 'leadorub') return res.status(403).send('Forbidden');
 
     const { phone, client_name, comment } = req.body;
-    let broker = getNextAvailableBroker();
+    let broker = ""
 
-    if (!broker) {
-        broker = getNextAvailableBroker(false);
-        broker = ""
-    }
-
-    const newLead = {
-        phone,
-        client_name,
-        comment,
+    let newLead = LeadsModel({
+        date: dayjs(new Date).format('YYYY-MM-DD'),
+        phone: phone,
+        client_name: client_name,
+        comment: comment,
         isSend: false,
         broker: broker,
-        starter: req.user.name,
-        date: dayjs(new Date).format('YYYY-MM-DD')
-    };
+        starter: req.user.name
+    })
+    
+    newLead.save()
 
-    leads.push(newLead);
-    writeData('data.json', leads);
-    res.status(201).send('Lead created successfully');
-});
-
-
-app.get('/api/broker/leads', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
-    const brokerLeads = leads.filter(lead => lead.broker === req.user.login);
-    res.json(brokerLeads);
+    res.status(200).send('lead created')
 });
 
 
 app.get('/api/broker/nonLeads', authenticateJWT, (req, res) => {
     if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
-    const nonameLeads = leads.filter(lead => lead.broker === "");
+    const nonameLeads = LeadsModel.find({'broker' : " "})
     res.json(nonameLeads);
 })
 
+
 app.put('/api/broker/nonleads/:index', authenticateJWT, async (req, res) => {
+
     if (req.user.role !== 'broker') {
         return res.status(403).send('Forbidden');
     }
 
-    const leadIDX = parseInt(req.params.index);
-    const brokerLogin = req.body.login;
+    const login = req.body.login
+    const leadId = req.params.index
+    const result = await LeadsModel.updateOne(
+        {'_id' : leadId},
+        {'broker' : login}
+    )
 
-    if (isNaN(leadIDX)) {
-        return res.status(400).send('Invalid index provided');
+    if (result.modifiedCount === 1) {
+        res.status(200).send('lead updated')
+    } else {
+        res.status(500).send('error')
     }
 
-    if (!brokerLogin) {
-        return res.status(400).send('Broker login is required in the request body');
-    }
-
-    try {
-        const noneBrokerLeads = leads.filter(lead => lead.broker === '');
-
-        if (leadIDX >= 0 && leadIDX < noneBrokerLeads.length) {
-
-            const leadToUpdate = noneBrokerLeads[leadIDX];
-            const actualLeadIndex = leads.findIndex(lead => lead.phone === leadToUpdate.phone);
-
-            if (actualLeadIndex === -1) {
-                return res.status(404).send('Lead not found in main leads array');
-            }
-
-            leads[actualLeadIndex].broker = brokerLogin;
-
-            await writeData('data.json', leads);
-            res.status(200).send('Lead updated successfully');
-        } else {
-            res.status(404).send('Lead not found');
-        }
-    } catch (error) {
-        console.error("Error updating lead:", error);
-        res.status(500).send('Failed to update lead');
-    }
-});
+})
 
 
-app.put('/api/broker/leads/:index', authenticateJWT, (req, res) => {
+app.get('/api/broker/leads', authenticateJWT, async (req, res) => {
+    const allLeads = await LeadsModel()
+    res.json(allLeads)
+})
+
+app.put('/api/broker/leads/:index', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
 
     const index = parseInt(req.params.index);
     const { isSend } = req.body;
-    const brokerLeads = leads.filter(lead => lead.broker === req.user.login);
 
-    if (index >= 0 && index < brokerLeads.length) {
-        const leadIndex = leads.findIndex(lead => lead.phone === brokerLeads[index].phone);
-        if (leadIndex !== -1) {
-            leads[leadIndex].isSend = isSend;
-            writeData('data.json', leads);
-            res.status(200).send('Lead updated successfully');
-        } else {
-            res.status(404).send('Lead not found');
-        }
+    const result = await LeadModel.updateOne({
+        _id : index,
+        isSend : isSend
+    })
+
+    if (result.modifiedCount === 1) {
+        res.status(200).send('lead updated')
     } else {
-        res.status(404).send('Lead not found');
+        res.status(500).send('error')
     }
 });
 
-app.get('/api/broker/profile', authenticateJWT, (req, res) => {
-    const user = users.find(u => u.login === req.user.login);
-    res.json(user);
-});
 
-app.put('/api/broker/profile', authenticateJWT, (req, res) => {
-  if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
-  const { status } = req.body;
-  const userIndex = users.findIndex(u => u.login === req.user.login);
+app.get('/api/broker/profile', authenticateJWT, async (req, res) => {
+    const user = await UserModel.find({'login' : req.user.login})
+    res.json(user)
+})
 
-  if (userIndex === -1) {
-    return res.status(404).send('User not found');
-  }
 
-  users[userIndex].status = status;
-  writeData('users.json', users);
-  res.status(200).send('Profile updated successfully');
-});
+app.put('/api/broker/profile', authenticateJWT, async (req, res) => {
 
-app.get('/api/leads', authenticateJWT, (req, res) => {
-  res.json(leads);
-});
+    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
 
-app.put('/api/leads/:index', authenticateJWT, (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).send('Доступ запрещен');
-  }
+    const status = req.body.status
+    const login = req.body.login
 
-  const index = parseInt(req.params.index);
+    const result = await UserModel.updateOne(
+        {'login' : login},
+        {'status' : status}
+    )
 
-  const isSend = req.body.isSend 
-  const broker = req.body.broker
-
-  const isSend2 = isSend == true ? true : false
-
-  if (index >= 0 && index < leads.length) {
-    leads[index].isSend = isSend2;
-
-    if (broker) {
-      leads[index].broker = broker;
+    if (result.modifiedCount === 1) {
+        res.status(200).send('profile updated')
     }
 
-    writeData('data.json', leads);
-    res.status(200).send('Лид успешно обновлен');
-  } else {
-    res.status(404).send('Лид не найден');
-  }
-});
+})
 
-app.delete('/api/leads/:index', authenticateJWT, (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).send('Доступ запрещен');
-  }
-  const index = parseInt(req.params.index);
+app.put('/api/leads/:index', authenticateJWT, async (req, res) => {
 
-  if (index >= 0 && index < leads.length) {
-    leads.splice(index, 1);
-    writeData('data.json', leads);
+    if (req.user.role !== 'admin') {
+        return res.status(403).send('Доступ запрещен');
+    }
 
-    leads = readData('data.json');
+    const idx = req.params.index
+    const isSend = req.body.isSend
+    const broker = req.body.broker
 
-    res.status(200).send('Лид успешно удален');
-  } else {
-    res.status(404).send('Лид не найден');
-  }
-});
+    const updateData = {}
+
+    updateData.isSend = isSend
+
+    if (broker !== undefined) {
+        updateData.broker = broker
+    }
+    
+    const result = await LeadsModel.updateOne(
+        { _id : idx},
+        { $set : updateData}
+    )
+
+    if (result.modifiedCount === 1) {
+        res.status(200).send('lead updated')
+    } else {
+        res.status(500).send('error')
+    }
+
+})
+
+app.delete('/api/leads/:index', authenticateJWT, async (req, res) => {
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).send('Доступ запрещен');
+    }
+
+    const idx = req.params.index
+
+    const result = await LeadsModel.deleteOne({'_id' : idx})
+
+    if (result.deletedCount === 1) {
+        res.status(200).send('lead deleted')
+    } else {
+        res.status(500).send('error')
+    }
+
+})
+
+app.get('/api/leads', authenticateJWT, async (req, res) => {
+    const allLeads = await LeadsModel.find()
+    res.json(allLeads)
+})
+
 
 app.get('/', (req, res) => {
     res.redirect('/login.html');
@@ -357,13 +282,12 @@ app.post('/api/role/add', (req, res) => {
         res.sendStatus(200)
 
     } catch (err) {
-        console.log(err)
         res.sendStatus(500)
     }
 })
 
 
-app.post('/api/admin/users', authenticateJWT, (req, res) => {
+app.post('/api/admin/users', authenticateJWT, async (req, res) => {
     if (req.user.role !== 'admin') return res.status(403).send('Не доступно')
 
     try {
@@ -372,23 +296,44 @@ app.post('/api/admin/users', authenticateJWT, (req, res) => {
         const name = req.body.name 
         const role = req.body.role
 
-        let newUser = UserModel({
+        let newUser = await UserModel({
             name: name,
             login: login,
             password: password,
             role: role
         })
 
+
         newUser.save()
-        res.sendStatus(200)
+        res.status(200).send('user created')
 
     } catch (e) {
-        console.log(e)
-        res.sendStatus(500)
+        res.status(500).send('error')
     }
 
 })
 
+app.get('/api/admin/users', authenticateJWT, async (req, res) => {
+    let allUsers = await UserModel.find()
+    res.json(allUsers)
+})
+
+
+
+app.delete('/api/admin/users/:login', authenticateJWT, async (req, res) => {
+    if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
+
+    const login = req.params.login
+    
+    const result = await UserModel.deleteOne({'login' : login})
+
+    if (result.deletedCount === 1) {
+        res.status(200).send('user deleted ...')
+    } else {
+        console.log('error')
+    }
+
+})
 
 async function startApp() {
     try {
@@ -399,8 +344,6 @@ async function startApp() {
         console.log(err)
     }
 }
-
-
 
 app.listen(PORT, () => {
     startApp()
