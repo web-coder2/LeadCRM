@@ -55,7 +55,7 @@
                     </select>
                 </div>
                 <div class="col mb-5 d-flex">
-                    <button class="btn btn-outline-success mr-3" data-toggle="modal" data-target="#newRole">+</button>
+                    <button class="btn btn-outline-success mr-3" data-toggle="modal" data-target="#newRole">+ роль</button>
                     <button type="submit" class="btn btn-outline-danger">создать юзера</button>
                 </div>
             </div>
@@ -100,10 +100,10 @@
                 <tr v-for="user in users" :key="user.login">
                     <td><img class="imger" :src="user.role == 'admin' ? 'admin.jpeg' : 'logo.jpg' "> {{ user.name }}</td>
                     <td>{{ user.login }}</td>
-                    <td>{{ user.role }}</td>
+                    <td>{{ user.role.role }}</td>
                     <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
                     <td>
-                        <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role === 'admin'">Удалить юзера
+                        <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера
                         </button>
                     </td>
                 </tr>
@@ -120,11 +120,11 @@
                     <input type="date" class="form-control bg-dark text-light" id="leadDate" v-model="filterDate">
                     <select class="form-control bg-dark text-light mt-3" v-model="filterBroker" required>
                         <option value="">Все брокеры</option>
-                        <option v-for="(item, idx) in users" :value="item.login" v-if="item.role == 'broker'">{{ item.name}}</option>
+                        <option v-for="(item, idx) in users" :value="item.login" v-if="item.role.role == 'broker'">{{ item.name}}</option>
                     </select>
                     <select class="form-control bg-dark text-light mt-3" v-model="filterLeaders" required>
                         <option value="">Все Лидорубы</option>
-                        <option v-for="(item, idx) in users" :value="[item.login, item.name]" v-if="item.role == 'leadorub'">{{ item.name }}</option>
+                        <option v-for="(item, idx) in users" :value="[item.login, item.name]" v-if="item.role.role == 'leadorub'">{{ item.name }}</option>
                     </select>
                     <!-- select обработан или не обработан filterIsSend -->
                      <select class="form-control bg-dark text-light mt-3" v-model="filterIsSend" required>
@@ -141,15 +141,16 @@
             </div>
         </div>
 
+        <h5 class="text-warning mt-5 mb-5">Таблица с фильтроваными фильтрами:</h5>
+        <ul class="mb-5">
+            <li class="text-light">фильтрованая Датта = <span class="text-danger">{{ filterDate ? filterDate : 'Не выбран' }}</span></li>
+            <li class="text-light">фильтрованая Брокер = <span class="text-danger">{{ filterBroker ? filterBroker : 'все брокеры' }}</span></li>
+            <li class="text-light">фильтрованая Лидоруб = <span class="text-danger">{{ filterLeaders ? filterLeaders[0] : 'все лидорубы'}}</span></li>
+            <li class="text-light">фильтрованый логический обработна или нет = <span class="text-warning">{{ filterIsSend == "qwerty" ? 'все состояние' : filterIsSend }}</span></li>
+        </ul>
+
         <div class="table-container mb-5">
-            <h5 class="text-warning mt-5 mb-5">Таблица с фильтроваными фильтрами:</h5>
-            <ul class="mb-5">
-                <li class="text-light">фильтрованая Датта = <span class="text-danger">{{ filterDate ? filterDate : 'Не выбран' }}</span></li>
-                <li class="text-light">фильтрованая Брокер = <span class="text-danger">{{ filterBroker ? filterBroker : 'все брокеры' }}</span></li>
-                <li class="text-light">фильтрованая Лидоруб = <span class="text-danger">{{ filterLeaders ? filterLeaders[0] : 'все лидорубы'}}</span></li>
-                <li class="text-light">фильтрованый логический обработна или нет = <span class="text-warning">{{ filterIsSend == "qwerty" ? 'все состояние' : filterIsSend }}</span></li>
-            </ul>
-            <table class="table table-bordered table-striped table-dark" v-if="filteredLeads.length > 0 || starterFilter == false">
+            <table class="table table-bordered table-striped table-dark">
                 <thead class="bg-danger text-light">
                     <tr>
                         <th class="table-column">Дата лида созданого</th>
@@ -161,7 +162,7 @@
                         <th class="table-column2">Какой Ледоруб</th>
                     </tr>
                 </thead>
-                <tbody v-for="(lead, index) in filteredLeads">
+                <tbody v-for="(lead, index) in filteredLeads" v-if="filteredLeads.length > 0 || starterFilter == false">
                     <td>{{ lead.date }}</td>
                     <td>{{ lead.phone }}</td>
                     <td>{{ lead.client_name }}</td>
@@ -170,8 +171,16 @@
                     <td>{{lead.broker}}</td>
                     <td>{{lead.starter}}</td>
                 </tbody>
+                <tbody v-if="filteredLeads.length == 0 && starterFilter == true">
+                    <td>нет данных</td>
+                    <td>нет данных</td>
+                    <td>нет данных</td>
+                    <td>нет данных</td>
+                    <td>нет данных</td>
+                    <td>нет данных</td>
+                    <td>нет данных</td>
+                </tbody>
             </table>
-            <h3 class="text-danger text-center" v-if="filteredLeads.length == 0 && starterFilter == true">По таким фильтрам нет данных</h3>
         </div>
 
         <div class="table-container mb-5">
@@ -243,12 +252,12 @@
                     </div>       
                     <!-- Modal body -->
                     <div class="modal-body">
-                        Не ну бля ты точно хочешь удалить этот лид просто пойми ты его потом <span class="text-danger">ХУЙ ВЕРНЕШЬ</span> я те отвечаю
+                        <p>Ты точно хочешь удалить лид?</p>
                     </div>  
                     <!-- Modal footer -->
                     <div class="modal-footer btn-group">
-                        <button type="button" class="btn btn-outline-danger" @click="deleteLead()" data-dismiss="modal">Да удалить нахуй</button>
-                        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Ну его нахер</button>
+                        <button type="button" class="btn btn-outline-danger" @click="deleteLead()" data-dismiss="modal">Удалить</button>
+                        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Отмена</button>
                     </div> 
                 </div>
             </div>
@@ -367,7 +376,7 @@ body {
         },
         computed: {
             brokers() {
-                return this.users.filter(user => user.role === 'broker');
+                return this.users.filter(user => user.role.role === 'broker');
             },
             leadProgress() {
                 let totalLeads = this.leads.length;
@@ -379,7 +388,6 @@ body {
             resetFilters() {
                 this.filterBroker = ""
                 this.filterDate = null
-                //this.filterLeaders = ""
                 this.filterLeaders = ""
                 this.filterIsSend = "qwerty"
             },

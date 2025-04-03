@@ -14,7 +14,8 @@ const users = new Schema({
         required: true
     },
     role: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "RankSchema",
         required: true
     },
     status: {

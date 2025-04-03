@@ -10,9 +10,8 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 
 
-
-const UserModel = require("./models/users.js")
 const RoleModel = require("./models/ranks.js")
+const UserModel = require("./models/users.js")
 const LeadsModel = require("./models/leads.js")
 
 
@@ -29,7 +28,8 @@ const MONGO_PASS = process.env.DATABASE_PASSWORD
 const MONGO_PORT = process.env.DATABASE_PORT
 const DATABASE_NAME = process.env.DATABASE_NAME
 
-// апишки и хуишки стороних сервисов 
+
+
 const SKOROZVON_API = process.env.SKOROZVON_API
 
 
@@ -62,22 +62,17 @@ const authenticateJWT = (req, res, next) => {
     }
 };
 
-let brokerIndex = 0;
-
 app.post('/login', async (req, res) => {
 
     const login = req.body.login
     const password = req.body.password
-
-    const user = await UserModel.findOne({'login' : login, 'password' : password})
+    const user = await UserModel.findOne({'login' : login, 'password' : password}).populate('role')
 
     if (user) {
-        const userObject = user.toObject()
-        const token = jwt.sign({ login: user.login, role: user.role, name: user.name }, secretKey);
+        const token = jwt.sign({ login: user.login, role: user.role.role, name: user.name }, secretKey);
         res.cookie('token', token, { httpOnly: true });
 
-
-        switch (user.role) {
+        switch (user.role.role) {
             case 'admin':
                 res.redirect('/admin.html');
                 break;
@@ -90,6 +85,7 @@ app.post('/login', async (req, res) => {
             default:
                 res.send('Unknown role');
         }
+
     } else {
         res.cookie('loginError', 'Invalid login credentials', { maxAge: 5000 });  
         res.redirect('/login.html');
@@ -108,7 +104,6 @@ app.get('/api/user', authenticateJWT, (req, res) => {
 
 // Leadorub API
 app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'leadorub') return res.status(403).send('Forbidden');
 
     const { phone, client_name, comment } = req.body;
     let broker = ""
@@ -122,25 +117,21 @@ app.post('/api/leadorub/leads', authenticateJWT, (req, res) => {
         broker: broker,
         starter: req.user.name
     })
-    
+
     newLead.save()
 
     res.status(200).send('lead created')
 });
 
 
-app.get('/api/broker/nonLeads', authenticateJWT, (req, res) => {
-    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
-    const nonameLeads = LeadsModel.find({'broker' : " "})
+app.get('/api/broker/nonLeads', authenticateJWT, async (req, res) => {
+    const nonameLeads = await LeadsModel.find({'broker' : ""})
+    console.log(nonameLeads)
     res.json(nonameLeads);
 })
 
 
 app.put('/api/broker/nonleads/:index', authenticateJWT, async (req, res) => {
-
-    if (req.user.role !== 'broker') {
-        return res.status(403).send('Forbidden');
-    }
 
     const login = req.body.login
     const leadId = req.params.index
@@ -159,12 +150,11 @@ app.put('/api/broker/nonleads/:index', authenticateJWT, async (req, res) => {
 
 
 app.get('/api/broker/leads', authenticateJWT, async (req, res) => {
-    const allLeads = await LeadsModel()
+    const allLeads = await LeadsModel.find()
     res.json(allLeads)
 })
 
 app.put('/api/broker/leads/:index', authenticateJWT, async (req, res) => {
-    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
 
     const index = parseInt(req.params.index);
     const { isSend } = req.body;
@@ -190,8 +180,6 @@ app.get('/api/broker/profile', authenticateJWT, async (req, res) => {
 
 app.put('/api/broker/profile', authenticateJWT, async (req, res) => {
 
-    if (req.user.role !== 'broker') return res.status(403).send('Forbidden');
-
     const status = req.body.status
     const login = req.body.login
 
@@ -207,10 +195,6 @@ app.put('/api/broker/profile', authenticateJWT, async (req, res) => {
 })
 
 app.put('/api/leads/:index', authenticateJWT, async (req, res) => {
-
-    if (req.user.role !== 'admin') {
-        return res.status(403).send('Доступ запрещен');
-    }
 
     const idx = req.params.index
     const isSend = req.body.isSend
@@ -238,10 +222,6 @@ app.put('/api/leads/:index', authenticateJWT, async (req, res) => {
 })
 
 app.delete('/api/leads/:index', authenticateJWT, async (req, res) => {
-
-    if (req.user.role !== 'admin') {
-        return res.status(403).send('Доступ запрещен');
-    }
 
     const idx = req.params.index
 
@@ -288,7 +268,6 @@ app.post('/api/role/add', (req, res) => {
 
 
 app.post('/api/admin/users', authenticateJWT, async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).send('Не доступно')
 
     try {
         const login = req.body.login 
@@ -296,11 +275,17 @@ app.post('/api/admin/users', authenticateJWT, async (req, res) => {
         const name = req.body.name 
         const role = req.body.role
 
+        const refRole = await RoleModel.findOne({
+            'role' : role
+        })
+
+        console.log(refRole, '!!!!!!!!!!!!')
+
         let newUser = await UserModel({
             name: name,
             login: login,
             password: password,
-            role: role
+            role: refRole._id
         })
 
 
@@ -315,13 +300,13 @@ app.post('/api/admin/users', authenticateJWT, async (req, res) => {
 
 app.get('/api/admin/users', authenticateJWT, async (req, res) => {
     let allUsers = await UserModel.find()
+    .populate('role')
     res.json(allUsers)
 })
 
 
 
 app.delete('/api/admin/users/:login', authenticateJWT, async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).send('Forbidden');
 
     const login = req.params.login
     

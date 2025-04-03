@@ -35,7 +35,7 @@
     <div class="form-container mt-5">
 
         <div class="mb-5 mt-3">
-            <h4 class="text-light">Личный кобинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h4>
+            <h4 class="text-light">Личный кабинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h4>
             <h4 class="text-warning mt-5 mb-3">Статистика лидоруба</h4>
             <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ leadLastWeek }} лидов</span></h6>
             <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ leadThisWeek }} лидов</span></h6>
@@ -151,8 +151,8 @@ body {
                 fetch('/api/broker/profile')
                     .then(response => response.json())
                     .then(data => {
-                        this.userName = data.name;
-                        this.userLogin = data.login
+                        this.userName = data[0].name;
+                        this.userLogin = data[0].login
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -167,9 +167,6 @@ body {
                 .catch(error => {
                     console.error('Error:', error);
                 });
-
-
-                //console.log(this.userLogin, '....', this.userName)
                 
                 let dayofThisWeek = dayjs(new Date).day()
 
@@ -190,7 +187,6 @@ body {
                         if (this.allLeads[i]['date'] == dayjs(new Date).format("YYYY-MM-DD")) {
                             this.leadToday++
                         } else if (this.allLeads[i]['date'] <= endNowWeek && this.allLeads[i]['date'] >= startNowWeek) {
-                            // здесь я буду проверять на эту неедлю 
                             this.leadThisWeek ++ 
                         } if (this.allLeads[i]['date'] >= startLastWeek && this.allLeads[i]['date'] <= endLastWeek) {
                             this.leadLastWeek++
