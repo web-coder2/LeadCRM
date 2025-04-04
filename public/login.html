@@ -11,7 +11,7 @@
   <div class="kukuku" id="app">
     <div class="login-container">
       <h2 class="text-center text-light">Залогиниться</h2>
-      <form action="/login" method="POST">
+      <form>
         <div class="form-group">
           <label for="login" class="text-light">Логин:</label>
           <input type="text" class="form-control bg-dark text-light" id="login" v-model="userLogin" name="login" required>
@@ -20,7 +20,7 @@
           <label for="password" class="text-light">Пароль:</label>
           <input type="password" class="form-control bg-dark text-light" id="password" v-model="userPass" name="password" required>
         </div>
-        <button type="submit" class="btn btn-outline-success btn-block">Войти</button>
+        <button type="submit" class="btn btn-outline-success btn-block" @click="login()">Войти</button>
       </form>
     </div>
   </div>
@@ -84,19 +84,23 @@ document.addEventListener('DOMContentLoaded', function() {
       userPass: ""
     },
     methods: {
-      login: function() {
-        axios.post('/login', {
-          login: this.userLogin,
-          password: this.userPass
-        })
-       .then(response => {
-          if (response.data.error) {
+      async login() {
+        const response = await fetch('/login', {
+          method: "POST",
+          headers: {
+            'Content-Type' : 'application/json'
+          },
+          body: JSON.stringify({
+            'login' : this.login,
+            'password' : this.password
+          })
+        }).then(resp => {
+          if (resp.data.error) {
             this.message = response.data.error;
           } else {
             window.location.href = '/';
           }
-        })
-       .catch(error => {
+        }).catch(error => {
           console.log(error);
           this.message = 'Ошибка сервера';
         });
