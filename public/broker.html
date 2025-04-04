@@ -64,7 +64,8 @@
                         <td>{{ lead.client_name }}</td>
                         <td>{{ lead.comment }}</td>
                         <td>
-                            <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                            <!-- <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"> -->
+                            <input type="checkbox" v-model="lead.isSend" @change="updateLead(lead._id, lead.isSend)">
                             <!-- <button
                             class="btn"
                             :class="getColorSend(lead.isSend)"
@@ -232,7 +233,6 @@ body {
                 fetch('/api/broker/profile')
                     .then(response => response.json())
                     .then(data => {
-                        // здесь все переменые записались все норм пока что
                         this.userName = data[0].name;
                         this.userStatus = data[0].status;
                         this.login = data[0].login
@@ -248,9 +248,6 @@ body {
                 fetch('/api/broker/leads')
                     .then(response => response.json())
                     .then(data => {
-                        //this.leads = data;
-                        console.log(this.leads)
-                        console.log(this.login)
 
                         data.forEach((e) => {
                             if (e.broker == this.login) {
@@ -292,13 +289,14 @@ body {
                         console.error('Error:', error);
                     });
             },
-            updateLead(index, lead) {
-                fetch(`/api/broker/leads/${index}`, {
+            updateLead(leadID, leadStatus) {
+                console.log(leadID, leadStatus)
+                fetch(`/api/broker/leads/${leadID}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ isSend: lead.isSend })
+                    body: JSON.stringify({ isSend: leadStatus })
                 })
                 .then(response => {
                     if (response.ok) {

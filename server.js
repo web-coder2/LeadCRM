@@ -156,13 +156,13 @@ app.get('/api/broker/leads', authenticateJWT, async (req, res) => {
 
 app.put('/api/broker/leads/:index', authenticateJWT, async (req, res) => {
 
-    const index = parseInt(req.params.index);
-    const { isSend } = req.body;
+    const leadIDX = req.params.index
+    const isSend = req.body.isSend
 
-    const result = await LeadModel.updateOne({
-        _id : index,
-        isSend : isSend
-    })
+    const result = await LeadsModel.updateOne(
+        {_id : leadIDX},
+        {isSend : isSend}
+    )
 
     if (result.modifiedCount === 1) {
         res.status(200).send('lead updated')
