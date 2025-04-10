@@ -117,7 +117,10 @@
             <button class="btn btn-outline-danger" @click="filterShow =! filterShow">Фильтры</button>
             <div v-if="filterShow" class="form-row mt-3">
                 <div class="form-group col-sm-12 col-md-4">
-                    <input type="date" class="form-control bg-dark text-light" id="leadDate" v-model="filterDate">
+                    <label for="startDate" class="text-light">выбор начала диапазона даты</label>
+                    <input type="date" id="startDate" class="form-control bg-dark text-light" id="leadDate" v-model="filterDate">
+                    <label for="endDate" class="text-light mt-3">выбор конца диапазона даты</label>
+                    <input id="endDate" type="date" class="form-control bg-dark text-light" id="leadDate" v-model="filterDateEnd">
                     <select class="form-control bg-dark text-light mt-3" v-model="filterBroker" required>
                         <option value="">Все брокеры</option>
                         <option v-for="(item, idx) in users" :value="item.login" v-if="item.role.role == 'broker'">{{ item.name}}</option>
@@ -143,7 +146,8 @@
 
         <h5 class="text-warning mt-5 mb-5">Таблица с фильтроваными фильтрами:</h5>
         <ul class="mb-5">
-            <li class="text-light">фильтрованая Датта = <span class="text-danger">{{ filterDate ? filterDate : 'Не выбран' }}</span></li>
+            <li class="text-light">фильтрованая Дата (start) = <span class="text-danger">{{ filterDate ? filterDate : 'Не выбран' }}</span></li>
+            <li class="text-light">фильтрованая Дата (end) = <span class="text-danger">{{ filterDateEnd ? filterDateEnd : 'Не выбран' }}</span></li>
             <li class="text-light">фильтрованая Брокер = <span class="text-danger">{{ filterBroker ? filterBroker : 'все брокеры' }}</span></li>
             <li class="text-light">фильтрованая Лидоруб = <span class="text-danger">{{ filterLeaders ? filterLeaders[0] : 'все лидорубы'}}</span></li>
             <li class="text-light">фильтрованый логический обработна или нет = <span class="text-warning">{{ filterIsSend == "qwerty" ? 'все состояние' : filterIsSend }}</span></li>
@@ -355,9 +359,9 @@ body {
             },
             newRoleInput: '',
             allRoles: null,
-            //filterDate: dayjs(new Date).format('YYYY-MM-DD'),
 
             filterDate: null,
+            filterDateEnd: null,
             filterBroker: "",
             filterLeaders: "",
             filterIsSend: "qwerty",
@@ -414,23 +418,32 @@ body {
                 this.filteredLeads = this.leads.filter(lead => {
                 // Фильтр по дате
                 if (this.filterDate) {
-                    const leadDate = dayjs(lead.date).format('YYYY-MM-DD');
-                    const filterDate = dayjs(this.filterDate).format('YYYY-MM-DD');
-                    if (leadDate !== filterDate) {
-                        return false; // Не соответствует фильтру по дате
+                    const leadDate = dayjs(lead.date).format('YYYY-MM-DD')
+                    const filterDate = dayjs(this.filterDate).format('YYYY-MM-DD')
+                    if (leadDate < filterDate) {
+                        return false
+                    }
+                }
+
+                // Фильтр по конечной дате
+                if (this.filterDateEnd) {
+                    const leadDateEnd = dayjs(lead.date).format('YYYY-MM-DD')
+                    const filterDateEnd = dayjs(this.filterDateEnd).format('YYYY-MM-DD')
+                    if (leadDateEnd > filterDateEnd) {
+                        return false
                     }
                 }
 
                 // Фильтр по брокеру
                 if (this.filterBroker != "") {
                     if (lead.broker !== this.filterBroker) {
-                        return false; // Не соответствует фильтру по брокеру
+                        return false
                     }
                 }
                 // Фильтр по ледорубу
                 if (this.filterLeaders != "") {
                     if (lead.starter !== this.filterLeaders[0] && lead.starter !== this.filterLeaders[1]) {
-                        return false; // Не соответствует фильтру по ледорубу
+                        return false
                     }
                 }
                 // фильтр по filterIsSend

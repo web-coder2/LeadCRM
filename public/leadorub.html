@@ -168,6 +168,7 @@ body {
                     console.error('Error:', error);
                 });
                 
+
                 let dayofThisWeek = dayjs(new Date).day()
 
                 let startLastWeek = dayjs(dayjs(new Date).subtract(6 + dayofThisWeek, 'days')).format('YYYY-MM-DD')
@@ -176,31 +177,23 @@ body {
                 let endNowWeek = dayjs(dayjs(new Date).day(7)).format('YYYY-MM-DD')
                 let endLastWeek = dayjs(dayjs(new Date).subtract(dayofThisWeek, 'days')).format('YYYY-MM-DD')
 
-                console.log(startLastWeek)
-                console.log(endLastWeek)
-
                 for (let i = 0; i < this.allLeads.length; i++) {
-
-                    //console.log(this.allLeads[i]['date'] >= startLastWeek && this.allLeads[i]['date'] <= endLastWeek)
 
                     if (this.allLeads[i]['starter'] == this.userName || this.allLeads[i]['starter'] == this.userLogin) {
                         if (this.allLeads[i]['date'] == dayjs(new Date).format("YYYY-MM-DD")) {
                             this.leadToday++
+                            this.leadThisWeek++
                         } else if (this.allLeads[i]['date'] <= endNowWeek && this.allLeads[i]['date'] >= startNowWeek) {
                             this.leadThisWeek ++ 
                         } if (this.allLeads[i]['date'] >= startLastWeek && this.allLeads[i]['date'] <= endLastWeek) {
                             this.leadLastWeek++
-                            console.log('asdasd')
                         }
                     }
                 }
 
-                this.leadThisWeek += this.leadToday
-
                 this.leadLastWeekWidth = this.leadLastWeek / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
                 this.leadThisWeekWidth = this.leadThisWeek / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
                 this.leadTodayWidth = this.leadToday / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
-
             }
         }
     });

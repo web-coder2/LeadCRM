@@ -55,20 +55,20 @@ app.use(leadsRoute)
 app.use(brokersRoute)
 
 
-app.get('/login', async (req, res) => {
-    await res.sendFile(path.join(__dirname, 'public', 'login.html'))
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'))
 })
 
-app.get('/admin', async (req, res) => {
-    await res.sendFile(path.join(__dirname, 'public', 'admin.html'))
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'))
 })
 
-app.get('/broker', async (req, res) => {
-    await res.sendFile(path.join(__dirname, 'public', 'broker.html'))
+app.get('/broker', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'broker.html'))
 })
 
-app.get('/leadorub', async (req, res) => {
-    await res.sendFile(path.join(__dirname, 'public', 'leadorub.html'))
+app.get('/leadorub', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'leadorub.html'))
 })
 
 
@@ -97,26 +97,27 @@ app.post('/login', async (req, res) => {
                 'password' : user.password,
                 'status' : user.status
             }
-            console.log('***************', req.session.role)
 
             req.session.save(async (err) => {
                 if (err) {
-                  throw err
+                    console.error("Ошибка сохранения сессии:", err)
+                    return res.status(500).json({ error: 'Ошибка сервера' })
                 }
+
                 if (req.session.role.role == "admin") {
-                    await res.redirect("/admin")
+                    res.redirect("/admin")
                 } else if (req.session.role.role == "broker") {
-                    await res.redirect("/broker")
+                    res.redirect("/broker")
                 } else if (req.session.role.role == "leadorub") {
-                    await res.redirect("/leadorub")
+                    res.redirect("/leadorub")
                 } else {
-                    await res.redirect("/login")
+                    res.redirect("/login")
                 }
-              })
+            });
 
         } else {
             console.log('user not found')
-            await res.redirect("/login")
+            res.redirect("/login")
         }
     } catch (e) {
         console.log('error !!!!!!!!!! ', e)

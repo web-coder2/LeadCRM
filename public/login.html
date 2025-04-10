@@ -19,7 +19,7 @@
         </div>
         <div class="form-group">
           <label for="password" class="text-light">Пароль:</label>
-          <input type="password" class="form-control bg-dark text-light" id="password" v-model="userPass" name="password" required>
+          <input type="password" class="form-control bg-dark text-light" id="password" v-model="userPass" name="password" required @keyup.enter="login()">
         </div>
         <button class="btn btn-outline-success btn-block" @click="login()">Войти</button>
       </div>
@@ -81,7 +81,7 @@ body {
           "login" : this.userLogin,
           "password" : this.userPass
         });
-        console.log(response)
+        window.location.href = response.request.responseURL
       }
     }
   })
