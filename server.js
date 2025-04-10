@@ -1,19 +1,16 @@
-const dayjs = require('dayjs')
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path')
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
 const croner = require('./croner.js')
+const path = require('path')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const session = require('express-session')
+const RoleModel = require('./models/ranks.js')
 
 
 // ИМПОРТ МОДЕЛЕЙ
-const RoleModel = require("./models/ranks.js")
 const UserModel = require("./models/users.js")
-const LeadsModel = require("./models/leads.js")
 
 // ИМПОРТ РОУТОВ
 const usersRoute = require('./routes/users.js')
@@ -25,7 +22,6 @@ dotenv.config()
 
 const app = express();
 const PORT = 3000;
-const secretKey = process.env.SECRET_KEY
 
 
 const MONGO_URL = process.env.DATABASE_URL
@@ -42,6 +38,13 @@ const SKOROZVON_API = process.env.SKOROZVON_API
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
+app.use(session({
+    secret : "qwertyuiop123A",
+    resave: false,
+    saveUninitialized: false
+}))
+
 app.use(cookieParser());
 
 
@@ -52,78 +55,113 @@ app.use(leadsRoute)
 app.use(brokersRoute)
 
 
-// Authentication Middleware
-const authenticateJWT = (req, res, next) => {
-    const token = req.cookies.token;
+app.get('/login', async (req, res) => {
+    await res.sendFile(path.join(__dirname, 'public', 'login.html'))
+})
 
-    if (token) {
-        jwt.verify(token, secretKey, (err, user) => {
-            if (err) {
-                return res.redirect('/login.html');
-            }
+app.get('/admin', async (req, res) => {
+    await res.sendFile(path.join(__dirname, 'public', 'admin.html'))
+})
 
-            req.user = user;
-            next();
-        });
-    } else {
-        res.redirect('/login.html');
-    }
-};
+app.get('/broker', async (req, res) => {
+    await res.sendFile(path.join(__dirname, 'public', 'broker.html'))
+})
+
+app.get('/leadorub', async (req, res) => {
+    await res.sendFile(path.join(__dirname, 'public', 'leadorub.html'))
+})
+
+
 
 
 app.post('/login', async (req, res) => {
 
     const login = req.body.login
     const password = req.body.password
-    const user = await UserModel.findOne({'login' : login, 'password' : password}).populate('role')
 
-    if (user) {
-        const token = jwt.sign({ login: user.login, role: user.role.role, name: user.name }, secretKey);
-        res.cookie('token', token, { httpOnly: true });
+    try {
+        const user = await UserModel.findOne({'login' : login, 'password' : password}).populate('role')
 
-        switch (user.role.role) {
-            case 'admin':
-                res.redirect('/admin.html');
-                break;
-            case 'leadorub':
-                res.redirect('/leadorub.html');
-                break;
-            case 'broker':
-                res.redirect('/broker.html');
-                break;
-            default:
-                res.send('Unknown role');
+        if (user) {
+            req.session.role = user.role
+            req.session.name = user.name
+            req.session.login = user.login
+            req.session.password = user.password
+            req.session.status = user.status
+
+
+            req.session.user = {
+                'user' : user.role,
+                'name' : user.name,
+                'login' : user.login,
+                'password' : user.password,
+                'status' : user.status
+            }
+            console.log('***************', req.session.role)
+
+            req.session.save(async (err) => {
+                if (err) {
+                  throw err
+                }
+                if (req.session.role.role == "admin") {
+                    await res.redirect("/admin")
+                } else if (req.session.role.role == "broker") {
+                    await res.redirect("/broker")
+                } else if (req.session.role.role == "leadorub") {
+                    await res.redirect("/leadorub")
+                } else {
+                    await res.redirect("/login")
+                }
+              })
+
+        } else {
+            console.log('user not found')
+            await res.redirect("/login")
         }
-
-    } else {
-        res.cookie('loginError', 'Invalid login credentials', { maxAge: 5000 });  
-        res.redirect('/login.html');
+    } catch (e) {
+        console.log('error !!!!!!!!!! ', e)
     }
 })
 
 // Logout route
-app.get('/logout', (req, res) => {
-    res.clearCookie('token');
+app.get('/logout', async (req, res) => {
+    console.log("DEATH **************", req.session.user)
+    await req.session.destroy()
     res.redirect('/login.html');
 });
 
-app.get('/api/user', authenticateJWT, (req, res) => {
-    res.json({ user: req.user });
-});
+
 
 app.get('/', (req, res) => {
-    res.redirect('/login.html');
+
+    try {
+        if (req.session.role.role == "admin") {
+            res.redirect("/admin")
+        } else if (req.session.role.role == "broker") {
+            res.redirect("/broker")
+        } else if (req.session.role.role == "leadorub") {
+            res.redirect("/leadorub")
+        }
+    } catch (e) {
+        res.redirect("/login")
+    }
+
+})
+
+app.get('/api/user', (req, res) => {
+    res.json({ user: req.session.user });
 });
+
 
 async function startApp() {
     try {
         const uri = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_URL}:${MONGO_PORT}/${DATABASE_NAME}?authSource=admin`
-        console.log(uri)
         await mongoose.connect(uri)
     } catch (err) {
         console.log(err)
     }
 }
+
 
 app.listen(PORT, () => {
     startApp()

@@ -1,31 +1,8 @@
 const { Router } = require('express')
-const RoleModel = require("../models/ranks.js")
-const UserModel = require("../models/users.js")
 const LeadsModel = require("../models/leads.js")
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv').config()
-const secretKey = process.env.SECRET_KEY
+const dayjs = require('dayjs')
 
 const router = Router()
-
-const authenticateJWT = (req, res, next) => {
-    const token = req.cookies.token;
-
-    if (token) {
-        jwt.verify(token, secretKey, (err, user) => {
-            if (err) {
-                return res.redirect('/login.html');
-            }
-
-            req.user = user;
-            next();
-        });
-    } else {
-        res.redirect('/login.html');
-    }
-};
-
-router.use(authenticateJWT)
 
 // СОЗАДТБ НВОЫЙ ЛИД
 
@@ -41,8 +18,10 @@ router.post('/api/leadorub/leads', async function (req, res) {
         comment: comment,
         isSend: false,
         broker: broker,
-        starter: req.user.name
+        starter: req.session.name
     })
+
+    console.log('lead created by ', newLead)
 
     try {
         const result = await newLead.save()

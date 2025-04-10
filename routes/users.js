@@ -1,29 +1,7 @@
 const express = require('express')
 const RoleModel = require("../models/ranks.js")
 const UserModel = require("../models/users.js")
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv').config()
-const secretKey = process.env.SECRET_KEY
 const router = express.Router()
-
-const authenticateJWT = (req, res, next) => {
-    const token = req.cookies.token;
-
-    if (token) {
-        jwt.verify(token, secretKey, (err, user) => {
-            if (err) {
-                return res.redirect('/login.html');
-            }
-
-            req.user = user;
-            next();
-        });
-    } else {
-        res.redirect('/login.html');
-    }
-};
-
-router.use(authenticateJWT)
 
 
 // СОЗДАТЬ ЮЗЕРА
@@ -36,11 +14,11 @@ router.post('/api/admin/users', async function (req, res) {
         const name = req.body.name 
         const role = req.body.role
 
+        console.log(req.body)
+
         const refRole = await RoleModel.findOne({
             'role' : role
         })
-
-        console.log(refRole, '!!!!!!!!!!!!')
 
         let newUser = await UserModel({
             name: name,

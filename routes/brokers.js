@@ -1,29 +1,7 @@
 const { Router } = require('express')
-const RoleModel = require("../models/ranks.js")
 const UserModel = require("../models/users.js")
 const LeadsModel = require("../models/leads.js")
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv').config()
-const secretKey = process.env.SECRET_KEY
 const router = Router()
-
-const authenticateJWT = (req, res, next) => {
-    const token = req.cookies.token;
-    if (token) {
-        jwt.verify(token, secretKey, (err, user) => {
-            if (err) {
-                return res.redirect('/login.html');
-            }
-
-            req.user = user;
-            next();
-        });
-    } else {
-        res.redirect('/login.html');
-    }
-};
-
-router.use(authenticateJWT)
 
 // ПОЛУЧИТЬ ВСЕ ЛИДЫ У КОТОРЫХ НЕТ БРОКЕРА
 
@@ -81,7 +59,7 @@ router.put('/api/broker/leads/:index', async function(req, res) {
 // ПОЛУЧИТЬ ОБХЕКТ ЮЗЕРА ПО ЕГО ЛОГИНУ (КОГДА БРКОЕР ЗАЛОГИНИЛСЯ)
 
 router.get('/api/broker/profile', async function(req, res) {
-    const user = await UserModel.find({'login' : req.user.login})
+    const user = await UserModel.find({'login' : req.session.login})
     res.json(user)
 })
 
