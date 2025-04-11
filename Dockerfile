@@ -5,6 +5,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Копируем package.json и package-lock.json (или yarn.lock)
+COPY .env ./
 COPY package*.json ./
 
 # Устанавливаем зависимости
@@ -17,4 +18,4 @@ COPY . .
 EXPOSE 3000
 
 # Команда для запуска приложения
-CMD [ "node", "server" ]
+CMD [ "node", "server.js" ]
