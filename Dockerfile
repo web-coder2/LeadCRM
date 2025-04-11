@@ -1,5 +1,5 @@
 # Используем базовый образ Node.js
-FROM node:20-alpine
+FROM node:18-alpine
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Команда для запуска приложения
-CMD [ "npm", "start" ]
+CMD [ "node", "server" ]
