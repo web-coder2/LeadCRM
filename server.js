@@ -17,6 +17,7 @@ const usersRoute = require('./routes/users.js')
 const rolesRoute = require('./routes/roles.js')
 const leadsRoute = require('./routes/leads.js')
 const brokersRoute = require('./routes/brokers.js')
+const residenceRoute = require('./routes/residence.js')
 
 dotenv.config()
 
@@ -29,8 +30,6 @@ const MONGO_USER = process.env.DATABASE_USERNAME
 const MONGO_PASS = process.env.DATABASE_PASSWORD
 const MONGO_PORT = process.env.DATABASE_PORT
 const DATABASE_NAME = process.env.DATABASE_NAME
-
-const SKOROZVON_API = process.env.SKOROZVON_API
 
 
 
@@ -53,6 +52,7 @@ app.use(usersRoute)
 app.use(rolesRoute)
 app.use(leadsRoute)
 app.use(brokersRoute)
+app.use(residenceRoute)
 
 
 app.get('/login', (req, res) => {

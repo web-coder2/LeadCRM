@@ -373,11 +373,18 @@ body {
             filterShow: false,
             fitlerLeads: [],
             deletingLeadIdx: 0,
+
+            usersData: [],
+            usersDataShow: false,
+            callsData: [],
         },
         async beforeMount() {
             await this.fetchLeads();
             await this.fetchUsers();
             await this.getAllRoles()
+
+            await this.getUsersSkorozvon()
+            await this.getCallsSkorozvon()
         },
         computed: {
             brokers() {
@@ -583,7 +590,28 @@ body {
               .catch(error => {
                 console.error('Error:', error);
               });
-            }
+            },
+            async getUsersSkorozvon() {
+                const result = await fetch('/skorozvon/get/users', {
+                    method: "GET",
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    }
+                }).then(response => response.json()).then(data => this.usersData = data.usersData)
+                console.log(this.usersData)
+            },
+            async getCallsSkorozvon() {
+                const result = await fetch('/skorozvon/get/calls', {
+                    method: "GET",  
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    }
+                }).then(response => response.json()).then(data => this.callsData = data.callsData)
+                console.log(this.callsData)
+            },
+            changeUserDataShow() {
+                this.usersDataShow =! this.usersDataShow
+            },
         }
     });
 </script>
