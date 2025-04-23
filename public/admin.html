@@ -111,6 +111,38 @@
             </table>
         </div>
 
+        <div class="table-container mt-5 mb-5" v-if="!tableLoader">
+            <table class="table table-bordered table-striped table-dark">
+                <thead class="bg-danger text-light">
+                    <tr>
+                        <th>Имя</th>
+                        <th>email</th>
+                        <th>Входящие</th>
+                        <th>Исходящие</th>
+                        <th>Траниферед</th>
+                        <th>Пропущеный</th>
+                        <th>Количество лидов</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, idx) in skorozvonCallsData" :key="idx">
+                        <th>{{ item.name }}</th>
+                        <th>{{ item.email }}</th>
+                        <th>{{ item.incoming }}</th>
+                        <th>{{ item.outgoing }}</th>
+                        <th>{{ item.transfered }}</th>
+                        <th>{{ item.missed }}</th>
+                        <th>{{ item.leads }}</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
+            <strong class="text-danger">Загрузка таблицы</strong>
+            <div class="spinner-border ml-auto text-danger" role="status" aria-hidden="true"></div>
+        </div>
+
         <h3 class="mt-5 mb-5 text-light">Таблица с лидами</h3>
 
         <div class="mt-5 mb-5">
@@ -346,6 +378,83 @@ body {
 
 
 <script>
+
+    function getCallsTypes(array, leadorubsArr) {
+        let userDataArray = []
+
+        for (let i = 0; i < array.length; i++) {
+            let dataArray = array[i].data
+            for (let j = 0; j < dataArray.length; j++) {
+                if (dataArray[j].user['name'] !== null) {
+
+                    let aaa = leadorubsArr.filter(user => user.name == dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''))
+                    
+                    if (aaa.length > 0) {
+                        var login = aaa[0].login
+                    } else {
+                        var login = "Не определено"
+                    }
+
+                    let user = {
+                        'name' : dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''),
+                        'id' : dataArray[j].user['id'],
+                        'callType' : dataArray[j].call_type_code,
+                        'email' : login
+                        // ЗДЕСЬ Я БЛЯТЬ ПАЛУЧАЮ ОБХЕКТ ЮЗЕРА ( НО НУЖОНО ДЕЛАТЬ ПРАВЕРКУ ТАК КАК ЕСТЬ ЕБАНЫЙ БЕЗ ОТВЕСТВНО ЛИШНИК ЧТРОКИ КОДА НО НУЖНО УЧИТЫВАТЬ ТАКА КАК ДАВАСКРПИТ ПИЗДУ ДАСТ)
+                        // ПАТОМ БЛЧТЬ ЗАПИСАТЬ СЮДА ВОТ ТУ ХУЦНИ[0].login а потом уже в другой функции ниже делать проверку с счетчикум инкрементом ++
+                    }
+                    userDataArray.push(user)
+                }
+            }
+        }
+        return userDataArray
+    }
+
+    function summarizeData(dataArray, leadsArray) {
+        const summaryMap = new Map();
+
+        dataArray.forEach(item => {
+            const { name, callType, email } = item;
+
+            if (!summaryMap.has(name)) {
+                summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
+            }
+
+            //console.log(email, name) // так емаил и имя сопоставились заебисимо осталось терь по провери ++ к лидам делать по каждому юзеру 
+
+
+
+            const summaryItem = summaryMap.get(name);
+
+            switch (callType) {
+                case 'incoming':
+                    summaryItem.incoming++;
+                    break;
+                case 'outgoing':
+                    summaryItem.outgoing++;
+                    break;
+                case 'transfered':
+                    summaryItem.transfered++;
+                    break;
+                case 'missed':
+                    summaryItem.missed++;
+                    break;
+                default:
+                    console.warn(`Unknown callType: ${callType} for name: ${name}`);
+                    break;
+            }
+
+        });
+
+        for (let i = 0; i < leadsArray.length; i++) {
+
+            console.log(leadsArray[i].starter )
+        }
+
+        return Array.from(summaryMap.values());
+    }
+
+
     new Vue({
         el: '#app',
         data: {
@@ -377,14 +486,16 @@ body {
             usersData: [],
             usersDataShow: false,
             callsData: [],
+            skorozvonCallsData: [],
+            tableLoader: false,
         },
         async beforeMount() {
             await this.fetchLeads();
             await this.fetchUsers();
             await this.getAllRoles()
 
-            await this.getUsersSkorozvon()
             await this.getCallsSkorozvon()
+            await this.getUsersSkorozvon()
         },
         computed: {
             brokers() {
@@ -601,6 +712,8 @@ body {
                 console.log(this.usersData)
             },
             async getCallsSkorozvon() {
+                this.tableLoader = true
+
                 const result = await fetch('/skorozvon/get/calls', {
                     method: "GET",  
                     headers : {
@@ -608,6 +721,20 @@ body {
                     }
                 }).then(response => response.json()).then(data => this.callsData = data.callsData)
                 console.log(this.callsData)
+
+                let leadorubsArr = []
+
+                this.users.forEach((e) => {
+                    if (e.role.role === 'leadorub') {
+                        leadorubsArr.push(e)
+                    }
+                })
+
+                const usersAllInfo = getCallsTypes(this.callsData, leadorubsArr)
+
+                this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
+
+                this.tableLoader = false
             },
             changeUserDataShow() {
                 this.usersDataShow =! this.usersDataShow

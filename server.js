@@ -17,7 +17,7 @@ const usersRoute = require('./routes/users.js')
 const rolesRoute = require('./routes/roles.js')
 const leadsRoute = require('./routes/leads.js')
 const brokersRoute = require('./routes/brokers.js')
-const residenceRoute = require('./routes/residence.js')
+const skorozvonRoute = require('./routes/skorozvon.js')
 
 dotenv.config()
 
@@ -52,7 +52,7 @@ app.use(usersRoute)
 app.use(rolesRoute)
 app.use(leadsRoute)
 app.use(brokersRoute)
-app.use(residenceRoute)
+app.use(skorozvonRoute)
 
 
 app.get('/login', (req, res) => {
