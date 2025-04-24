@@ -111,6 +111,9 @@
             </table>
         </div>
 
+        
+        <h3 class="text-warning">Таблица показателей на сегодня</h3>
+
         <div class="table-container mt-5 mb-5" v-if="!tableLoader">
             <table class="table table-bordered table-striped table-dark">
                 <thead class="bg-danger text-light">
@@ -119,9 +122,10 @@
                         <th>email</th>
                         <th>Входящие</th>
                         <th>Исходящие</th>
-                        <th>Траниферед</th>
+                        <th>Трансферед</th>
                         <th>Пропущеный</th>
                         <th>Количество лидов</th>
+                        <th>Зарплата</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,6 +137,7 @@
                         <th>{{ item.transfered }}</th>
                         <th>{{ item.missed }}</th>
                         <th>{{ item.leads }}</th>
+                        <th>{{ getSalaryByCall(item) }}</th>
                     </tr>
                 </tbody>
             </table>
@@ -142,8 +147,6 @@
             <strong class="text-danger">Загрузка таблицы</strong>
             <div class="spinner-border ml-auto text-danger" role="status" aria-hidden="true"></div>
         </div>
-
-        <h3 class="mt-5 mb-5 text-light">Таблица с лидами</h3>
 
         <div class="mt-5 mb-5">
             <button class="btn btn-outline-danger" @click="filterShow =! filterShow">Фильтры</button>
@@ -446,12 +449,20 @@ body {
 
         });
 
-        for (let i = 0; i < leadsArray.length; i++) {
-
-            console.log(leadsArray[i].starter )
-        }
-
         return Array.from(summaryMap.values());
+    }
+
+    function getPlusLead(table, leadTable) {  // skorozvonCallsData  = (table) , leadsArray = (leadTable)
+        table.map((e) => {
+            leadTable.forEach((t) => {  
+                if (t.starter === e.name || t.starter === e.email) {
+                    // добавлю пока что отедльное условие на точто бы лид был сделан сегодня
+                    if (t.date === dayjs(new Date).format('YYYY-MM-DD')) {
+                        e.leads++
+                    }
+                }
+            })
+        })
     }
 
 
@@ -488,6 +499,14 @@ body {
             callsData: [],
             skorozvonCallsData: [],
             tableLoader: false,
+
+            koefN: 2,
+            koefZ: 1,
+            koefX: 0.00025,
+            koefY: 0.025,
+            cost: 125,
+            
+
         },
         async beforeMount() {
             await this.fetchLeads();
@@ -734,11 +753,18 @@ body {
 
                 this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
 
+                getPlusLead(this.skorozvonCallsData, this.leads)
+                console.log(this.skorozvonCallsData)
+
                 this.tableLoader = false
             },
             changeUserDataShow() {
                 this.usersDataShow =! this.usersDataShow
             },
+            getSalaryByCall(item) {
+                let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
+                return salary
+            }
         }
     });
 </script>

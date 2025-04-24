@@ -50,35 +50,39 @@ router.get('/skorozvon/get/calls', async (req, res) => {
 
     //console.log(tokenAuth)
 
-    // const query = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
-    //     params: {
-    //         'length': 100,
-    //         'page': 1
-    //     },
-    //     headers: { 'Authorization': `Bearer ${tokenAuth}` },
-    // });
-
-    // const total_pages = query.data.total_pages
-
-    // for (let i = 1; i <= total_pages; i++) {
-    //     const response = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
-    //         params: {
-    //             'length' : 100,
-    //             'page' : i
-    //         },
-    //         headers: { Authorization: `Bearer ${tokenAuth}` },
-    //     })
-    //     callArray.push(response.data)
-    // }
-
-    const response = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
+    const query = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
         params: {
-            'length' : 100,
-            'page' : 7
+            'length': 100,
+            'page': 1
         },
-        headers: { Authorization: `Bearer ${tokenAuth}` },
-    })
-    callArray.push(response.data)
+        headers: { 'Authorization': `Bearer ${tokenAuth}` },
+    });
+
+    const total_pages = query.data.total_pages
+
+    // console.log(total_pages)
+
+    for (let i = 1; i <= total_pages; i++) {
+        const response = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
+            params: {
+                'length' : 100,
+                'page' : i
+            },
+            headers: { Authorization: `Bearer ${tokenAuth}` },
+        })
+        callArray.push(response.data)
+    }
+
+    // TODO это нужно будет использовать когда буду делать новый алгоритм и там крч чтобы долго не ждал чтото типа мини данные что не ждать каждый раз по 100500 минут
+
+    // const response = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
+    //     params: {
+    //         'length' : 100,
+    //         'page' : 7
+    //     },
+    //     headers: { Authorization: `Bearer ${tokenAuth}` },
+    // })
+    // callArray.push(response.data)
 
     res.send({'callsData' : callArray})
 
