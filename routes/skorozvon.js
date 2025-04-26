@@ -38,9 +38,12 @@ router.get('/skorozvon/get/users', async (req, res) => {
 
 })
 
-router.get('/skorozvon/get/calls', async (req, res) => {
+router.get('/skorozvon/get/calls/:startTime', async (req, res) => {
 
     const callArray = []
+
+    const startTime = parseInt(req.params.startTime)
+    const endTime = startTime + (24 * 60 * 60)
 
     // const startOfMonth = dayjs(new Date).startOf('month');
     // const endOfMonth = dayjs(new Date).endOf('month');
@@ -53,7 +56,9 @@ router.get('/skorozvon/get/calls', async (req, res) => {
     const query = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
         params: {
             'length': 100,
-            'page': 1
+            'page': 1,
+            'start_time' : startTime,
+            'end_time' : endTime
         },
         headers: { 'Authorization': `Bearer ${tokenAuth}` },
     });
@@ -66,7 +71,9 @@ router.get('/skorozvon/get/calls', async (req, res) => {
         const response = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
             params: {
                 'length' : 100,
-                'page' : i
+                'page' : i,
+                'start_time' : startTime,
+                'end_time' : endTime
             },
             headers: { Authorization: `Bearer ${tokenAuth}` },
         })

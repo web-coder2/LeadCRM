@@ -111,8 +111,12 @@
             </table>
         </div>
 
+        <div style="display: flex;">
+            <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5">
+            <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
+        </div>
         
-        <h3 class="text-warning">Таблица показателей на сегодня</h3>
+        <h3 class="text-warning">Таблица показателей на {{ tableTime }}</h3>
 
         <div class="table-container mt-5 mb-5" v-if="!tableLoader">
             <table class="table table-bordered table-striped table-dark">
@@ -452,12 +456,14 @@ body {
         return Array.from(summaryMap.values());
     }
 
-    function getPlusLead(table, leadTable) {  // skorozvonCallsData  = (table) , leadsArray = (leadTable)
+    function getPlusLead(table, leadTable, tableTime) {  // skorozvonCallsData  = (table) , leadsArray = (leadTable)
         table.map((e) => {
             leadTable.forEach((t) => {  
                 if (t.starter === e.name || t.starter === e.email) {
                     // добавлю пока что отедльное условие на точто бы лид был сделан сегодня
-                    if (t.date === dayjs(new Date).format('YYYY-MM-DD')) {
+                    //if (t.date === dayjs(new Date).format('YYYY-MM-DD')) {
+                    console.log(t.date, tableTime)
+                    if (t.date == tableTime) {
                         e.leads++
                     }
                 }
@@ -499,11 +505,12 @@ body {
             callsData: [],
             skorozvonCallsData: [],
             tableLoader: false,
+            tableTime: dayjs(new Date).format('YYYY-MM-DD'),
 
             koefN: 2,
             koefZ: 1,
-            koefX: 0.00025,
-            koefY: 0.025,
+            koefX: 0.0001,
+            koefY: 0.01,
             cost: 125,
             
 
@@ -514,7 +521,7 @@ body {
             await this.getAllRoles()
 
             await this.getCallsSkorozvon()
-            await this.getUsersSkorozvon()
+            //await this.getUsersSkorozvon()
         },
         computed: {
             brokers() {
@@ -733,11 +740,11 @@ body {
             async getCallsSkorozvon() {
                 this.tableLoader = true
 
-                const result = await fetch('/skorozvon/get/calls', {
+                const result = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).unix()}`, {
                     method: "GET",  
                     headers : {
                         'Content-Type' : 'application/json'
-                    }
+                    },
                 }).then(response => response.json()).then(data => this.callsData = data.callsData)
                 console.log(this.callsData)
 
@@ -753,7 +760,9 @@ body {
 
                 this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
 
-                getPlusLead(this.skorozvonCallsData, this.leads)
+                console.log(this.tableTime)
+
+                getPlusLead(this.skorozvonCallsData, this.leads, this.tableTime)
                 console.log(this.skorozvonCallsData)
 
                 this.tableLoader = false
