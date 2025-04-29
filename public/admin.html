@@ -9,319 +9,410 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div id="app">
 
-    <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-        <div style="display: flex; align-items: center;">
-            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-            <p class="navbar-brand" style="font-family: cursive;">HBA-LeadCRM</p>
-        </div>
 
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <!-- Верхний навбар -->
+    <nav class="navbar navbar-expand-md navbar-dark" v-if="isDesktop == false">
+        <a class="navbar-brand" href="#">
+            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
+            <span v-if="!isCollapsed">HBA-LeadCRM</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="collapsibleNavbar">
-            <ul class="navbar-nav">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a href="/logout" class="text-danger">Выйти</a>
+                    <a class="nav-link" @click="activeTabs = 'users'">
+                        <i class="fas fa-users text-warning"></i>
+                        <span v-if="!isCollapsed">Пользователи</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" @click="activeTabs = 'skorozvon'">
+                        <i class="fas fa-phone-alt text-primary"></i>
+                        <span v-if="!isCollapsed">Скорозвон</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" @click="activeTabs = 'leads'">
+                        <i class="fas fa-leaf text-success"></i>
+                        <span v-if="!isCollapsed">Лиды</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" @click="activeTabs = 'dashboard'">
+                        <i class="fas fa-tachometer-alt text-info"></i>
+                        <span v-if="!isCollapsed">Дашборд</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt text-danger"></i>
+                        <span v-if="!isCollapsed">Выйти</span>
+                    </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="main-block">
-
-        <h3 class="mt-5 mb-3 text-light">Создать нового юзера</h3>
-        <form @submit.prevent="createUser" class="mt-5">
-            <div class="form-row">
-                <div class="col">
-                    <input type="text" class="form-control bg-dark text-light" placeholder="Логин" v-model="newUser.login" required>
-                </div>
-                <div class="col">
-                    <input type="password" class="form-control bg-dark text-light" placeholder="Пароль" v-model="newUser.password" required>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control bg-dark text-light" placeholder="Имя" v-model="newUser.name" required>
-                </div>
-                <div class="col">
-                    <select class="form-control bg-dark text-light" v-model="newUser.role" required>
-                        <!--<option value="leadorub">ледоруб</option>
-                        <option value="broker">брокер</option>
-                        <option value="admin">Админ</option>-->
-                        <option v-for="(item, idx) in allRoles" :value="item.role">{{ item.role }}</option>
-                    </select>
-                </div>
-                <div class="col mb-5 d-flex">
-                    <button class="btn btn-outline-success mr-3" data-toggle="modal" data-target="#newRole">+ роль</button>
-                    <button type="submit" class="btn btn-outline-danger">создать юзера</button>
-                </div>
-            </div>
-            <div v-if="userMessage" class="mt-3 alert bg-dark text-danger">
-                {{ userMessage }}
-            </div>
-        </form>
-
-
-        <div class="modal" id="newRole">
-            <div class="modal-dialog">
-              <div class="modal-content bg-dark">
-          
-                <!-- Modal Header -->
-                <div class="modal-header">
-                  <h4 class="modal-title text-light">добавить новую роль</h4>
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-          
-                <!-- Modal body -->
-                <div class="modal-body d-flex">
-                  <input class="form-control bg-dark text-light" placeholder="название роли" v-model="newRoleInput">
-                  <button class="btn btn-outline-success ml-3" @click="addNewRole()">добавить</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-        <div class="table-container">
-            <table class="table table-striped mt-3 table-dark table-bordered">
-                <thead class="bg-danger text-light">
-                <tr>
-                    <th style="white-space: nowrap;">Имя</th>
-                    <th style="white-space: nowrap;">Логин</th>
-                    <th style="white-space: nowrap;">Роль</th>
-                    <th style="white-space: nowrap;">Статус</th>
-                    <th style="white-space: nowrap;">Действия-удалить</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="user in users" :key="user.login">
-                    <td><img class="imger" :src="user.role == 'admin' ? 'admin.jpeg' : 'logo.jpg' "> {{ user.name }}</td>
-                    <td>{{ user.login }}</td>
-                    <td>{{ user.role.role }}</td>
-                    <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
-                    <td>
-                        <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера
-                        </button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <!-- Левый сайдбар -->
+    <div class="sidebar" :class="{ collapsed: isCollapsed }" v-if="isDesktop == true">
+        <div style="display: flex; align-items: center; padding-left: 15px; padding-bottom: 20px;">
+            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
+            <p class="navbar-brand text-light" style="font-family: cursive;" v-if="!isCollapsed">HBA-LeadCRM</p>
         </div>
 
-        <div style="display: flex;">
-            <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5">
-            <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
-        </div>
-        
-        <h3 class="text-warning">Таблица показателей на {{ tableTime }}</h3>
-
-        <div class="table-container mt-5 mb-5" v-if="!tableLoader">
-            <table class="table table-bordered table-striped table-dark">
-                <thead class="bg-danger text-light">
-                    <tr>
-                        <th>Имя</th>
-                        <th>email</th>
-                        <th>Входящие</th>
-                        <th>Исходящие</th>
-                        <th>Трансферед</th>
-                        <th>Пропущеный</th>
-                        <th>Количество лидов</th>
-                        <th>Зарплата</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, idx) in skorozvonCallsData" :key="idx">
-                        <th>{{ item.name }}</th>
-                        <th>{{ item.email }}</th>
-                        <th>{{ item.incoming }}</th>
-                        <th>{{ item.outgoing }}</th>
-                        <th>{{ item.transfered }}</th>
-                        <th>{{ item.missed }}</th>
-                        <th>{{ item.leads }}</th>
-                        <th>{{ getSalaryByCall(item) }}</th>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
-            <strong class="text-danger">Загрузка таблицы</strong>
-            <div class="spinner-border ml-auto text-danger" role="status" aria-hidden="true"></div>
-        </div>
-
-        <div class="mt-5 mb-5">
-            <button class="btn btn-outline-danger" @click="filterShow =! filterShow">Фильтры</button>
-            <div v-if="filterShow" class="form-row mt-3">
-                <div class="form-group col-sm-12 col-md-4">
-                    <label for="startDate" class="text-light">выбор начала диапазона даты</label>
-                    <input type="date" id="startDate" class="form-control bg-dark text-light" id="leadDate" v-model="filterDate">
-                    <label for="endDate" class="text-light mt-3">выбор конца диапазона даты</label>
-                    <input id="endDate" type="date" class="form-control bg-dark text-light" id="leadDate" v-model="filterDateEnd">
-                    <select class="form-control bg-dark text-light mt-3" v-model="filterBroker" required>
-                        <option value="">Все брокеры</option>
-                        <option v-for="(item, idx) in users" :value="item.login" v-if="item.role.role == 'broker'">{{ item.name}}</option>
-                    </select>
-                    <select class="form-control bg-dark text-light mt-3" v-model="filterLeaders" required>
-                        <option value="">Все Лидорубы</option>
-                        <option v-for="(item, idx) in users" :value="[item.login, item.name]" v-if="item.role.role == 'leadorub'">{{ item.name }}</option>
-                    </select>
-                    <!-- select обработан или не обработан filterIsSend -->
-                     <select class="form-control bg-dark text-light mt-3" v-model="filterIsSend" required>
-                        <option value="qwerty">Все состояния</option>
-                        <option :value="true">Все обработные</option>
-                        <option :value="false">Все неОбработные</option>
-                     </select>
-                </div>
-            </div>
-            <hr style="height: 2px; background-color: rgb(123, 24, 24);">
-            <div class="btn-group">
-                <button type="button" class="btn btn-outline-warning" @click="saveFilters(); starterFilter=true">Применить</button>
-                <button type="button" class="btn btn-outline-danger ml-3" @click="resetFilters()">Сбросить</button>
-            </div>
-        </div>
-
-        <h5 class="text-warning mt-5 mb-5">Таблица с фильтроваными фильтрами:</h5>
-        <ul class="mb-5">
-            <li class="text-light">фильтрованая Дата (start) = <span class="text-danger">{{ filterDate ? filterDate : 'Не выбран' }}</span></li>
-            <li class="text-light">фильтрованая Дата (end) = <span class="text-danger">{{ filterDateEnd ? filterDateEnd : 'Не выбран' }}</span></li>
-            <li class="text-light">фильтрованая Брокер = <span class="text-danger">{{ filterBroker ? filterBroker : 'все брокеры' }}</span></li>
-            <li class="text-light">фильтрованая Лидоруб = <span class="text-danger">{{ filterLeaders ? filterLeaders[0] : 'все лидорубы'}}</span></li>
-            <li class="text-light">фильтрованый логический обработна или нет = <span class="text-warning">{{ filterIsSend == "qwerty" ? 'все состояние' : filterIsSend }}</span></li>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt text-danger" :class="{ 'bigAss' : isCollapsed }"></i>
+                    <span v-if="!isCollapsed">Выйти</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" @click="activeTabs = 'users'">
+                    <i class="fas fa-users text-warning" :class="{ 'bigAss' : isCollapsed }"></i>
+                    <span v-if="!isCollapsed">Пользователи</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" @click="activeTabs = 'skorozvon'">
+                    <i class="fas fa-phone-alt text-primary" :class="{ 'bigAss' : isCollapsed }"></i>
+                    <span v-if="!isCollapsed">Скорозвон</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" @click="activeTabs = 'leads'">
+                    <i class="fas fa-leaf text-success" :class="{ 'bigAss' : isCollapsed }"></i>
+                    <span v-if="!isCollapsed">Лиды</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" @click="activeTabs = 'dashboard'">
+                    <i class="fas fa-tachometer-alt text-info" :class="{ 'bigAss' : isCollapsed }"></i>
+                    <span v-if="!isCollapsed">Дашборд</span>
+                </a>
+            </li>
         </ul>
 
-        <div class="table-container mb-5">
-            <table class="table table-bordered table-striped table-dark">
-                <thead class="bg-danger text-light">
-                    <tr>
-                        <th class="table-column">Дата лида созданого</th>
-                        <th class="table-column2">Телефон лида звонка</th>
-                        <th class="table-column2">Имя клиента</th>
-                        <th class="table-column">Коментарий к звонку</th>
-                        <th class="table-column">Обработан ?</th>
-                        <th class="table-column">Какому брокеру</th>
-                        <th class="table-column2">Какой Ледоруб</th>
-                    </tr>
-                </thead>
-                <tbody v-for="(lead, index) in filteredLeads" v-if="filteredLeads.length > 0 || starterFilter == false">
-                    <td>{{ lead.date }}</td>
-                    <td>{{ lead.phone }}</td>
-                    <td>{{ lead.client_name }}</td>
-                    <td>{{ lead.comment }}</td>
-                    <td><input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"></td>
-                    <td>{{lead.broker}}</td>
-                    <td>{{lead.starter}}</td>
-                </tbody>
-                <tbody v-if="filteredLeads.length == 0 && starterFilter == true">
-                    <td>нет данных</td>
-                    <td>нет данных</td>
-                    <td>нет данных</td>
-                    <td>нет данных</td>
-                    <td>нет данных</td>
-                    <td>нет данных</td>
-                    <td>нет данных</td>
-                </tbody>
-            </table>
-        </div>
+        <button class="btn btn-light btn-sm" style="position: absolute; bottom: 20px; right: 20px;" @click="toggleSidebar">
+            <i class="fas" :class="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+        </button>
+    </div>
 
-        <h5 class="text-warning mb-5">Таблица с нефильтроваными (всеми лидами)</h5>
+    <div :class="{ content: true, collapsed: isCollapsed }">
+        <div class="main-block">
 
-        <div class="table-container mb-5">
-            <table class="table table-striped table-dark table-bordered">
-                <thead class="bg-danger text-light">
-                <tr>
-                    <th class="table-column">Дата лида созданого</th>
-                    <th class="table-column2">Телефон лида звонка</th>
-                    <th class="table-column2">Имя клиента</th>
-                    <th class="table-column">Коментарий к звонку</th>
-                    <!-- <th class="table-column2">Статус лида на момент</th> -->
-                    <th class="table-column">Обработан ?</th>
-                    <th class="table-column">Какому брокеру</th>
-                    <th class="table-column2">Какой Ледоруб</th>
-                    <!--<th class="table-column">Назначить брокера (если лид без брокера)</th>-->
-                    <th class="table-column">Назначить брокера</th>
-                    <th class="table-column">Действия-удалить</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(lead, index) in leads" :key="index">
-                    <td>{{ lead.date }}</td>
-                    <td>{{ lead.phone }}</td>
-                    <td>{{ lead.client_name }}</td>
-                    <td>{{ lead.comment }}</td>
-                    <!-- <td>
-                        <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
-                            <option value="created">Created</option>
-                            <option value="hold">Hold</option>
-                            <option value="transfer">Transfer</option>
-                            <option value="нецелевой">Нецелевой</option>
-                        </select>
-                    </td> -->
-                    <td>
-                        <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
-                        <!-- <button 
-                        class="btn" 
-                        :class="getColorSend(lead.isSend)"
-                        @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
-                            {{ lead.isSend ? 'Обработан' : 'Не обработан' }}
-                        </button> -->
-                    </td>
-                    <td>{{lead.broker}}</td>
-                    <td>{{lead.starter}}</td>
-                    <td>
-                        <!--<select class="form-control" v-if="lead.broker == '' " v-model="lead.newBroker" @change="assignBroker(index, lead)">-->
-                        <select class="form-control bg-dark text-light" v-model="lead.newBroker" @change="assignBroker(index, lead)">
-                            <option v-for="broker in brokers" :key="broker.login" :value="broker.login">{{ broker.name }}</option>
-                        </select>        
-                    </td>
-                    <td>
-                        <!--<button class="btn btn-outline-success" @click="deleteLead(index)">Удалить лид</button>-->
-                        <button class="btn btn-outline-success" data-toggle="modal" data-target="#myModal" @click="prepareDeleteLead(lead._id)">Удалить лид</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+            
+            <div v-if="activeTabs == 'users'">
+                <h3 class="mt-5 mb-3 text-light">Создать нового юзера</h3>
+                <form @submit.prevent="createUser" class="mt-5">
+                    <div class="form-row">
+                        <div class="col">
+                            <input type="text" class="form-control bg-dark text-light" placeholder="Логин" v-model="newUser.login" required>
+                        </div>
+                        <div class="col">
+                            <input type="password" class="form-control bg-dark text-light" placeholder="Пароль" v-model="newUser.password" required>
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control bg-dark text-light" placeholder="Имя" v-model="newUser.name" required>
+                        </div>
+                        <div class="col">
+                            <select class="form-control bg-dark text-light" v-model="newUser.role" required>
+                                <!--<option value="leadorub">ледоруб</option>
+                                <option value="broker">брокер</option>
+                                <option value="admin">Админ</option>-->
+                                <option v-for="(item, idx) in allRoles" :value="item.role">{{ item.role }}</option>
+                            </select>
+                        </div>
+                        <div class="col mb-5 d-flex">
+                            <button class="btn btn-outline-success mr-3" data-toggle="modal" data-target="#newRole">+ роль</button>
+                            <button type="submit" class="btn btn-outline-danger">создать юзера</button>
+                        </div>
+                    </div>
+                    <div v-if="userMessage" class="mt-3 alert bg-dark text-danger">
+                        {{ userMessage }}
+                    </div>
+                </form>
 
-        <!-- The Modal -->
-        <div class="modal fade" id="myModal">
-            <div class="modal-dialog modal-sm modal-dialog-centered">
-                <div class="modal-content bg-dark text-light">
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h4 class="modal-title">Удаление лида</h4>
+
+                <div class="modal" id="newRole">
+                    <div class="modal-dialog">
+                    <div class="modal-content bg-dark">
+                
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                        <h4 class="modal-title text-light">добавить новую роль</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>       
-                    <!-- Modal body -->
-                    <div class="modal-body">
-                        <p>Ты точно хочешь удалить лид?</p>
-                    </div>  
-                    <!-- Modal footer -->
-                    <div class="modal-footer btn-group">
-                        <button type="button" class="btn btn-outline-danger" @click="deleteLead()" data-dismiss="modal">Удалить</button>
-                        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Отмена</button>
-                    </div> 
+                        </div>
+                
+                        <!-- Modal body -->
+                        <div class="modal-body d-flex">
+                        <input class="form-control bg-dark text-light" placeholder="название роли" v-model="newRoleInput">
+                        <button class="btn btn-outline-success ml-3" @click="addNewRole()">добавить</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+
+                <div class="table-container">
+                    <table class="table table-striped mt-3 table-dark table-bordered">
+                        <thead class="bg-danger text-light">
+                        <tr>
+                            <th style="white-space: nowrap;">Имя</th>
+                            <th style="white-space: nowrap;">Логин</th>
+                            <th style="white-space: nowrap;">Роль</th>
+                            <th style="white-space: nowrap;">Статус</th>
+                            <th style="white-space: nowrap;">Действия-удалить</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="user in users" :key="user.login">
+                            <td><img class="imger" :src="user.role == 'admin' ? 'admin.jpeg' : 'logo.jpg' "> {{ user.name }}</td>
+                            <td>{{ user.login }}</td>
+                            <td>{{ user.role.role }}</td>
+                            <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
+                            <td>
+                                <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
 
 
 
+            <div v-if="activeTabs == 'skorozvon'">
+                <div style="display: flex;">
+                    <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5">
+                    <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
+                </div>
+                
+                <h3 class="text-warning">Таблица показателей на {{ tableTime }}</h3>
 
-        <div class="mt-5">
-            <h4 class="text-light">Прогресс по лидам</h4>
-            <div class="progress mt-3 mb-5">
-                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated bg-dark"
-                    :style="{'width': this.leadProgress + '%'}"
-                    role="progressbar"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    >
-                    {{ leadProgress ? leadProgress : 'Нет лидов' }}
+                <div class="table-container mt-5 mb-5" v-if="!tableLoader">
+                    <table class="table table-bordered table-striped table-dark">
+                        <thead class="bg-danger text-light">
+                            <tr>
+                                <th>Имя</th>
+                                <th>email</th>
+                                <th>Входящие</th>
+                                <th>Исходящие</th>
+                                <th>Трансферед</th>
+                                <th>Пропущеный</th>
+                                <th>Количество лидов</th>
+                                <th>Зарплата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, idx) in skorozvonCallsData" :key="idx">
+                                <th>{{ item.name }}</th>
+                                <th>{{ item.email }}</th>
+                                <th>{{ item.incoming }}</th>
+                                <th>{{ item.outgoing }}</th>
+                                <th>{{ item.transfered }}</th>
+                                <th>{{ item.missed }}</th>
+                                <th>{{ item.leads }}</th>
+                                <th>{{ getSalaryByCall(item) }}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
+                    <strong class="text-danger">Загрузка таблицы</strong>
+                    <div class="spinner-border ml-auto text-danger" role="status" aria-hidden="true"></div>
                 </div>
             </div>
+
+
+
+            <div v-if="activeTabs == 'leads'">
+                <div class="mt-5 mb-5">
+                    <button class="btn btn-outline-danger" @click="filterShow =! filterShow">Фильтры</button>
+                    <div v-if="filterShow" class="form-row mt-3">
+                        <div class="form-group col-sm-12 col-md-4">
+                            <label for="startDate" class="text-light">выбор начала диапазона даты</label>
+                            <input type="date" id="startDate" class="form-control bg-dark text-light" id="leadDate" v-model="filterDate">
+                            <label for="endDate" class="text-light mt-3">выбор конца диапазона даты</label>
+                            <input id="endDate" type="date" class="form-control bg-dark text-light" id="leadDate" v-model="filterDateEnd">
+                            <select class="form-control bg-dark text-light mt-3" v-model="filterBroker" required>
+                                <option value="">Все брокеры</option>
+                                <option v-for="(item, idx) in users" :value="item.login" v-if="item.role.role == 'broker'">{{ item.name}}</option>
+                            </select>
+                            <select class="form-control bg-dark text-light mt-3" v-model="filterLeaders" required>
+                                <option value="">Все Лидорубы</option>
+                                <option v-for="(item, idx) in users" :value="[item.login, item.name]" v-if="item.role.role == 'leadorub'">{{ item.name }}</option>
+                            </select>
+                            <!-- select обработан или не обработан filterIsSend -->
+                            <select class="form-control bg-dark text-light mt-3" v-model="filterIsSend" required>
+                                <option value="qwerty">Все состояния</option>
+                                <option :value="true">Все обработные</option>
+                                <option :value="false">Все неОбработные</option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr style="height: 2px; background-color: rgb(123, 24, 24);">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-warning" @click="saveFilters(); starterFilter=true">Применить</button>
+                        <button type="button" class="btn btn-outline-danger ml-3" @click="resetFilters()">Сбросить</button>
+                    </div>
+                </div>
+
+                <h5 class="text-warning mt-5 mb-5">Таблица с фильтроваными фильтрами:</h5>
+                <ul class="mb-5">
+                    <li class="text-light">фильтрованая Дата (start) = <span class="text-danger">{{ filterDate ? filterDate : 'Не выбран' }}</span></li>
+                    <li class="text-light">фильтрованая Дата (end) = <span class="text-danger">{{ filterDateEnd ? filterDateEnd : 'Не выбран' }}</span></li>
+                    <li class="text-light">фильтрованая Брокер = <span class="text-danger">{{ filterBroker ? filterBroker : 'все брокеры' }}</span></li>
+                    <li class="text-light">фильтрованая Лидоруб = <span class="text-danger">{{ filterLeaders ? filterLeaders[0] : 'все лидорубы'}}</span></li>
+                    <li class="text-light">фильтрованый логический обработна или нет = <span class="text-warning">{{ filterIsSend == "qwerty" ? 'все состояние' : filterIsSend }}</span></li>
+                </ul>
+
+                <div class="table-container mb-5">
+                    <table class="table table-bordered table-striped table-dark">
+                        <thead class="bg-danger text-light">
+                            <tr>
+                                <th class="table-column">Дата лида созданого</th>
+                                <th class="table-column2">Телефон лида звонка</th>
+                                <th class="table-column2">Имя клиента</th>
+                                <th class="table-column">Коментарий к звонку</th>
+                                <th class="table-column">Обработан ?</th>
+                                <th class="table-column">Какому брокеру</th>
+                                <th class="table-column2">Какой Ледоруб</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="(lead, index) in filteredLeads" v-if="filteredLeads.length > 0 || starterFilter == false">
+                            <td>{{ lead.date }}</td>
+                            <td>{{ lead.phone }}</td>
+                            <td>{{ lead.client_name }}</td>
+                            <td>{{ lead.comment }}</td>
+                            <td><input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"></td>
+                            <td>{{lead.broker}}</td>
+                            <td>{{lead.starter}}</td>
+                        </tbody>
+                        <tbody v-if="filteredLeads.length == 0 && starterFilter == true">
+                            <td>нет данных</td>
+                            <td>нет данных</td>
+                            <td>нет данных</td>
+                            <td>нет данных</td>
+                            <td>нет данных</td>
+                            <td>нет данных</td>
+                            <td>нет данных</td>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h5 class="text-warning mb-5">Таблица с нефильтроваными (всеми лидами)</h5>
+
+                <div class="table-container mb-5">
+                    <table class="table table-striped table-dark table-bordered">
+                        <thead class="bg-danger text-light">
+                        <tr>
+                            <th class="table-column">Дата лида созданого</th>
+                            <th class="table-column2">Телефон лида звонка</th>
+                            <th class="table-column2">Имя клиента</th>
+                            <th class="table-column">Коментарий к звонку</th>
+                            <!-- <th class="table-column2">Статус лида на момент</th> -->
+                            <th class="table-column">Обработан ?</th>
+                            <th class="table-column">Какому брокеру</th>
+                            <th class="table-column2">Какой Ледоруб</th>
+                            <!--<th class="table-column">Назначить брокера (если лид без брокера)</th>-->
+                            <th class="table-column">Назначить брокера</th>
+                            <th class="table-column">Действия-удалить</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(lead, index) in leads" :key="index">
+                            <td>{{ lead.date }}</td>
+                            <td>{{ lead.phone }}</td>
+                            <td>{{ lead.client_name }}</td>
+                            <td>{{ lead.comment }}</td>
+                            <!-- <td>
+                                <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
+                                    <option value="created">Created</option>
+                                    <option value="hold">Hold</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="нецелевой">Нецелевой</option>
+                                </select>
+                            </td> -->
+                            <td>
+                                <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
+                                <!-- <button 
+                                class="btn" 
+                                :class="getColorSend(lead.isSend)"
+                                @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
+                                    {{ lead.isSend ? 'Обработан' : 'Не обработан' }}
+                                </button> -->
+                            </td>
+                            <td>{{lead.broker}}</td>
+                            <td>{{lead.starter}}</td>
+                            <td>
+                                <!--<select class="form-control" v-if="lead.broker == '' " v-model="lead.newBroker" @change="assignBroker(index, lead)">-->
+                                <select class="form-control bg-dark text-light" v-model="lead.newBroker" @change="assignBroker(index, lead)">
+                                    <option v-for="broker in brokers" :key="broker.login" :value="broker.login">{{ broker.name }}</option>
+                                </select>        
+                            </td>
+                            <td>
+                                <!--<button class="btn btn-outline-success" @click="deleteLead(index)">Удалить лид</button>-->
+                                <button class="btn btn-outline-success" data-toggle="modal" data-target="#myModal" @click="prepareDeleteLead(lead._id)">Удалить лид</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- The Modal -->
+                <div class="modal fade" id="myModal">
+                    <div class="modal-dialog modal-sm modal-dialog-centered">
+                        <div class="modal-content bg-dark text-light">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Удаление лида</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>       
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <p>Ты точно хочешь удалить лид?</p>
+                            </div>  
+                            <!-- Modal footer -->
+                            <div class="modal-footer btn-group">
+                                <button type="button" class="btn btn-outline-danger" @click="deleteLead()" data-dismiss="modal">Удалить</button>
+                                <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Отмена</button>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div v-if="activeTabs == 'dashboard'">
+                <div class="mt-5">
+                    <h4 class="text-light">Прогресс по лидам</h4>
+                    <div class="progress mt-3 mb-5">
+                        <div class="progress-bar progress-bar-striped bg-success progress-bar-animated bg-dark"
+                            :style="{'width': this.leadProgress + '%'}"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            >
+                            {{ leadProgress ? leadProgress : 'Нет лидов' }}
+                        </div>
+                    </div>
+                </div>
+                <canvas id="myChart" width="400" height="200"></canvas>
+            </div>
+
+
         </div>
     </div>
 </div>
@@ -330,6 +421,38 @@
 
 body {
     background-color: rgb(34, 30, 30);
+    overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
+}
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px; /* Ширина сайдбара для десктопа */
+    background-color: #343a40; /* Цвет фона сайдбара */
+    padding-top: 20px;
+    transition: all 0.3s; /* Плавный переход при изменении ширины */
+}
+.sidebar.collapsed {
+    width: 70px; /* Ширина сайдбара для мобильных устройств */
+}
+.sidebar a {
+    color: #ffffff; /* Цвет ссылок */
+}
+.content {
+    margin-left: 250px; /* Отступ основного контента от сайдбара */
+    transition: margin-left 0.3s; /* Плавный переход для основного контента */
+}
+.content.collapsed {
+    margin-left: 70px; /* Отступ основного контента для мобильных устройств */
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px; /* Ширина сайдбара для мобильных устройств */
+    }
+    .content {
+        margin-left: 70px; /* Отступ основного контента для мобильных устройств */
+    }
 }
 
 .main-block {
@@ -361,6 +484,10 @@ body {
     width: 100px;
 }
 
+.bigAss {
+    font-size: 30px;
+}
+
 @media (max-width: 480px) {
     .form-row {
         display: block;
@@ -372,12 +499,21 @@ body {
     .btn-primary {
         width: 100%;
     }
+    .main-block {
+        width: 100%;
+        margin: 0;
+    }
 }
 
 .imger {
     height: 30px;
     width: 30px;
     border-radius: 30px;
+}
+
+.nav-item:hover {
+    background-color: black;
+    font-size: 22px;
 }
 
 
@@ -427,10 +563,6 @@ body {
                 summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
             }
 
-            //console.log(email, name) // так емаил и имя сопоставились заебисимо осталось терь по провери ++ к лидам делать по каждому юзеру 
-
-
-
             const summaryItem = summaryMap.get(name);
 
             switch (callType) {
@@ -460,9 +592,6 @@ body {
         table.map((e) => {
             leadTable.forEach((t) => {  
                 if (t.starter === e.name || t.starter === e.email) {
-                    // добавлю пока что отедльное условие на точто бы лид был сделан сегодня
-                    //if (t.date === dayjs(new Date).format('YYYY-MM-DD')) {
-                    console.log(t.date, tableTime)
                     if (t.date == tableTime) {
                         e.leads++
                     }
@@ -485,6 +614,7 @@ body {
             },
             newRoleInput: '',
             allRoles: null,
+            isCollapsed: false,
 
             filterDate: null,
             filterDateEnd: null,
@@ -513,15 +643,33 @@ body {
             koefY: 0.01,
             cost: 125,
             
-
+            activeTabs: 'users',
+            winSize: 0,
+            isDesktop: false,
         },
         async beforeMount() {
+
+            this.winSize = window.innerWidth
+
+            if (this.winSize > 480) {
+                this.isDesktop = true
+            } else {
+                this.isDesktop = false
+            }
+
             await this.fetchLeads();
             await this.fetchUsers();
             await this.getAllRoles()
-
             await this.getCallsSkorozvon()
-            //await this.getUsersSkorozvon()
+
+        },
+        mounted() {
+            window.addEventListener('resize', this.updateWinSize);
+        },
+        watch: {
+            winSize (newVal) {
+                this.isDesktop = newVal > 480;
+            }
         },
         computed: {
             brokers() {
@@ -539,6 +687,12 @@ body {
                 this.filterDate = null
                 this.filterLeaders = ""
                 this.filterIsSend = "qwerty"
+            },
+            toggleSidebar() {
+                this.isCollapsed = !this.isCollapsed;
+            },
+            updateWinSize() {
+                this.winSize = window.innerWidth;  // Обновляем размер окна
             },
             async addNewRole() {
                 await fetch('/api/role/add', {
@@ -609,6 +763,7 @@ body {
                 }
             },
             fetchLeads() {
+
                 fetch('/api/leads')
                 .then(response => response.json())
                 .then(data => {
@@ -616,6 +771,30 @@ body {
                         e.date = dayjs(e.date).format('YYYY-MM-DD')
                     })
                     this.leads = data;
+                    
+                    const starters = [];
+                    const counts = [];
+
+                    this.leads.forEach((r) => {
+                        const starter = r.starter
+
+                        const index = starters.indexOf(starter);
+                        
+                        if (index === -1) {
+                            starters.push(starter);
+                            counts.push(1);
+                        } else {
+                            counts[index]++;
+                        }
+                    })
+
+                    this.userLeadsArray = starters
+                    this.useCountArray = counts
+
+                    // console.log(this.userLeadsArray, this.useCountArray)
+
+                    this.createChart()
+
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -636,7 +815,6 @@ body {
                 this.newUser['password'] = this.newUser['password'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, '');
                 this.newUser['name'] = this.newUser['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, '');
 
-                console.log(this.newUser)
                 fetch('/api/admin/users', {
                     method: 'POST',
                     headers: {
@@ -709,7 +887,6 @@ body {
                 });
             },
             assignBroker(index, lead) {
-                console.log(lead.newBroker, lead.isSend)
                 fetch(`/api/leads/${lead._id}`, {
                     method: 'PUT',
                     headers: {
@@ -735,7 +912,6 @@ body {
                         'Content-Type' : 'application/json'
                     }
                 }).then(response => response.json()).then(data => this.usersData = data.usersData)
-                console.log(this.usersData)
             },
             async getCallsSkorozvon() {
                 this.tableLoader = true
@@ -746,7 +922,6 @@ body {
                         'Content-Type' : 'application/json'
                     },
                 }).then(response => response.json()).then(data => this.callsData = data.callsData)
-                console.log(this.callsData)
 
                 let leadorubsArr = []
 
@@ -760,10 +935,7 @@ body {
 
                 this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
 
-                console.log(this.tableTime)
-
                 getPlusLead(this.skorozvonCallsData, this.leads, this.tableTime)
-                console.log(this.skorozvonCallsData)
 
                 this.tableLoader = false
             },
@@ -773,6 +945,53 @@ body {
             getSalaryByCall(item) {
                 let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
                 return salary
+            },
+            createChart() {
+                const data = {
+                    labels: this.starters,
+                    datasets: [{
+                    label: 'Количество лидов',
+                    data: this.counts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                    }]
+                };
+
+                if (this.myChart) {
+                    this.myChart.destroy();
+                }
+
+                const ctx = this.$refs.myChart.getContext('2d');
+                this.myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                    scales: {
+                        y: {
+                        beginAtZero: true
+                        }
+                    },
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                        display: true,
+                        },
+                        title: {
+                        display: true,
+                        text: 'График количества стартёров'
+                        }
+                    }
+                    }
+                })
             }
         }
     });

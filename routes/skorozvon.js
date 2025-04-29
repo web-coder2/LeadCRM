@@ -53,13 +53,15 @@ router.get('/skorozvon/get/calls/:startTime', async (req, res) => {
 
     //console.log(tokenAuth)
 
+    let trueFields = ['call_type', 'call_type_code', 'user']
+
     try {
         const query = await axios.post('https://api.skorozvon.ru/api/reports/calls_total.json', null, {
             params: {
                 'length': 100,
                 'page': 1,
                 'start_time' : startTime,
-                'end_time' : endTime
+                'end_time' : endTime,
             },
             headers: { 'Authorization': `Bearer ${tokenAuth}` },
         });
@@ -74,9 +76,9 @@ router.get('/skorozvon/get/calls/:startTime', async (req, res) => {
                     'length' : 100,
                     'page' : i,
                     'start_time' : startTime,
-                    'end_time' : endTime
+                    'end_time' : endTime,
                 },
-                headers: { Authorization: `Bearer ${tokenAuth}` },
+                headers: { 'Authorization': `Bearer ${tokenAuth}` },
             })
             callArray.push(response.data)
         }
