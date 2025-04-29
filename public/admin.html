@@ -17,7 +17,7 @@
 
 
     <!-- Верхний навбар -->
-    <nav class="navbar navbar-expand-md navbar-dark" v-if="isDesktop == false">
+    <nav class="navbar navbar-expand-md navbar-dark" v-if="!isDesktop">
         <a class="navbar-brand" href="#">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
             <span v-if="!isCollapsed">HBA-LeadCRM</span>
@@ -64,7 +64,7 @@
     </nav>
 
     <!-- Левый сайдбар -->
-    <div class="sidebar" :class="{ collapsed: isCollapsed }" v-if="isDesktop == true">
+    <div class="sidebar" :class="{ collapsed: isCollapsed }" v-if="isDesktop">
         <div style="display: flex; align-items: center; padding-left: 15px; padding-bottom: 20px;">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
             <p class="navbar-brand text-light" style="font-family: cursive;" v-if="!isCollapsed">HBA-LeadCRM</p>
@@ -74,31 +74,31 @@
             <li class="nav-item">
                 <a class="nav-link" href="/logout">
                     <i class="fas fa-sign-out-alt text-danger" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span v-if="!isCollapsed">Выйти</span>
+                    <span class="ml-3" v-if="!isCollapsed">Выйти</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" @click="activeTabs = 'users'">
                     <i class="fas fa-users text-warning" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span v-if="!isCollapsed">Пользователи</span>
+                    <span class="ml-3" v-if="!isCollapsed">Пользователи</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" @click="activeTabs = 'skorozvon'">
                     <i class="fas fa-phone-alt text-primary" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span v-if="!isCollapsed">Скорозвон</span>
+                    <span class="ml-3" v-if="!isCollapsed">Скорозвон</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" @click="activeTabs = 'leads'">
                     <i class="fas fa-leaf text-success" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span v-if="!isCollapsed">Лиды</span>
+                    <span class="ml-3" v-if="!isCollapsed">Лиды</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" @click="activeTabs = 'dashboard'">
                     <i class="fas fa-tachometer-alt text-info" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span v-if="!isCollapsed">Дашборд</span>
+                    <span class="ml-3" v-if="!isCollapsed">Дашборд</span>
                 </a>
             </li>
         </ul>
@@ -195,7 +195,7 @@
 
             <div v-if="activeTabs == 'skorozvon'">
                 <div style="display: flex;">
-                    <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5">
+                    <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5 dateInput">
                     <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
                 </div>
                 
@@ -395,7 +395,7 @@
             </div>
 
 
-            <div v-if="activeTabs == 'dashboard'">
+            <div v-show="activeTabs == 'dashboard'">
                 <div class="mt-5">
                     <h4 class="text-light">Прогресс по лидам</h4>
                     <div class="progress mt-3 mb-5">
@@ -409,7 +409,8 @@
                         </div>
                     </div>
                 </div>
-                <canvas id="myChart" width="400" height="200"></canvas>
+                <canvas ref="myChart" width="200" height="200" v-if="!isDesktop"></canvas>
+                <canvas ref="myChart" width="500" height="200" v-if="isDesktop"></canvas>
             </div>
 
 
@@ -509,6 +510,10 @@ body {
     height: 30px;
     width: 30px;
     border-radius: 30px;
+}
+
+.dateInput {
+    width: 200px;
 }
 
 .nav-item:hover {
@@ -650,13 +655,9 @@ body {
         async beforeMount() {
 
             this.winSize = window.innerWidth
+            this.isDesktop = this.winSize > 480 ? true : false
 
-            if (this.winSize > 480) {
-                this.isDesktop = true
-            } else {
-                this.isDesktop = false
-            }
-
+            
             await this.fetchLeads();
             await this.fetchUsers();
             await this.getAllRoles()
@@ -665,11 +666,6 @@ body {
         },
         mounted() {
             window.addEventListener('resize', this.updateWinSize);
-        },
-        watch: {
-            winSize (newVal) {
-                this.isDesktop = newVal > 480;
-            }
         },
         computed: {
             brokers() {
@@ -789,9 +785,7 @@ body {
                     })
 
                     this.userLeadsArray = starters
-                    this.useCountArray = counts
-
-                    // console.log(this.userLeadsArray, this.useCountArray)
+                    this.userCountArray = counts
 
                     this.createChart()
 
@@ -947,11 +941,12 @@ body {
                 return salary
             },
             createChart() {
+
                 const data = {
-                    labels: this.starters,
+                    labels: this.userLeadsArray,
                     datasets: [{
                     label: 'Количество лидов',
-                    data: this.counts,
+                    data: this.userCountArray,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
                         'rgba(54, 162, 235, 0.2)',
@@ -962,34 +957,49 @@ body {
                         'rgba(54, 162, 235, 1)',
                         'rgba(255, 206, 86, 1)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 1,
+                    pointRadius: 8,
+                    pointHoverRadius: 14
                     }]
                 };
 
                 if (this.myChart) {
                     this.myChart.destroy();
                 }
-
                 const ctx = this.$refs.myChart.getContext('2d');
                 this.myChart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'line',
                     data: data,
                     options: {
-                    scales: {
-                        y: {
-                        beginAtZero: true
-                        }
-                    },
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                        display: true,
+                        scales: {   
+                            y: {
+                            beginAtZero: true
+                            }
                         },
-                        title: {
-                        display: true,
-                        text: 'График количества стартёров'
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Ледорубы'
+                            }
+                        },
+                        
+                        tooltips: {
+                            mode: 'label',
+                            intersect: false,
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
                         }
-                    }
                     }
                 })
             }
