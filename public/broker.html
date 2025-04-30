@@ -9,31 +9,57 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
 </head>
 <body>
 <div id="app">
 
     <div class="tititi">
-        <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-            <div style="display: flex; align-items: center;">
-                <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-                <p class="navbar-brand" style="font-family: cursive;">HBA-LeadCRM</p>
-            </div>
 
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+
+        <nav class="navbar navbar-expand-md navbar-dark">
+            <a class="navbar-brand">
+                <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
+                <span>HBA-LeadCRM</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                <ul class="navbar-nav">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a href="/logout" class="text-success">Выйти</a>
+                        <a class="nav-link" @click="activeTabs = 'myLeads'">
+                            <i class="fas fa-user-friends text-danger"></i>
+                            <span>Мои лиды</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" @click="activeTabs = 'noBrokersLeads'">
+                            <i class="fas fa-comments text-primary"></i>
+                            <span>Неразобраные лиды</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" @click="activeTabs = 'brokerProgress'">
+                            <i class="fas fa-chart-line text-success"></i>
+                            <span>Прогрес брокера</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt text-info"></i>
+                            <span>Выйти</span>
+                        </a>
                     </li>
                 </ul>
             </div>
         </nav>
 
         <div class="broker-div">
+
             <div class="mb-5 mt-5" style="margin-left: 10%; width: 80%;">
                 <h3 class="text-light">Личный кабинет <i style="color: rgb(218, 182, 22); font-size: 34px;">{{ userName }}</i></h3>
                 <label class="text-light">ты щяс в <strong :style="{'color' : userStatus ? 'green' : 'red'}">{{ userStatus ? 'online' : 'offline' }}</strong></label>
@@ -41,73 +67,82 @@
                 <p class="text-light">Если ты перестанешь работать то убери галку верху и если ты начнешь работать то поставь галку верху</p>
             </div>
 
-            <div class="table-container">
-                <table class="table table-striped table-bordered" style="background-color: rgb(21, 20, 20); color: white;">
-                    <thead class="bg-warning text-light">
-                    <tr>
-                        <th class="table-column2">Скопировать номер</th>
-                        <th class="table-column2">lead date созданого</th>
-                        <th class="table-column2">Телефон</th>
-                        <th class="table-column2">Имя клиента</th>
-                        <th class="table-column2">Комментарий</th>
-                        <th class="table-column2">обработан ?</th>
-                        <!--<th>Actions</th>-->
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="(lead, index) in leads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
-                        <td @click="copyToClipboard(lead.phone)">
-                            <button class="btn btn-outline-warning">Скопировать</button>
-                        </td>
-                        <td>{{ dateFormater(lead.date) }}</td>
-                        <td>{{ lead.phone }}</td>
-                        <td>{{ lead.client_name }}</td>
-                        <td>{{ lead.comment }}</td>
-                        <td>
-                            <!-- <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"> -->
-                            <input type="checkbox" v-model="lead.isSend" @change="updateLead(lead._id, lead.isSend)">
-                            <!-- <button
-                            class="btn"
-                            :class="getColorSend(lead.isSend)"
-                            @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
-                                {{ lead.isSend? 'Да' : 'Нет' }}</button> -->
-                            <!--<span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>-->
-                        </td>
-                        <!--<td>
-                            <button class="btn btn-primary btn-sm" @click="updateLead(index, lead)">Update</button>
-                        </td>-->
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="table-container mt-5">
-                <h5 class="text-light">Смотри тут будет таблица с лидами у которых не назначен брокер она таблица была видна 
-                всем бркоерам так что когда ты ее возьмеш лид из нее он будет твой а у других он не покажется так работает логика</h5>
-                <table class="table table-striped mt-5 table-bordered" style="background-color: rgb(21, 20, 20); color: white;">
-                    <thead class="bg-warning text-light">
+            <div v-if="activeTabs == 'myLeads'">
+                <div class="table-container">
+                    <table class="table table-striped table-bordered" style="background-color: rgb(21, 20, 20); color: white;">
+                        <thead class="bg-warning text-light">
                         <tr>
-                            <th class="table-column2">Взять лид?</th>
-                            <th class="table-column">lead date созданого</th>
+                            <th class="table-column2">Скопировать номер</th>
+                            <th class="table-column2">lead date созданого</th>
                             <th class="table-column2">Телефон</th>
                             <th class="table-column2">Имя клиента</th>
-                            <th class="table-column">Комментарий</th>
+                            <th class="table-column2">Комментарий</th>
+                            <th class="table-column2">обработан ?</th>
                             <!--<th>Actions</th>-->
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(lead, index) in noBrokerLeads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
-                            <td>
-                                <button class="btn btn-outline-warning" @click="getLeadToSelf(lead._id, login)">Взять лид</button>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(lead, index) in leads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
+                            <td @click="copyToClipboard(lead.phone)">
+                                <button class="btn btn-outline-warning">Скопировать</button>
                             </td>
-                            <td>{{ lead.date }}</td>
+                            <td>{{ dateFormater(lead.date) }}</td>
                             <td>{{ lead.phone }}</td>
                             <td>{{ lead.client_name }}</td>
                             <td>{{ lead.comment }}</td>
+                            <td>
+                                <!-- <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"> -->
+                                <input type="checkbox" v-model="lead.isSend" @change="updateLead(lead._id, lead.isSend)">
+                                <!-- <button
+                                class="btn"
+                                :class="getColorSend(lead.isSend)"
+                                @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
+                                    {{ lead.isSend? 'Да' : 'Нет' }}</button> -->
+                                <!--<span :style="{'color' : lead.isSend? 'green' : 'red'}">{{ lead.isSend? 'Да' : 'Нет' }}</span>-->
+                            </td>
+                            <!--<td>
+                                <button class="btn btn-primary btn-sm" @click="updateLead(index, lead)">Update</button>
+                            </td>-->
                         </tr>
                         </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
-            <div class="mt-5 container-fluid">
+
+
+            <div v-if="activeTabs == 'noBrokersLeads'">
+                <div class="table-container mt-5">
+                    <h5 class="text-light">Смотри тут будет таблица с лидами у которых не назначен брокер она таблица была видна 
+                    всем бркоерам так что когда ты ее возьмеш лид из нее он будет твой а у других он не покажется так работает логика</h5>
+                    <table class="table table-striped mt-5 table-bordered" style="background-color: rgb(21, 20, 20); color: white;">
+                        <thead class="bg-warning text-light">
+                            <tr>
+                                <th class="table-column2">Взять лид?</th>
+                                <th class="table-column">lead date созданого</th>
+                                <th class="table-column2">Телефон</th>
+                                <th class="table-column2">Имя клиента</th>
+                                <th class="table-column">Комментарий</th>
+                                <!--<th>Actions</th>-->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(lead, index) in noBrokerLeads" :key="lead.phone" :style="{'background-color': lead.isSend ? 'rgba(0, 0, 0, 0.9)' : '', 'color' : lead.isSend ? 'white' : '' }">
+                                <td>
+                                    <button class="btn btn-outline-warning" @click="getLeadToSelf(lead._id, login)">Взять лид</button>
+                                </td>
+                                <td>{{ lead.date }}</td>
+                                <td>{{ lead.phone }}</td>
+                                <td>{{ lead.client_name }}</td>
+                                <td>{{ lead.comment }}</td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+            <div class="mt-5 container-fluid" v-if="activeTabs == 'brokerProgress'">
                 <h4 class="text-light">Прогресс брокера</h4>
                 <div class="progress mt-3 mb-5">
                     <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated"
@@ -120,6 +155,9 @@
                     </div>
                 </div>
             </div>
+
+
+
         </div>
     </div>
 </div>
@@ -128,6 +166,11 @@
 
 body {
     background-color: rgb(23, 22, 22);
+}
+
+.nav-item:hover {
+    background-color: black;
+    font-size: 22px;
 }
 
 .broker-div {
@@ -183,6 +226,7 @@ body {
             noBrokerLeads: [],
             userStatus: false,
             login: '',
+            activeTabs: "myLeads",
         },
         mounted() {
             this.fetchProfile();
