@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
 </head>
 <body>
 <div id="app">
@@ -18,9 +19,9 @@
 
     <!-- Верхний навбар -->
     <nav class="navbar navbar-expand-md navbar-dark">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-            <span v-if="!isCollapsed">HBA-LeadCRM</span>
+            <span>HBA-LeadCRM</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,31 +33,31 @@
                 <li class="nav-item">
                     <a class="nav-link" @click="activeTabs = 'users'">
                         <i class="fas fa-users text-warning"></i>
-                        <span v-if="!isCollapsed">Пользователи</span>
+                        <span>Пользователи</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" @click="activeTabs = 'skorozvon'">
                         <i class="fas fa-phone-alt text-primary"></i>
-                        <span v-if="!isCollapsed">Скорозвон</span>
+                        <span>Скорозвон</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" @click="activeTabs = 'leads'">
                         <i class="fas fa-leaf text-success"></i>
-                        <span v-if="!isCollapsed">Лиды</span>
+                        <span>Лиды</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" @click="activeTabs = 'dashboard'">
                         <i class="fas fa-tachometer-alt text-info"></i>
-                        <span v-if="!isCollapsed">Дашборд</span>
+                        <span>Дашборд</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/logout">
                         <i class="fas fa-sign-out-alt text-danger"></i>
-                        <span v-if="!isCollapsed">Выйти</span>
+                        <span>Выйти</span>
                     </a>
                 </li>
             </ul>

@@ -9,64 +9,140 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
 </head>
 <body>
 <div id="app">
     
-    <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-        <div style="display: flex; align-items: center;">
+    <nav class="navbar navbar-expand-md navbar-dark">
+        <a class="navbar-brand">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-            <p class="navbar-brand" style="font-family: cursive;">HBA-LeadCRM</p>
-        </div>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span>HBA-LeadCRM</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="collapsibleNavbar">
-            <ul class="navbar-nav">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a href="/logout" class="text-warning">Выйти</a>
+                    <a class="nav-link" @click="activeTab = 'skorozvon'">
+                        <i class="fa-chart-pie text-warning"></i>
+                        <span>Общий результат</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" @click="activeTab = 'statistics'">
+                        <i class="fas fa-chart-bar text-info"></i> 
+                        <span>Статистика ледоруба</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" @click="activeTab = 'createLead'">
+                        <i class="fas fa-plus-circle text-success"></i>
+                        <span>Создать лид</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt text-danger"></i>
+                        <span>Выйти</span>
+                    </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="form-container mt-5">
 
-        <div class="mb-5 mt-3">
-            <h4 class="text-light">Личный кабинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h4>
-            <h4 class="text-warning mt-5 mb-3">Статистика лидоруба</h4>
+    <div v-if="activeTab == 'statistics'">
+        <div class="form-container mt-5">
+
+            <div class="mb-5 mt-3">
+                <h2 class="text-light">Личный кабинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h2>
+            </div>
+
+            <h2 class="text-warning mt-5 mb-3">Статистика лидоруба</h2>
             <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ leadLastWeek }} лидов</span></h6>
             <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ leadThisWeek }} лидов</span></h6>
             <h6 class="text-light">Лидов за этот день <span class="text-primary">{{ leadToday }} лидов</span></h6>
         </div>
+    </div>
 
-        <!--<div class="progress w-100 mt-5 mb-5" style="height: 40px">
-            <div class="progress-bar bg-dark progress-bar-striped progress-bar-animated" :style="{ width: leadLastWeekWidth + '%' }"><h3 class="text-light">{{ leadLastWeek }}</h3></div>
-            <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" :style="{ width: leadThisWeekWidth + '%' }"><h3 class="text-light">{{ leadThisWeek }}</h3></div>
-            <div class="progress-bar bg-dark progress-bar-striped progress-bar-animated" :style="{ width: leadTodayWidth + '%' }"><h3 class="text-light">{{ leadToday }}</h3></div>
-        </div>-->
+    <div v-if="activeTab == 'createLead'">
+        <div class="form-container mt-5">
 
-        <form @submit.prevent="createLead">
-            <div class="form-group mt-5">
-                <label for="phone" class="text-light">Телефон:</label>
-                <input type="text" class="form-control bg-dark text-light" id="phone" v-model="newLead.phone" required>
+            <div class="mb-5 mt-3">
+                <h2 class="text-light">Личный кабинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h2>
             </div>
-            <div class="form-group">
-                <label for="client_name" class="text-light">Имя клиента:</label>
-                <input type="text" class="form-control bg-dark text-light" id="client_name" v-model="newLead.client_name" required>
-            </div>
-            <div class="form-group">
-                <label for="comment" class="text-light">Коментарий к звонку:</label>
-                <textarea class="form-control bg-dark text-light" id="comment" v-model="newLead.comment" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-outline-primary">Создать лид</button>
-        </form>
-        <div v-if="message" class="mt-3 alert bg-dark text-primary">
-            {{ message }}
+
+            <form @submit.prevent="createLead">
+                <div class="form-group mt-5">
+                    <label for="phone" class="text-light">Телефон:</label>
+                    <input type="text" class="form-control bg-dark text-light inputer" id="phone" v-model="newLead.phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="client_name" class="text-light">Имя клиента:</label>
+                    <input type="text" class="form-control bg-dark text-light inputer" id="client_name" v-model="newLead.client_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="comment" class="text-light">Коментарий к звонку:</label>
+                    <textarea class="form-control bg-dark text-light textareaer" id="comment" v-model="newLead.comment" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Создать лид</button>
+            </form>
+            <div v-if="message" class="mt-3 alert bg-dark text-primary">{{ message }}</div>
         </div>
     </div>
+
+
+    <div v-if="activeTab == 'skorozvon'">
+        <div class="form-container mt-5">
+            <div style="display: flex;">
+                <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5 dateInput">
+                <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
+            </div>
+            
+            <h3 class="text-warning">Таблица показателей на {{ tableTime }}</h3>
+
+            <div class="table-container mt-5 mb-5" v-if="!tableLoader">
+                <table class="table table-bordered table-striped table-dark">
+                    <thead class="bg-danger text-light">
+                        <tr>
+                            <th>Имя</th>
+                            <th>email</th>
+                            <th>Входящие</th>
+                            <th>Исходящие</th>
+                            <th>Трансферед</th>
+                            <th>Пропущеный</th>
+                            <th>Количество лидов</th>
+                            <th>Зарплата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, idx) in skorozvonCallsData" :key="idx">
+                            <th>{{ item.name }}</th>
+                            <th>{{ item.email }}</th>
+                            <th>{{ item.incoming }}</th>
+                            <th>{{ item.outgoing }}</th>
+                            <th>{{ item.transfered }}</th>
+                            <th>{{ item.missed }}</th>
+                            <th>{{ item.leads }}</th>
+                            <th>{{ getSalaryByCall(item) }}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
+                <strong class="text-danger">Загрузка таблицы</strong>
+                <div class="spinner-border ml-auto text-danger" role="status" aria-hidden="true"></div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <style>
@@ -76,15 +152,32 @@ body {
 }
     
 .form-container {
-    margin-left: 20%;
+    margin-left: 5%;
     padding: 20px 20px;
-    width: 60%;
+    width: 90%;
     border-radius: 30px;
     border-color: rgb(214, 37, 37);
     /* я крч думаю везде въебать вот этой хуйни ну а хули зато заубеено ну хули нет шоли */
     -webkit-box-shadow: 0px 2px 11px 35px rgba(37, 77, 187, 0.319);
     -moz-box-shadow: 0px 2px 11px 35px rgba(37, 77, 187, 0.319);
     box-shadow: 0px 2px 23px 25px rgba(37, 77, 187, 0.319);
+}
+
+.nav-item:hover {
+    background-color: black;
+    font-size: 22px;
+}
+
+.dateInput {
+    width: 200px;
+}
+
+.inputer {
+    width: 300px;
+}
+
+.textareaer {
+    width: 600px;
 }
 
 @media (max-width: 480px) {
@@ -95,11 +188,92 @@ body {
         margin-left: 5%;
         width: 90%;
     }
+    .textareaer {
+        width: 100%;
+    }
+    .inputer {
+        width: 100%;
+    }
 }
 
 </style>
 
 <script>
+
+function getCallsTypes(array, leadorubsArr) {
+    let userDataArray = []
+
+    for (let i = 0; i < array.length; i++) {
+        let dataArray = array[i].data
+        for (let j = 0; j < dataArray.length; j++) {
+            if (dataArray[j].user['name'] !== null) {
+                let aaa = leadorubsArr.filter(user => user.name == dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''))
+                
+                if (aaa.length > 0) {
+                    var login = aaa[0].login
+                } else {
+                    var login = "Не определено"
+                }
+
+                let user = {
+                    'name' : dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''),
+                    'id' : dataArray[j].user['id'],
+                    'callType' : dataArray[j].call_type_code,
+                    'email' : login
+                }
+                userDataArray.push(user)
+            }
+        }
+    }
+    return userDataArray
+}
+
+function summarizeData(dataArray, leadsArray) {
+    const summaryMap = new Map();
+
+    dataArray.forEach(item => {
+        const { name, callType, email } = item;
+
+        if (!summaryMap.has(name)) {
+            summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
+        }
+
+        const summaryItem = summaryMap.get(name);
+
+        switch (callType) {
+            case 'incoming':
+                summaryItem.incoming++;
+                break;
+            case 'outgoing':
+                summaryItem.outgoing++;
+                break;
+            case 'transfered':
+                summaryItem.transfered++;
+                break;
+            case 'missed':
+                summaryItem.missed++;
+                break;
+            default:
+                console.warn(`Unknown callType: ${callType} for name: ${name}`);
+                break;
+        }
+    });
+    return Array.from(summaryMap.values());
+}
+
+function getPlusLead(table, leadTable, tableTime) {
+    table.map((e) => {
+        leadTable.forEach((t) => {  
+            if (t.starter === e.name || t.starter === e.email) {
+                if (t.date == tableTime) {
+                    e.leads++
+                }
+            }
+        })
+    })
+}
+
+
     new Vue({
         el: '#app',
         data: {
@@ -120,10 +294,25 @@ body {
             leadTodayWidth: 0,
             leadThisWeekWidth: 0,
             leadLastWeekWidth: 0,
+            activeTab: 'createLead',
+
+            usersData: [],
+            usersDataShow: false,
+            callsData: [],
+            skorozvonCallsData: [],
+            tableLoader: false,
+            tableTime: dayjs(new Date).format('YYYY-MM-DD'),
+
+            koefN: 2,
+            koefZ: 1,
+            koefX: 0.0001,
+            koefY: 0.01,
+            cost: 125,
         },
-        mounted() {
-            this.fetchProfile()
-            this.fetchLeads()
+        async mounted() {
+            await this.fetchProfile()
+            await this.fetchLeads()
+            await this.getCallsSkorozvon()
         },
         methods: {
             createLead() {
@@ -146,6 +335,32 @@ body {
                     console.error('Error:', error);
                     this.message = 'Ошибка при отправке запроса.';
                 });
+            },
+            async getCallsSkorozvon() {
+                this.tableLoader = true
+
+                const result = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).unix()}`, {
+                    method: "GET",  
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    },
+                }).then(response => response.json()).then(data => this.callsData = data.callsData)
+
+                let leadorubsArr = []
+
+                this.users.forEach((e) => {
+                    if (e.role.role === 'leadorub') {
+                        leadorubsArr.push(e)
+                    }
+                })
+
+                const usersAllInfo = getCallsTypes(this.callsData, leadorubsArr)
+
+                this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
+
+                getPlusLead(this.skorozvonCallsData, this.leads, this.tableTime)
+
+                this.tableLoader = false
             },
             fetchProfile() {
                 fetch('/api/broker/profile')
