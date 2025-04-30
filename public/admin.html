@@ -17,7 +17,7 @@
 
 
     <!-- Верхний навбар -->
-    <nav class="navbar navbar-expand-md navbar-dark" v-if="!isDesktop">
+    <nav class="navbar navbar-expand-md navbar-dark">
         <a class="navbar-brand" href="#">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
             <span v-if="!isCollapsed">HBA-LeadCRM</span>
@@ -64,7 +64,7 @@
     </nav>
 
     <!-- Левый сайдбар -->
-    <div class="sidebar" :class="{ collapsed: isCollapsed }" v-if="isDesktop">
+    <!-- <div class="sidebar" :class="{ collapsed: isCollapsed }">
         <div style="display: flex; align-items: center; padding-left: 15px; padding-bottom: 20px;">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
             <p class="navbar-brand text-light" style="font-family: cursive;" v-if="!isCollapsed">HBA-LeadCRM</p>
@@ -106,7 +106,7 @@
         <button class="btn btn-light btn-sm" style="position: absolute; bottom: 20px; right: 20px;" @click="toggleSidebar">
             <i class="fas" :class="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
         </button>
-    </div>
+    </div> -->
 
     <div :class="{ content: true, collapsed: isCollapsed }">
         <div class="main-block">
@@ -657,7 +657,7 @@ body {
             this.winSize = window.innerWidth
             this.isDesktop = this.winSize > 480 ? true : false
 
-            
+
             await this.fetchLeads();
             await this.fetchUsers();
             await this.getAllRoles()
