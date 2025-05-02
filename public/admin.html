@@ -532,7 +532,8 @@ body {
         let userDataArray = []
 
         for (let i = 0; i < array.length; i++) {
-            let dataArray = array[i].data
+            let dataArray = array[i]
+            console.log(dataArray)
             for (let j = 0; j < dataArray.length; j++) {
                 if (dataArray[j].user['name'] !== null) {
 
@@ -547,10 +548,8 @@ body {
                     let user = {
                         'name' : dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''),
                         'id' : dataArray[j].user['id'],
-                        'callType' : dataArray[j].call_type_code,
+                        'callType' : dataArray[j].call_type,
                         'email' : login
-                        // ЗДЕСЬ Я БЛЯТЬ ПАЛУЧАЮ ОБХЕКТ ЮЗЕРА ( НО НУЖОНО ДЕЛАТЬ ПРАВЕРКУ ТАК КАК ЕСТЬ ЕБАНЫЙ БЕЗ ОТВЕСТВНО ЛИШНИК ЧТРОКИ КОДА НО НУЖНО УЧИТЫВАТЬ ТАКА КАК ДАВАСКРПИТ ПИЗДУ ДАСТ)
-                        // ПАТОМ БЛЧТЬ ЗАПИСАТЬ СЮДА ВОТ ТУ ХУЦНИ[0].login а потом уже в другой функции ниже делать проверку с счетчикум инкрементом ++
                     }
                     userDataArray.push(user)
                 }
@@ -564,6 +563,8 @@ body {
 
         dataArray.forEach(item => {
             const { name, callType, email } = item;
+
+            console.log(item)
 
             if (!summaryMap.has(name)) {
                 summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
@@ -596,6 +597,7 @@ body {
 
     function getPlusLead(table, leadTable, tableTime) {  // skorozvonCallsData  = (table) , leadsArray = (leadTable)
         table.map((e) => {
+            console.log(leadTable)
             leadTable.forEach((t) => {  
                 if (t.starter === e.name || t.starter === e.email) {
                     if (t.date == tableTime) {

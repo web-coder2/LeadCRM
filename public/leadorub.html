@@ -180,6 +180,11 @@ body {
     width: 600px;
 }
 
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
 @media (max-width: 480px) {
     .btn-success {
         width: 100%;
@@ -204,11 +209,13 @@ function getCallsTypes(array, leadorubsArr) {
     let userDataArray = []
 
     for (let i = 0; i < array.length; i++) {
-        let dataArray = array[i].data
+        let dataArray = array[i]
+        console.log(dataArray)
         for (let j = 0; j < dataArray.length; j++) {
             if (dataArray[j].user['name'] !== null) {
+
                 let aaa = leadorubsArr.filter(user => user.name == dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''))
-                
+                    
                 if (aaa.length > 0) {
                     var login = aaa[0].login
                 } else {
@@ -218,7 +225,7 @@ function getCallsTypes(array, leadorubsArr) {
                 let user = {
                     'name' : dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''),
                     'id' : dataArray[j].user['id'],
-                    'callType' : dataArray[j].call_type_code,
+                    'callType' : dataArray[j].call_type,
                     'email' : login
                 }
                 userDataArray.push(user)
@@ -233,6 +240,8 @@ function summarizeData(dataArray, leadsArray) {
 
     dataArray.forEach(item => {
         const { name, callType, email } = item;
+
+        console.log(item)
 
         if (!summaryMap.has(name)) {
             summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
@@ -257,7 +266,9 @@ function summarizeData(dataArray, leadsArray) {
                 console.warn(`Unknown callType: ${callType} for name: ${name}`);
                 break;
         }
+
     });
+
     return Array.from(summaryMap.values());
 }
 
@@ -311,7 +322,9 @@ function getPlusLead(table, leadTable, tableTime) {
         },
         async mounted() {
             await this.fetchProfile()
+            await this.fetchAllLeads()
             await this.fetchLeads()
+            await this.fetchUsers()
             await this.getCallsSkorozvon()
         },
         methods: {
@@ -334,6 +347,16 @@ function getPlusLead(table, leadTable, tableTime) {
                 .catch(error => {
                     console.error('Error:', error);
                     this.message = 'Ошибка при отправке запроса.';
+                });
+            },
+            fetchUsers() {
+                fetch('/api/admin/users')
+                .then(response => response.json())
+                .then(data => {
+                    this.users = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                 });
             },
             async getCallsSkorozvon() {
@@ -373,6 +396,37 @@ function getPlusLead(table, leadTable, tableTime) {
                         console.error('Error:', error);
                 });
             },
+            fetchAllLeads() {
+
+                fetch('/api/leads').then(response => response.json()).then(data => {
+                    data.forEach(e => {
+                        e.date = dayjs(e.date).format('YYYY-MM-DD')
+                    })
+                    this.leads = data;
+                
+                    const starters = [];
+                    const counts = [];
+
+                    this.leads.forEach((r) => {
+                        const starter = r.starter
+
+                        const index = starters.indexOf(starter);
+                        
+                        if (index === -1) {
+                            starters.push(starter);
+                            counts.push(1);
+                        } else {
+                            counts[index]++;
+                        }
+                    })
+
+                    this.userLeadsArray = starters
+                    this.userCountArray = counts
+
+                }).catch(error => {
+                    console.error('Error:', error);
+                });
+            },
             async fetchLeads() {
                 await fetch('/api/leads')
                 .then(response => response.json())
@@ -409,7 +463,11 @@ function getPlusLead(table, leadTable, tableTime) {
                 this.leadLastWeekWidth = this.leadLastWeek / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
                 this.leadThisWeekWidth = this.leadThisWeek / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
                 this.leadTodayWidth = this.leadToday / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
-            }
+            },
+            getSalaryByCall(item) {
+                let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
+                return salary
+            },
         }
     });
 </script>
