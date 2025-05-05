@@ -155,7 +155,6 @@
                         <thead class="bg-danger text-light">
                             <tr>
                                 <th>Имя</th>
-                                <th>email</th>
                                 <th>Входящие</th>
                                 <th>Исходящие</th>
                                 <th>Трансферед</th>
@@ -165,9 +164,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, idx) in skorozvonCallsData" :key="idx">
-                                <th>{{ item.name }}</th>
-                                <th>{{ item.email }}</th>
+                            <tr v-for="(item, idx) in callsData" :key="idx">
+                                <th>{{ item.username }}</th>
                                 <th>{{ item.incoming }}</th>
                                 <th>{{ item.outgoing }}</th>
                                 <th>{{ item.transfered }}</th>
@@ -421,6 +419,37 @@ body {
 
 
 <script>
+
+function updateCallsWithLeads(callsData, leadsData, tableTime) {
+    if (!Array.isArray(callsData) || !Array.isArray(leadsData) || typeof tableTime !== 'string') {
+        console.error('Некорректные входные данные для updateCallsWithLeads.')
+        return callsData
+    }
+
+    const updatedCallsData = JSON.parse(JSON.stringify(callsData))
+
+    const userMap = new Map()
+    updatedCallsData.forEach(user => {
+        const cleanedUsername = user.username ? user.username.replace(/\s+/g, '').toLowerCase() : ''
+        if (cleanedUsername) {
+            userMap.set(cleanedUsername, user);
+            if (user.leads === undefined) {
+                user.leads = 0;
+            }
+        }
+    })
+
+    leadsData.forEach(lead => {
+        if (lead.starter && lead.date && lead.date === tableTime) {
+            const cleanedStarter = lead.starter.replace(/\s+/g, '').toLowerCase();
+            const user = userMap.get(cleanedStarter);
+            if (user) {
+                user.leads++;
+            }
+        }
+    })
+    return updatedCallsData
+}
 
     new Vue({
         el: '#app',
@@ -786,6 +815,10 @@ body {
                 } finally {
                     this.tableLoader = false
                 }
+
+
+                this.callsData = updateCallsWithLeads(this.callsData, this.leads, this.tableTime)
+
             },
             changeUserDataShow() {
                 this.usersDataShow =! this.usersDataShow

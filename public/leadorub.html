@@ -111,7 +111,6 @@
                     <thead class="bg-danger text-light">
                         <tr>
                             <th>Имя</th>
-                            <th>email</th>
                             <th>Входящие</th>
                             <th>Исходящие</th>
                             <th>Трансферед</th>
@@ -121,9 +120,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, idx) in skorozvonCallsData" :key="idx">
-                            <th>{{ item.name }}</th>
-                            <th>{{ item.email }}</th>
+                        <tr v-for="(item, idx) in callsData" :key="idx">
+                            <th>{{ item.username }}</th>
                             <th>{{ item.incoming }}</th>
                             <th>{{ item.outgoing }}</th>
                             <th>{{ item.transfered }}</th>
@@ -205,85 +203,36 @@ body {
 
 <script>
 
-function getCallsTypes(array, leadorubsArr) {
-    let userDataArray = []
-
-    for (let i = 0; i < array.length; i++) {
-        let dataArray = array[i]
-        console.log(dataArray)
-        for (let j = 0; j < dataArray.length; j++) {
-            if (dataArray[j].user['name'] !== null) {
-
-                let aaa = leadorubsArr.filter(user => user.name == dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''))
-                    
-                if (aaa.length > 0) {
-                    var login = aaa[0].login
-                } else {
-                    var login = "Не определено"
-                }
-
-                let user = {
-                    'name' : dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''),
-                    'id' : dataArray[j].user['id'],
-                    'callType' : dataArray[j].call_type,
-                    'email' : login
-                }
-                userDataArray.push(user)
-            }
-        }
+function updateCallsWithLeads(callsData, leadsData, tableTime) {
+    if (!Array.isArray(callsData) || !Array.isArray(leadsData) || typeof tableTime !== 'string') {
+        console.error('Некорректные входные данные для updateCallsWithLeads.')
+        return callsData
     }
-    return userDataArray
-}
 
-function summarizeData(dataArray, leadsArray) {
-    const summaryMap = new Map();
+    const updatedCallsData = JSON.parse(JSON.stringify(callsData))
 
-    dataArray.forEach(item => {
-        const { name, callType, email } = item;
-
-        console.log(item)
-
-        if (!summaryMap.has(name)) {
-            summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
-        }
-
-        const summaryItem = summaryMap.get(name);
-
-        switch (callType) {
-            case 'incoming':
-                summaryItem.incoming++;
-                break;
-            case 'outgoing':
-                summaryItem.outgoing++;
-                break;
-            case 'transfered':
-                summaryItem.transfered++;
-                break;
-            case 'missed':
-                summaryItem.missed++;
-                break;
-            default:
-                console.warn(`Unknown callType: ${callType} for name: ${name}`);
-                break;
-        }
-
-    });
-
-    return Array.from(summaryMap.values());
-}
-
-function getPlusLead(table, leadTable, tableTime) {
-    table.map((e) => {
-        leadTable.forEach((t) => {  
-            if (t.starter === e.name || t.starter === e.email) {
-                if (t.date == tableTime) {
-                    e.leads++
-                }
+    const userMap = new Map()
+    updatedCallsData.forEach(user => {
+        const cleanedUsername = user.username ? user.username.replace(/\s+/g, '').toLowerCase() : ''
+        if (cleanedUsername) {
+            userMap.set(cleanedUsername, user);
+            if (user.leads === undefined) {
+                user.leads = 0;
             }
-        })
+        }
     })
-}
 
+    leadsData.forEach(lead => {
+        if (lead.starter && lead.date && lead.date === tableTime) {
+            const cleanedStarter = lead.starter.replace(/\s+/g, '').toLowerCase();
+            const user = userMap.get(cleanedStarter);
+            if (user) {
+                user.leads++;
+            }
+        }
+    })
+    return updatedCallsData
+}
 
     new Vue({
         el: '#app',
@@ -362,28 +311,69 @@ function getPlusLead(table, leadTable, tableTime) {
             async getCallsSkorozvon() {
                 this.tableLoader = true
 
-                const result = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).unix()}`, {
-                    method: "GET",  
-                    headers : {
-                        'Content-Type' : 'application/json'
-                    },
-                }).then(response => response.json()).then(data => this.callsData = data.callsData)
+                try {
+                    const response = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).format('YYYY-MM-DD')}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    });
 
-                let leadorubsArr = []
-
-                this.users.forEach((e) => {
-                    if (e.role.role === 'leadorub') {
-                        leadorubsArr.push(e)
+                    if (!response.ok) {
+                        const errorData = await response.json()
+                        console.error('Ошибка при получении данных:', response.status, errorData)
+                        this.callsData = []
+                        this.tableLoader = false
+                        return
                     }
-                })
 
-                const usersAllInfo = getCallsTypes(this.callsData, leadorubsArr)
+                    const data = await response.json();
 
-                this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
+                    if (!data || !data.calls || !Array.isArray(data.calls)) {
+                        console.warn('Получены некорректные данные или массив звонков пуст/отсутствует.');
+                        this.callsData = []
+                        this.tableLoader = false
+                        return
+                    }
 
-                getPlusLead(this.skorozvonCallsData, this.leads, this.tableTime)
+                    const rawCalls = data.calls
 
-                this.tableLoader = false
+                    const groupedCalls = {}
+
+                    rawCalls.forEach(call => {
+                        const username = call.username
+                        const callType = call.call_type
+
+                        if (!groupedCalls[username]) {
+                            groupedCalls[username] = {
+                                username: username,
+                                'incoming': 0,
+                                'outgoing': 0,
+                                'transfered': 0,
+                                'missed' : 0,
+                            }
+                        }
+
+                        if (groupedCalls[username].hasOwnProperty(callType)) {
+                            groupedCalls[username][callType]++
+                        } else {
+                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`)
+                        }
+                    });
+
+                    this.callsData = Object.values(groupedCalls);
+
+                    console.log("Сгруппированные данные звонков:", this.callsData);
+
+                } catch (error) {
+                    console.error('Ошибка при выполнении запроса или обработке данных:', error);
+                    this.callsData = []
+                } finally {
+                    this.tableLoader = false
+                }
+
+
+                this.callsData = updateCallsWithLeads(this.callsData, this.leads, this.tableTime)
             },
             fetchProfile() {
                 fetch('/api/broker/profile')
