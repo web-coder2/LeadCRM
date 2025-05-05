@@ -63,56 +63,8 @@
             </ul>
         </div>
     </nav>
-
-    <!-- Левый сайдбар -->
-    <!-- <div class="sidebar" :class="{ collapsed: isCollapsed }">
-        <div style="display: flex; align-items: center; padding-left: 15px; padding-bottom: 20px;">
-            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-            <p class="navbar-brand text-light" style="font-family: cursive;" v-if="!isCollapsed">HBA-LeadCRM</p>
-        </div>
-
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt text-danger" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span class="ml-3" v-if="!isCollapsed">Выйти</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" @click="activeTabs = 'users'">
-                    <i class="fas fa-users text-warning" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span class="ml-3" v-if="!isCollapsed">Пользователи</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" @click="activeTabs = 'skorozvon'">
-                    <i class="fas fa-phone-alt text-primary" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span class="ml-3" v-if="!isCollapsed">Скорозвон</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" @click="activeTabs = 'leads'">
-                    <i class="fas fa-leaf text-success" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span class="ml-3" v-if="!isCollapsed">Лиды</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" @click="activeTabs = 'dashboard'">
-                    <i class="fas fa-tachometer-alt text-info" :class="{ 'bigAss' : isCollapsed }"></i>
-                    <span class="ml-3" v-if="!isCollapsed">Дашборд</span>
-                </a>
-            </li>
-        </ul>
-
-        <button class="btn btn-light btn-sm" style="position: absolute; bottom: 20px; right: 20px;" @click="toggleSidebar">
-            <i class="fas" :class="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
-        </button>
-    </div> -->
-
     <div>
         <div class="main-block">
-
-            
             <div v-if="activeTabs == 'users'">
                 <h3 class="mt-5 mb-3 text-light">Создать нового юзера</h3>
                 <form @submit.prevent="createUser" class="mt-5">
@@ -148,14 +100,10 @@
                 <div class="modal" id="newRole">
                     <div class="modal-dialog">
                     <div class="modal-content bg-dark">
-                
-                        <!-- Modal Header -->
                         <div class="modal-header">
                         <h4 class="modal-title text-light">добавить новую роль</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
-                
-                        <!-- Modal body -->
                         <div class="modal-body d-flex">
                         <input class="form-control bg-dark text-light" placeholder="название роли" v-model="newRoleInput">
                         <button class="btn btn-outline-success ml-3" @click="addNewRole()">добавить</button>
@@ -201,9 +149,7 @@
                     <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5 dateInput">
                     <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
                 </div>
-                
                 <h3 class="text-warning">Таблица показателей на {{ tableTime }}</h3>
-
                 <div class="table-container mt-5 mb-5" v-if="!tableLoader">
                     <table class="table table-bordered table-striped table-dark">
                         <thead class="bg-danger text-light">
@@ -341,53 +287,33 @@
                             <td>{{ lead.phone }}</td>
                             <td>{{ lead.client_name }}</td>
                             <td>{{ lead.comment }}</td>
-                            <!-- <td>
-                                <select class="form-control" v-model="lead.status" @change="updateLead(index, lead)">
-                                    <option value="created">Created</option>
-                                    <option value="hold">Hold</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="нецелевой">Нецелевой</option>
-                                </select>
-                            </td> -->
                             <td>
                                 <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
-                                <!-- <button 
-                                class="btn" 
-                                :class="getColorSend(lead.isSend)"
-                                @click="lead.isSend =! lead.isSend; updateLead(index, lead)">
-                                    {{ lead.isSend ? 'Обработан' : 'Не обработан' }}
-                                </button> -->
                             </td>
                             <td>{{lead.broker}}</td>
                             <td>{{lead.starter}}</td>
                             <td>
-                                <!--<select class="form-control" v-if="lead.broker == '' " v-model="lead.newBroker" @change="assignBroker(index, lead)">-->
                                 <select class="form-control bg-dark text-light" v-model="lead.newBroker" @change="assignBroker(index, lead)">
                                     <option v-for="broker in brokers" :key="broker.login" :value="broker.login">{{ broker.name }}</option>
                                 </select>        
                             </td>
                             <td>
-                                <!--<button class="btn btn-outline-success" @click="deleteLead(index)">Удалить лид</button>-->
                                 <button class="btn btn-outline-success" data-toggle="modal" data-target="#myModal" @click="prepareDeleteLead(lead._id)">Удалить лид</button>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <!-- The Modal -->
                 <div class="modal fade" id="myModal">
                     <div class="modal-dialog modal-sm modal-dialog-centered">
                         <div class="modal-content bg-dark text-light">
-                            <!-- Modal Header -->
                             <div class="modal-header">
                                 <h4 class="modal-title">Удаление лида</h4>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            </div>       
-                            <!-- Modal body -->
+                            </div>
                             <div class="modal-body">
                                 <p>Ты точно хочешь удалить лид?</p>
-                            </div>  
-                            <!-- Modal footer -->
+                            </div>
                             <div class="modal-footer btn-group">
                                 <button type="button" class="btn btn-outline-danger" @click="deleteLead()" data-dismiss="modal">Удалить</button>
                                 <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Отмена</button>
@@ -415,8 +341,6 @@
                 <canvas ref="myChart" width="200" height="200" v-if="!isDesktop"></canvas>
                 <canvas ref="myChart" width="500" height="200" v-if="isDesktop"></canvas>
             </div>
-
-
         </div>
     </div>
 </div>
@@ -425,38 +349,7 @@
 
 body {
     background-color: rgb(34, 30, 30);
-    overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
-}
-.sidebar {
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 250px; /* Ширина сайдбара для десктопа */
-    background-color: #343a40; /* Цвет фона сайдбара */
-    padding-top: 20px;
-    transition: all 0.3s; /* Плавный переход при изменении ширины */
-}
-.sidebar.collapsed {
-    width: 70px; /* Ширина сайдбара для мобильных устройств */
-}
-.sidebar a {
-    color: #ffffff; /* Цвет ссылок */
-}
-.content {
-    margin-left: 250px; /* Отступ основного контента от сайдбара */
-    transition: margin-left 0.3s; /* Плавный переход для основного контента */
-}
-.content.collapsed {
-    margin-left: 70px; /* Отступ основного контента для мобильных устройств */
-}
-@media (max-width: 768px) {
-    .sidebar {
-        width: 70px; /* Ширина сайдбара для мобильных устройств */
-    }
-    .content {
-        margin-left: 70px; /* Отступ основного контента для мобильных устройств */
-    }
+    overflow-x: hidden;
 }
 
 .main-block {
@@ -467,7 +360,6 @@ body {
     margin-bottom: 10vh;
     border-radius: 30px;
     border-color: rgb(214, 37, 37);
-    /* я крч думаю везде въебать вот этой хуйни ну а хули зато заубеено ну хули нет шоли */
     -webkit-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
     -moz-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
     box-shadow: 0px 2px 23px 25px rgba(191, 28, 28, 0.319);
@@ -529,87 +421,6 @@ body {
 
 
 <script>
-
-    function getCallsTypes(array, leadorubsArr) {
-        let userDataArray = []
-
-        for (let i = 0; i < array.length; i++) {
-            let dataArray = array[i]
-            console.log(dataArray)
-            for (let j = 0; j < dataArray.length; j++) {
-                if (dataArray[j].user['name'] !== null) {
-
-                    let aaa = leadorubsArr.filter(user => user.name == dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''))
-                    
-                    if (aaa.length > 0) {
-                        var login = aaa[0].login
-                    } else {
-                        var login = "Не определено"
-                    }
-
-                    let user = {
-                        'name' : dataArray[j].user['name'].replace(/\s/g, '').replace(/\//g, '').replace(/\\/g, '').replace(/\t/g, ''),
-                        'id' : dataArray[j].user['id'],
-                        'callType' : dataArray[j].call_type,
-                        'email' : login
-                    }
-                    userDataArray.push(user)
-                }
-            }
-        }
-        return userDataArray
-    }
-
-    function summarizeData(dataArray, leadsArray) {
-        const summaryMap = new Map();
-
-        dataArray.forEach(item => {
-            const { name, callType, email } = item;
-
-            console.log(item)
-
-            if (!summaryMap.has(name)) {
-                summaryMap.set(name, { name: name, email: email, incoming: 0, outgoing: 0, missed: 0, transfered: 0, leads: 0 });
-            }
-
-            const summaryItem = summaryMap.get(name);
-
-            switch (callType) {
-                case 'incoming':
-                    summaryItem.incoming++;
-                    break;
-                case 'outgoing':
-                    summaryItem.outgoing++;
-                    break;
-                case 'transfered':
-                    summaryItem.transfered++;
-                    break;
-                case 'missed':
-                    summaryItem.missed++;
-                    break;
-                default:
-                    console.warn(`Unknown callType: ${callType} for name: ${name}`);
-                    break;
-            }
-
-        });
-
-        return Array.from(summaryMap.values());
-    }
-
-    function getPlusLead(table, leadTable, tableTime) {  // skorozvonCallsData  = (table) , leadsArray = (leadTable)
-        table.map((e) => {
-            console.log(leadTable)
-            leadTable.forEach((t) => {  
-                if (t.starter === e.name || t.starter === e.email) {
-                    if (t.date == tableTime) {
-                        e.leads++
-                    }
-                }
-            })
-        })
-    }
-
 
     new Vue({
         el: '#app',
@@ -915,28 +726,66 @@ body {
             async getCallsSkorozvon() {
                 this.tableLoader = true
 
-                const result = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).unix()}`, {
-                    method: "GET",  
-                    headers : {
-                        'Content-Type' : 'application/json'
-                    },
-                }).then(response => response.json()).then(data => this.callsData = data.callsData)
+                try {
+                    const response = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).format('YYYY-MM-DD')}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    });
 
-                let leadorubsArr = []
-
-                this.users.forEach((e) => {
-                    if (e.role.role === 'leadorub') {
-                        leadorubsArr.push(e)
+                    if (!response.ok) {
+                        const errorData = await response.json()
+                        console.error('Ошибка при получении данных:', response.status, errorData)
+                        this.callsData = []
+                        this.tableLoader = false
+                        return
                     }
-                })
 
-                const usersAllInfo = getCallsTypes(this.callsData, leadorubsArr)
+                    const data = await response.json();
 
-                this.skorozvonCallsData = summarizeData(usersAllInfo, this.leads)
+                    if (!data || !data.calls || !Array.isArray(data.calls)) {
+                        console.warn('Получены некорректные данные или массив звонков пуст/отсутствует.');
+                        this.callsData = []
+                        this.tableLoader = false
+                        return
+                    }
 
-                getPlusLead(this.skorozvonCallsData, this.leads, this.tableTime)
+                    const rawCalls = data.calls
 
-                this.tableLoader = false
+                    const groupedCalls = {}
+
+                    rawCalls.forEach(call => {
+                        const username = call.username
+                        const callType = call.call_type
+
+                        if (!groupedCalls[username]) {
+                            groupedCalls[username] = {
+                                username: username,
+                                'incoming': 0,
+                                'outgoing': 0,
+                                'transfered': 0,
+                                'missed' : 0,
+                            }
+                        }
+
+                        if (groupedCalls[username].hasOwnProperty(callType)) {
+                            groupedCalls[username][callType]++
+                        } else {
+                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`)
+                        }
+                    });
+
+                    this.callsData = Object.values(groupedCalls);
+
+                    console.log("Сгруппированные данные звонков:", this.callsData);
+
+                } catch (error) {
+                    console.error('Ошибка при выполнении запроса или обработке данных:', error);
+                    this.callsData = []
+                } finally {
+                    this.tableLoader = false
+                }
             },
             changeUserDataShow() {
                 this.usersDataShow =! this.usersDataShow

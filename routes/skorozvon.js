@@ -4,6 +4,9 @@ const router = express.Router()
 const dotenv = require('dotenv')
 const dayjs = require('dayjs')
 
+
+const skorozvonCalls = require('../models/skorozvonCalls.js')
+
 dotenv.config()
 
 const skorozvonAPI = process.env.skorozvonAPI
@@ -38,46 +41,28 @@ router.get('/skorozvon/get/users', async (req, res) => {
 
 })
 
-router.get('/skorozvon/get/calls/:startTime', async (req, res) => {
+router.get('/skorozvon/get/calls/:timeDate', async (req, res) => {
 
-    const callArray = []
+    try {
+        const timeDateParam = req.params.timeDate;
 
-    const startTime = parseInt(req.params.startTime)
-    const endTime = startTime + (24 * 60 * 60)
-    
-    const token = await getAuthSkorozvon()
-    const tokenAuth = JSON.parse(token).token
+        if (!dayjs(timeDateParam, 'YYYY-MM-DD', true).isValid()) {
+            return res.status(400).json({ message: 'Некорректный формат даты. Используйте YYYY-MM-DD.' });
+        }
 
-    let trueFields = ['call_type', 'call_type_code', 'user']
+        const callsRecord = await skorozvonCalls.findOne({ date: timeDateParam });
 
-    const response = await axios.get('https://api.skorozvon.ru/api/v2/calls', {
-        params: {
-            'start_time' : startTime,
-            'end_time' : endTime,
-            'length' : 100,
-        },
-        headers: { Authorization: `Bearer ${tokenAuth}` },
-    })
+        if (!callsRecord) {
+            return res.status(404).json({ message: `Записи о звонках за ${timeDateParam} не найдены.` });
+        }
 
-    const total_pages = response.data.pagination.total_pages
+        res.json(callsRecord);
 
-    for (let i = 0; i < total_pages; i++) {
-        const response = await axios.get('https://api.skorozvon.ru/api/v2/calls', {
-            params: {
-                'start_time' : startTime,
-                'end_time' : endTime,
-                'length' : 100,
-                'page' : i
-            },
-            headers: { Authorization: `Bearer ${tokenAuth}` },
-        })
-        callArray.push(response.data.data)
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Ошибка сервера');
     }
 
-    res.send({'callsData' : callArray})
-
 })
-
-
 
 module.exports = router
