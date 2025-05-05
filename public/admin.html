@@ -171,6 +171,7 @@
                         <tr>
                             <th style="white-space: nowrap;">Имя</th>
                             <th style="white-space: nowrap;">Логин</th>
+                            <th style="white-space: nowrap;">Пароль</th>
                             <th style="white-space: nowrap;">Роль</th>
                             <th style="white-space: nowrap;">Статус</th>
                             <th style="white-space: nowrap;">Действия-удалить</th>
@@ -180,6 +181,7 @@
                         <tr v-for="user in users" :key="user.login">
                             <td><img class="imger" :src="user.role == 'admin' ? 'admin.jpeg' : 'logo.jpg' "> {{ user.name }}</td>
                             <td>{{ user.login }}</td>
+                            <td>{{ user.password }}</td>
                             <td>{{ user.role.role }}</td>
                             <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
                             <td>
