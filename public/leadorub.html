@@ -111,23 +111,23 @@
                     <thead class="bg-danger text-light">
                         <tr>
                             <th>Имя</th>
-                            <th>Входящие</th>
-                            <th>Исходящие</th>
-                            <th>Трансферед</th>
-                            <th>Пропущеный</th>
+                            <th>Звонки</th>
                             <th>Количество лидов</th>
                             <th>Зарплата</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, idx) in callsData" :key="idx">
+                        <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                             <th>{{ item.username }}</th>
-                            <th>{{ item.incoming }}</th>
-                            <th>{{ item.outgoing }}</th>
-                            <th>{{ item.transfered }}</th>
-                            <th>{{ item.missed }}</th>
+                            <th>{{ item.outgoing + item.incoming }}</th>
                             <th>{{ item.leads }}</th>
                             <th>{{ getSalaryByCall(item) }}</th>
+                        </tr>
+                        <tr>
+                            <th>Total</th>
+                            <th>{{ getTotalLeads() }}</th>
+                            <th>{{ getTotalLeads() }}</th>
+                            <th>{{ getTotalLeads() }}</th>
                         </tr>
                     </tbody>
                 </table>
@@ -456,9 +456,18 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
                 this.leadTodayWidth = this.leadToday / (this.leadLastWeek + this.leadThisWeek + this.leadToday) * 100
             },
             getSalaryByCall(item) {
-                let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
+                let salary = Math.floor((item.outgoing + item.incoming) * (this.koefN + (item.outgoing + item.incoming) * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
                 return salary
             },
+            getTotalLeads() {
+                let allLeads = 0
+
+                this.callsData.forEach((e) => {
+                    allLeads += e.leads
+                })
+
+                return allLeads
+            }
         }
     });
 </script>
