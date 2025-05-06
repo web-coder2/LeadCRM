@@ -164,7 +164,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, idx) in callsData" :key="idx">
+                            <tr v-for="(item, idx) in callsData"  v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                 <th>{{ item.username }}</th>
                                 <th>{{ item.incoming }}</th>
                                 <th>{{ item.outgoing }}</th>
@@ -172,6 +172,15 @@
                                 <th>{{ item.missed }}</th>
                                 <th>{{ item.leads }}</th>
                                 <th>{{ getSalaryByCall(item) }}</th>
+                            </tr>
+                            <tr>
+                                <th style="color: green;">Total</th>
+                                <th style="color: green;">Total</th>
+                                <th style="color: green;">{{ getTotalCalls() }}</th>
+                                <th style="color: green;">Total</th>
+                                <th style="color: green;">Total</th>
+                                <th style="color: green;">{{ getTotalLeads() }}</th>
+                                <th style="color: green;">{{ getTotalSalary() }}</th>
                             </tr>
                         </tbody>
                     </table>
@@ -827,6 +836,34 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
             getSalaryByCall(item) {
                 let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
                 return salary
+            },
+            getTotalLeads() {
+                let allLeads = 0
+
+                this.callsData.forEach((e) => {
+                    allLeads += e.leads
+                })
+
+                return allLeads
+            },
+            getTotalCalls() {
+                let allCalls = 0
+
+                this.callsData.forEach((e) => {
+                    allCalls += e.outgoing
+                    allCalls += e.incoming
+                })
+
+                return allCalls
+            },
+            getTotalSalary() {
+                let allSalary = 0
+
+                this.callsData.forEach((e) => {
+                    allSalary += this.getSalaryByCall(e)
+                })
+
+                return allSalary
             },
             createChart() {
 

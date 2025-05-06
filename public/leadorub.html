@@ -124,10 +124,10 @@
                             <th>{{ getSalaryByCall(item) }}</th>
                         </tr>
                         <tr>
-                            <th>Total</th>
-                            <th>{{ getTotalLeads() }}</th>
-                            <th>{{ getTotalLeads() }}</th>
-                            <th>{{ getTotalLeads() }}</th>
+                            <th style="color: green;">Total</th>
+                            <th style="color: green;">{{ getTotalCalls() }}</th>
+                            <th style="color: green;">{{ getTotalLeads() }}</th>
+                            <th style="color: green;">{{ getTotalSalary() }}</th>
                         </tr>
                     </tbody>
                 </table>
@@ -467,6 +467,25 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
                 })
 
                 return allLeads
+            },
+            getTotalCalls() {
+                let allCalls = 0
+
+                this.callsData.forEach((e) => {
+                    allCalls += e.outgoing
+                    allCalls += e.incoming
+                })
+
+                return allCalls
+            },
+            getTotalSalary() {
+                let allSalary = 0
+
+                this.callsData.forEach((e) => {
+                    allSalary += this.getSalaryByCall(e)
+                })
+
+                return allSalary
             }
         }
     });
