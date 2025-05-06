@@ -346,7 +346,7 @@
 <style type="text/css">
 
 body {
-    background-color: rgb(34, 30, 30);
+    background-color: black;
     overflow-x: hidden;
 }
 
@@ -410,8 +410,9 @@ body {
 }
 
 .nav-item:hover {
-    background-color: black;
+    background-color: rgb(42, 41, 41);
     font-size: 22px;
+    border-radius: 20px;
 }
 
 
@@ -510,16 +511,16 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
 
         },
         mounted() {
-            window.addEventListener('resize', this.updateWinSize);
+            window.addEventListener('resize', this.updateWinSize)
         },
         computed: {
             brokers() {
-                return this.users.filter(user => user.role.role === 'broker');
+                return this.users.filter(user => user.role.role === 'broker')
             },
             leadProgress() {
                 let totalLeads = this.leads.length;
-                let processedLeads = this.leads.filter(lead => lead.isSend).length;
-                return Math.round((processedLeads / totalLeads) * 100);
+                let processedLeads = this.leads.filter(lead => lead.isSend).length
+                return Math.round((processedLeads / totalLeads) * 100)
             }
         },
         methods: {
@@ -530,10 +531,10 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
                 this.filterIsSend = "qwerty"
             },
             toggleSidebar() {
-                this.isCollapsed = !this.isCollapsed;
+                this.isCollapsed = !this.isCollapsed
             },
             updateWinSize() {
-                this.winSize = window.innerWidth;  // Обновляем размер окна
+                this.winSize = window.innerWidth
             },
             async addNewRole() {
                 await fetch('/api/role/add', {

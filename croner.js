@@ -35,6 +35,7 @@ async function getAuthSkorozvon() {
 let crone10Sec = '*/10 * * * * *'
 let crone1Hour = '0 * * * *'
 const crone5Minutes = '*/5 * * * *'
+let crone10Minutes = '*/10 * * * *'
 
 async function resetBrokerStatus() {
     const result = await UserModel.updateMany(
@@ -116,6 +117,6 @@ crone.schedule(crone1Hour, () => {
     resetLeadByBroker()
 })
 
-crone.schedule(crone5Minutes, () => {
+crone.schedule(crone10Minutes, () => {
     getAndSetSkorozvonToDB()
 })
