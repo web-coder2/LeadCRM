@@ -497,11 +497,10 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
             tableLoader: false,
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
 
-            koefN: 2,
-            koefZ: 1,
-            koefX: 0.0001,
-            koefY: 0.01,
-            cost: 125,
+            koefCalls: 2,
+            koefLeads: 125,
+            koefBonusCalls: 0.0001,
+            koefBonusLeads: 0.01,
             
             activeTabs: 'users',
             winSize: 0,
@@ -834,8 +833,16 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
                 this.usersDataShow =! this.usersDataShow
             },
             getSalaryByCall(item) {
-                let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
+                // let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
+                // return salary
+
+                let salary = Math.floor((item.incoming + item.outgoing) * this.koefCalls + item.leads * this.koefLeads)
                 return salary
+
+            },
+            getBonusByCalls(item) {
+                let bonus = Math.floor((item.outgoing + item.incoming) * ((item.outgoing + item.incoming) * this.koefBonusCalls + item.leads * this.koefBonusLeads))
+                return bonus
             },
             getTotalLeads() {
                 let allLeads = 0
@@ -850,8 +857,10 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
                 let allCalls = 0
 
                 this.callsData.forEach((e) => {
-                    allCalls += e.outgoing
-                    allCalls += e.incoming
+                    if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") {
+                        allCalls += e.outgoing
+                        allCalls += e.incoming
+                    }
                 })
 
                 return allCalls
@@ -860,7 +869,9 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
                 let allSalary = 0
 
                 this.callsData.forEach((e) => {
-                    allSalary += this.getSalaryByCall(e)
+                    if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") { 
+                        allSalary += this.getSalaryByCall(e)
+                    }
                 })
 
                 return allSalary
