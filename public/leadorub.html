@@ -145,10 +145,10 @@
                                 </tr>
                                 <tr>
                                     <th class="text-info">Total</th>
-                                    <th class="text-info">{{ getTotalCalls() }}</th>
-                                    <th class="text-info">{{ getTotalLeads() }}</th>
-                                    <th class="text-info">{{ getTotalBonus() }}</th>
-                                    <th class="text-info">{{ getTotalSalary() }} + {{ getTotalBonus() }}</th>
+                                    <th class="text-info">{{ getTotalCalls(callsData) }}</th>
+                                    <th class="text-info">{{ getTotalLeads(callsData) }}</th>
+                                    <th class="text-info">{{ getTotalBonus(callsData) }}</th>
+                                    <th class="text-info">{{ getTotalSalary(callsData) }} + {{ getTotalBonus(callsData) }}</th>
                                 </tr>
                             </tbody>
                         </table>
@@ -160,7 +160,7 @@
                 </div>
                 <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="week">
                     <h3 class="text-light mt-5">Таблица результатов за неделю</h3>
-                    <div class="table-container mt-5 mb-5" v-if="!tableLoader">
+                    <div class="table-container mt-5 mb-5" v-if="!weekDataArrayLoading">
                         <table class="table table-bordered table-striped table-dark">
                             <thead class="bg-danger text-light">
                                 <tr>
@@ -180,7 +180,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                <tr v-for="(item, idx) in weekDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                     <th>{{ item.username }}</th>
                                     <th>{{ item.outgoing + item.incoming }}</th>
                                     <th>{{ item.leads }}</th>
@@ -189,13 +189,17 @@
                                 </tr>
                                 <tr>
                                     <th class="text-info">Total</th>
-                                    <th class="text-info">{{ getTotalCalls() }}</th>
-                                    <th class="text-info">{{ getTotalLeads() }}</th>
-                                    <th class="text-info">{{ getTotalBonus() }}</th>
-                                    <th class="text-info">{{ getTotalSalary() }} + {{ getTotalBonus() }}</th>
+                                    <th class="text-info">{{ getTotalCalls(weekDataArray) }}</th>
+                                    <th class="text-info">{{ getTotalLeads(weekDataArray) }}</th>
+                                    <th class="text-info">{{ getTotalBonus(weekDataArray) }}</th>
+                                    <th class="text-info">{{ getTotalSalary(weekDataArray) }} + {{ getTotalBonus(weekDataArray) }}</th>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex align-items-center mt-5 mb-5" v-if="weekDataArrayLoading">
+                        <strong class="text-light">Загрузка таблицы</strong>
+                        <div class="spinner-border ml-auto text-info" role="status" aria-hidden="true"></div>
                     </div>
                 </div>
             </div>
@@ -329,6 +333,45 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
     return updatedCallsData
 }
 
+function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
+    if (
+        !Array.isArray(callsData) ||
+        !Array.isArray(leadsData) ||
+        !Array.isArray(tableTimeArray)
+    ) {
+        console.error('Некорректные входные данные для updateCallsWithLeads.');
+        return callsData;
+    }
+
+    const updatedCallsData = JSON.parse(JSON.stringify(callsData));
+
+    const userMap = new Map();
+    updatedCallsData.forEach(user => {
+        const cleanedUsername = user.username ? user.username.replace(/\s+/g, '').toLowerCase() : '';
+        if (cleanedUsername) {
+            userMap.set(cleanedUsername, user);
+            if (user.leads === undefined) {
+                user.leads = 0;
+            }
+        }
+    });
+
+    // Обрабатываем лиды
+    leadsData.forEach(lead => {
+        if (lead.starter && lead.date && tableTimeArray.includes(lead.date)) {
+            const cleanedStarter = lead.starter.replace(/\s+/g, '').toLowerCase();
+            const user = userMap.get(cleanedStarter);
+            if (user) {
+                user.leads = (user.leads || 0) + 1;
+            }
+        }
+    });
+
+    return updatedCallsData;
+}
+
+
+
     new Vue({
         el: '#app',
         data: {
@@ -357,6 +400,8 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
             skorozvonCallsData: [],
             tableLoader: false,
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
+            weekDataResponse: [],
+            weekDataArrayLoading: false,
 
             koefCalls: 2,
             koefLeads: 125,
@@ -369,6 +414,7 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
             await this.fetchLeads()
             await this.fetchUsers()
             await this.getCallsSkorozvon()
+            await this.getCallsWeekSkorozvon()
         },
         methods: {
             createLead() {
@@ -469,6 +515,82 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
 
                 this.callsData = updateCallsWithLeads(this.callsData, this.leads, this.tableTime)
             },
+            async getCallsWeekSkorozvon() {
+                try {
+
+                    this.weekDataArrayLoading = true
+                    let weekDataArray = []
+
+                    const response = await fetch(`/skorozvon/get/weekCalls/${dayjs(new Date).startOf('week').format('YYYY-MM-DD')}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    }).then(resp => resp.json()).then(data => this.weekDataResponse = data)
+
+                    console.log(this.weekDataResponse.data)
+
+                    let someData = this.weekDataResponse.data
+
+                    someData.forEach((w) => {
+                        w.calls.forEach((item) => {
+                            weekDataArray.push(item)
+                        })
+                    })
+
+                    const groupedCalls = {}
+
+                    weekDataArray.forEach(call => {
+                        const username = call.username
+                        const callType = call.call_type
+
+                        if (!groupedCalls[username]) {
+                            groupedCalls[username] = {
+                                username: username,
+                                'incoming': 0,
+                                'outgoing': 0,
+                                'transfered': 0,
+                                'missed' : 0,
+                            }
+                        }
+
+                        if (groupedCalls[username].hasOwnProperty(callType)) {
+                            groupedCalls[username][callType]++
+                        } else {
+                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`)
+                        }
+                    });
+
+                    const today = new Date()
+                    const currentDay = today.getDay()
+                    const daysSinceMonday = (currentDay + 6) % 7
+                    const mondayDate = new Date(today)
+                    mondayDate.setDate(today.getDate() - daysSinceMonday)
+
+                    const timeDateArray = [];
+                    const currentDate = new Date(mondayDate);
+
+                    while (currentDate <= today) {
+                        const year = currentDate.getFullYear()
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+                        const day = String(currentDate.getDate()).padStart(2, '0')
+                        const formattedDate = `${year}-${month}-${day}`
+                        timeDateArray.push(formattedDate)
+                        currentDate.setDate(currentDate.getDate() + 1)
+                    }
+
+                    this.weekDataArray = Object.values(groupedCalls);
+                    this.weekDataArray = updateCallsWithLeadsWeek(this.weekDataArray, this.leads, timeDateArray)
+
+                    console.log(this.weekDataArray)
+
+                    this.weekDataArrayLoading = false
+
+                } catch (e) {
+                    console.log('error ...' , e)
+                }
+
+            },
             fetchProfile() {
                 fetch('/api/broker/profile')
                     .then(response => response.json())
@@ -563,19 +685,19 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
 
                 return bonus
             },
-            getTotalLeads() {
+            getTotalLeads(array) {
                 let allLeads = 0
 
-                this.callsData.forEach((e) => {
+                array.forEach((e) => {
                     allLeads += e.leads
                 })
 
                 return allLeads
             },
-            getTotalCalls() {
+            getTotalCalls(array) {
                 let allCalls = 0
 
-                this.callsData.forEach((e) => {
+                array.forEach((e) => {
                     if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") {
                         allCalls += e.outgoing
                         allCalls += e.incoming
@@ -584,10 +706,10 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
 
                 return allCalls
             },
-            getTotalSalary() {
+            getTotalSalary(array) {
                 let allSalary = 0
 
-                this.callsData.forEach((e) => {
+                array.forEach((e) => {
                     if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") { 
                         allSalary += this.getSalaryByCall(e)
                     }
@@ -595,10 +717,10 @@ function updateCallsWithLeads(callsData, leadsData, tableTime) {
 
                 return allSalary
             },
-            getTotalBonus() {
+            getTotalBonus(array) {
                 let allBonus = 0
 
-                this.callsData.forEach((q) => {
+                array.forEach((q) => {
                     if (q.username !== "Не определено" && q.username !== "Симаков Владимир Станиславович") {
                         allBonus += this.getBonusByCalls(q)
                     }
