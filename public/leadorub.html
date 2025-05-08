@@ -459,16 +459,12 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             leadLastWeekWidth: 0,
             activeTab: 'createLead',
 
-            usersData: [],
-            usersDataShow: false,
+
             callsData: [],
-            skorozvonCallsData: [],
             tableLoader: false,
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
-
             weekDataResponse: [],
             weekDataArrayLoading: false,
-
             monthDataResponse: [],
             monthDataArrayLoading: false,
             monthDataArray: [],
@@ -818,7 +814,7 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             getBonusByCalls(item) {
                 //let bonus = Math.floor((item.outgoing + item.incoming) * ((item.outgoing + item.incoming) * this.koefBonusCalls + item.leads * this.koefBonusLeads))
 
-                let bonus = Math.floor( (item.incoming + item.outgoing) * ( ( (item.incoming * item.outgoing) * this.koefBonusCalls  ) +  (item.leads * this.koefBonusLeads)  )  )
+                let bonus = Math.floor( (item.incoming + item.outgoing) * ( ( (item.incoming + item.outgoing) * this.koefBonusCalls  ) +  (item.leads * this.koefBonusLeads)  )  )
 
                 return bonus
             },
