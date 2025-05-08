@@ -99,49 +99,106 @@
 
     <div v-if="activeTab == 'skorozvon'">
         <div class="form-container mt-5">
-            <div style="display: flex;">
-                <input type="date" v-model="tableTime" class="form-control bg-dark text-success mt-5 mb-5 dateInput">
-                <button @click="getCallsSkorozvon()" class="btn btn-outline-success mt-5 mb-5 ml-3">Применить</button>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                <a class="nav-link active" id="today" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Сегодня</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" id="week" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Неделя</a>
+                </li>
+            </ul>
+        
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="today">
+                    <div class="d-flex">
+                        <input type="date" v-model="tableTime" class="form-control bg-dark text-light mt-5 mb-3 dateInput">
+                        <button @click="getCallsSkorozvon()" class="btn btn-outline-light mt-5 mb-3 ml-3">Применить</button>
+                    </div>
+                    <h3 class="text-light">Таблица показателей за {{ tableTime }}</h3>
+                    <div class="table-container mt-5 mb-5" v-if="!tableLoader">
+                        <table class="table table-bordered table-striped table-dark">
+                            <thead class="bg-danger text-light">
+                                <tr>
+                                    <th>Имя</th>
+                                    <th>Звонки</th>
+                                    <th>Лиды</th>
+                                    <th>Бонус
+                                        <button type="button" class="btn btn-danger" @click="showBonusInfo()">
+                                            <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                        </button>
+                                    </th>
+                                    <th>Зарплата
+                                        <button type="button" class="btn btn-danger" @click="showSalaryInfo">
+                                            <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                        </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                    <th>{{ item.username }}</th>
+                                    <th>{{ item.outgoing + item.incoming }}</th>
+                                    <th>{{ item.leads }}</th>
+                                    <th>{{ getBonusByCalls(item) }}</th>
+                                    <th>{{ getSalaryByCall(item) }} + <span class="text-info">{{ getBonusByCalls(item) }}</span></th>
+                                </tr>
+                                <tr>
+                                    <th class="text-info">Total</th>
+                                    <th class="text-info">{{ getTotalCalls() }}</th>
+                                    <th class="text-info">{{ getTotalLeads() }}</th>
+                                    <th class="text-info">{{ getTotalBonus() }}</th>
+                                    <th class="text-info">{{ getTotalSalary() }} + {{ getTotalBonus() }}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
+                        <strong class="text-light">Загрузка таблицы</strong>
+                        <div class="spinner-border ml-auto text-info" role="status" aria-hidden="true"></div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="week">
+                    <h3 class="text-light mt-5">Таблица результатов за неделю</h3>
+                    <div class="table-container mt-5 mb-5" v-if="!tableLoader">
+                        <table class="table table-bordered table-striped table-dark">
+                            <thead class="bg-danger text-light">
+                                <tr>
+                                    <th>Имя</th>
+                                    <th>Звонки</th>
+                                    <th>Лиды</th>
+                                    <th>Бонус
+                                        <button type="button" class="btn btn-danger" @click="showBonusInfo()">
+                                            <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                        </button>
+                                    </th>
+                                    <th>Зарплата
+                                        <button type="button" class="btn btn-danger" @click="showSalaryInfo">
+                                            <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                        </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                    <th>{{ item.username }}</th>
+                                    <th>{{ item.outgoing + item.incoming }}</th>
+                                    <th>{{ item.leads }}</th>
+                                    <th>{{ getBonusByCalls(item) }}</th>
+                                    <th>{{ getSalaryByCall(item) }} + <span class="text-info">{{ getBonusByCalls(item) }}</span></th>
+                                </tr>
+                                <tr>
+                                    <th class="text-info">Total</th>
+                                    <th class="text-info">{{ getTotalCalls() }}</th>
+                                    <th class="text-info">{{ getTotalLeads() }}</th>
+                                    <th class="text-info">{{ getTotalBonus() }}</th>
+                                    <th class="text-info">{{ getTotalSalary() }} + {{ getTotalBonus() }}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            
-            <h3 class="text-warning">Таблица показателей на {{ tableTime }}</h3>
-
-            <div class="table-container mt-5 mb-5" v-if="!tableLoader">
-                <table class="table table-bordered table-striped table-dark">
-                    <thead class="bg-danger text-light">
-                        <tr>
-                            <th>Имя</th>
-                            <th>Звонки</th>
-                            <th>Лиды</th>
-                            <th>Бонус
-                                <button type="button" class="btn btn-danger" @click="showBonusInfo()">
-                                    <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
-                                </button>
-                            </th>
-                            <th>Зарплата
-                                <button type="button" class="btn btn-danger" @click="showSalaryInfo">
-                                    <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
-                                </button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
-                            <th>{{ item.username }}</th>
-                            <th>{{ item.outgoing + item.incoming }}</th>
-                            <th>{{ item.leads }}</th>
-                            <th>{{ getBonusByCalls(item) }}</th>
-                            <th>{{ getSalaryByCall(item) }} + <span class="text-warning">{{ getBonusByCalls(item) }}</span></th>
-                        </tr>
-                        <tr>
-                            <th style="color: green;">Total</th>
-                            <th style="color: green;">{{ getTotalCalls() }}</th>
-                            <th style="color: green;">{{ getTotalLeads() }}</th>
-                            <th style="color: green;">{{ getTotalBonus() }}</th>
-                            <th style="color: green;">{{ getTotalSalary() }} + <span class="text-primary">{{ getTotalBonus() }}</span></th>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
 
             <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -176,13 +233,6 @@
                 </div>
             </div>
 
-
-
-
-            <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
-                <strong class="text-danger">Загрузка таблицы</strong>
-                <div class="spinner-border ml-auto text-danger" role="status" aria-hidden="true"></div>
-            </div>
         </div>
     </div>
 
@@ -209,8 +259,6 @@ body {
 
 .nav-item:hover {
     background-color: rgb(42, 41, 41);
-    font-size: 22px;
-    border-radius: 20px;
 }
 
 .dateInput {
