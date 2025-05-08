@@ -89,49 +89,34 @@ async function getAndSetSkorozvonToDB(timeDay) {
 }
 
 async function processDates(datesArray) {
-    const results = [];
+    const results = []
 
     for (const dateStr of datesArray) {
+        let callsRecord = await skorozvonCalls.findOne({ date: dateStr })
 
-      let callsRecord = await skorozvonCalls.findOne({ date: dateStr })
-  
-      if (!callsRecord) {
-        console.log(`Записи о звонках за ${dateStr} не найдены. Выполняем getAndSetSkorozvonToDB.`)
-        try {
-          await getAndSetSkorozvonToDB(dateStr)
-  
-          callsRecord = await skorozvonCalls.findOne({ date: dateStr })
-  
-          if (!callsRecord) {
-            console.warn(`Записи о звонках за ${dateStr} не найдены даже после попытки получения и сохранения.`)
-            results.push({ date: dateStr, calls: [] })
-          } else {
+        if (!callsRecord) {
+            console.log(`Записи о звонках за ${dateStr} не найдены. Выполняем getAndSetSkorozvonToDB.`)
+            try {
+                await getAndSetSkorozvonToDB(dateStr)
+                callsRecord = await skorozvonCalls.findOne({ date: dateStr })
+                if (!callsRecord) {
+                    console.warn(`Записи о звонках за ${dateStr} не найдены даже после попытки получения и сохранения.`)
+                    results.push({ date: dateStr, calls: [], error: 'No data' })
+                } else {
+                    results.push({ date: dateStr, calls: callsRecord.calls })
+                }
+            } catch (error) {
+                console.error('Ошибка при выполнении getAndSetSkorozvonToDB:', error.message)
+                results.push({ date: dateStr, calls: [], error: error.message })
+            }
+        } else {
             results.push({ date: dateStr, calls: callsRecord.calls })
-          }
-        } catch (error) {
-          console.error('Ошибка при выполнении getAndSetSkorozvonToDB:', error.message)
-          results.push({ date: dateStr, calls: [], error: error.message })
         }
-      } else {
-        results.push({ date: dateStr, calls: callsRecord.calls })
-      }
     }
-  
-    return results;
-  }
 
+    return results
+}
 
-// router.get('/skorozvon/get/users', async (req, res) => {
-    
-//     const token = await getAuthSkorozvon()
-//     const tokenAuth = JSON.parse(token).token
-//     const response = await axios.get('https://api.skorozvon.ru/api/v2/users',{
-//         headers: { Authorization: `Bearer ${tokenAuth}` },
-//     })
-
-//     res.send({'usersData' : response.data})
-
-// })
 
 router.get('/skorozvon/get/calls/:timeDate', async (req, res) => {
     try {
@@ -189,6 +174,30 @@ router.get('/skorozvon/get/weekCalls/:timeDate', async (req, res) => {
     }
 
     const processedData = await processDates(weekDaysArray)
+
+    res.json({ data: processedData })
+})
+
+router.get('/skorozvon/get/monthCalls/:timeDate', async (req, res) => {
+    const inputDateStr = req.params.timeDate
+    const inputDate = dayjs(inputDateStr)
+    const startOfMonth = inputDate.startOf('month')
+    const endOfMonth = dayjs()
+
+    const startTimestamp = startOfMonth.valueOf()
+    const endTimestamp = endOfMonth.valueOf()
+
+    const millisecondsInDay = 24 * 60 * 60 * 1000
+
+    const daysDiff = Math.floor((endTimestamp - startTimestamp) / millisecondsInDay)
+
+    const datesArray = []
+    for (let i = 0; i <= daysDiff; i++) {
+        const currentDay = startOfMonth.add(i, 'day')
+        datesArray.push(currentDay.format('YYYY-MM-DD'))
+    }
+
+    const processedData = await processDates(datesArray)
 
     res.json({ data: processedData })
 })

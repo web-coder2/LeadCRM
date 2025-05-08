@@ -99,18 +99,25 @@
 
     <div v-if="activeTab == 'skorozvon'">
         <div class="form-container mt-5">
+
+            <!-- Nav tabs -->
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item">
-                <a class="nav-link active" id="today" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Сегодня</a>
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Сегодня</a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" id="week" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Неделя</a>
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Неделя</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="messages-tab" data-toggle="tab" href="#messages" role="tab" aria-controls="messages" aria-selected="false">Месяц</a>
+                </li>   
             </ul>
+
         
-            <!-- Tab panes -->
             <div class="tab-content">
-                <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="today">
+
+
+                <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <div class="d-flex">
                         <input type="date" v-model="tableTime" class="form-control bg-dark text-light mt-5 mb-3 dateInput">
                         <button @click="getCallsSkorozvon()" class="btn btn-outline-light mt-5 mb-3 ml-3">Применить</button>
@@ -158,7 +165,9 @@
                         <div class="spinner-border ml-auto text-info" role="status" aria-hidden="true"></div>
                     </div>
                 </div>
-                <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="week">
+
+
+                <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                     <h3 class="text-light mt-5">Таблица результатов за неделю</h3>
                     <div class="table-container mt-5 mb-5" v-if="!weekDataArrayLoading">
                         <table class="table table-bordered table-striped table-dark">
@@ -202,7 +211,54 @@
                         <div class="spinner-border ml-auto text-info" role="status" aria-hidden="true"></div>
                     </div>
                 </div>
-            </div>
+
+
+                <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
+                    <h3 class="text-light mt-5">Таблица результатов за Месяц</h3>
+                    <div class="table-container mt-5 mb-5" v-if="!monthDataArrayLoading">
+                        <table class="table table-bordered table-striped table-dark">
+                            <thead class="bg-danger text-light">
+                                <tr>
+                                    <th>Имя</th>
+                                    <th>Звонки</th>
+                                    <th>Лиды</th>
+                                    <th>Бонус
+                                        <button type="button" class="btn btn-danger" @click="showBonusInfo()">
+                                            <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                        </button>
+                                    </th>
+                                    <th>Зарплата
+                                        <button type="button" class="btn btn-danger" @click="showSalaryInfo">
+                                            <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                        </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, idx) in monthDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                    <th>{{ item.username }}</th>
+                                    <th>{{ item.outgoing + item.incoming }}</th>
+                                    <th>{{ item.leads }}</th>
+                                    <th>{{ getBonusByCalls(item) }}</th>
+                                    <th>{{ getSalaryByCall(item) }} + <span class="text-info">{{ getBonusByCalls(item) }}</span></th>
+                                </tr>
+                                <tr>
+                                    <th class="text-info">Total</th>
+                                    <th class="text-info">{{ getTotalCalls(monthDataArray) }}</th>
+                                    <th class="text-info">{{ getTotalLeads(monthDataArray) }}</th>
+                                    <th class="text-info">{{ getTotalBonus(monthDataArray) }}</th>
+                                    <th class="text-info">{{ getTotalSalary(monthDataArray) }} + {{ getTotalBonus(monthDataArray) }}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center mt-5 mb-5" v-if="monthDataArrayLoading">
+                        <strong class="text-light">Загрузка таблицы</strong>
+                        <div class="spinner-border ml-auto text-info" role="status" aria-hidden="true"></div>
+                    </div>
+                </div>
+
+
             </div>
 
             <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -400,8 +456,13 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             skorozvonCallsData: [],
             tableLoader: false,
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
+
             weekDataResponse: [],
             weekDataArrayLoading: false,
+
+            monthDataResponse: [],
+            monthDataArrayLoading: false,
+            monthDataArray: [],
 
             koefCalls: 2,
             koefLeads: 125,
@@ -415,6 +476,7 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             await this.fetchUsers()
             await this.getCallsSkorozvon()
             await this.getCallsWeekSkorozvon()
+            await this.getCallsMonthSkorozvon()
         },
         methods: {
             createLead() {
@@ -528,8 +590,6 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                         },
                     }).then(resp => resp.json()).then(data => this.weekDataResponse = data)
 
-                    console.log(this.weekDataResponse.data)
-
                     let someData = this.weekDataResponse.data
 
                     someData.forEach((w) => {
@@ -590,6 +650,74 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                     console.log('error ...' , e)
                 }
 
+            },
+            async getCallsMonthSkorozvon() {
+                try {
+                    this.monthDataArrayLoading = true;
+                    let monthDataArray = [];
+
+                    const startOfMonthStr = dayjs().startOf('month').format('YYYY-MM-DD');
+                    const response = await fetch(`/skorozvon/get/monthCalls/${startOfMonthStr}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    });
+                    const data = await response.json();
+
+                    this.monthDataResponse = data;
+
+                    data.data.forEach(w => {
+                        w.calls.forEach(item => {
+                            monthDataArray.push(item);
+                        });
+                    });
+
+                    const groupedCalls = {};
+                    monthDataArray.forEach(call => {
+                        const username = call.username;
+                        const callType = call.call_type;
+
+                        if (!groupedCalls[username]) {
+                            groupedCalls[username] = {
+                                username: username,
+                                'incoming': 0,
+                                'outgoing': 0,
+                                'transfered': 0,
+                                'missed': 0,
+                            };
+                        }
+
+                        if (groupedCalls[username].hasOwnProperty(callType)) {
+                            groupedCalls[username][callType]++;
+                        } else {
+                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`);
+                        }
+                    });
+
+                    const today = new Date();
+                    const startOfMonth = dayjs().startOf('month');
+                    const currentDate = new Date(startOfMonth);
+
+                    const dateArray = [];
+                    while (currentDate <= today) {
+                        const year = currentDate.getFullYear();
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(currentDate.getDate()).padStart(2, '0');
+                        const formattedDate = `${year}-${month}-${day}`;
+                        dateArray.push(formattedDate);
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+
+                    this.monthDataArray = Object.values(groupedCalls);
+                    this.monthDataArray = updateCallsWithLeadsWeek(this.monthDataArray, this.leads, dateArray);
+
+                    console.log(this.monthDataArray);
+                    this.monthDataArrayLoading = false;
+                } catch (e) {
+                    console.log('error ...', e);
+                    this.monthDataArrayLoading = false;
+                }
             },
             fetchProfile() {
                 fetch('/api/broker/profile')
@@ -696,6 +824,8 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             },
             getTotalCalls(array) {
                 let allCalls = 0
+
+                console.log(array)
 
                 array.forEach((e) => {
                     if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") {
