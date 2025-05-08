@@ -176,6 +176,8 @@
                                         <tr>
                                             <th>Имя</th>
                                             <th>Звонки</th>
+                                            <th>Трансферед</th>
+                                            <th>Пропущеный</th>
                                             <th>Лиды</th>
                                             <th>Бонус
                                                 <button type="button" class="btn btn-danger" @click="showBonusInfo()">
@@ -194,6 +196,8 @@
                                         <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                             <th>{{ item.username }}</th>
                                             <th>{{ item.outgoing + item.incoming }}</th>
+                                            <th>{{ item.transfered }}</th>
+                                            <th>{{ item.missed }}</th>
                                             <th>{{ item.leads }}</th>
                                             <th>{{ getBonusByCalls(item) }}</th>
                                             <th>{{ getSalaryByCall(item) }}</th>
@@ -202,6 +206,8 @@
                                         <tr>
                                             <th class="text-info">Total</th>
                                             <th class="text-info">{{ getTotalCalls(callsData) }}</th>
+                                            <th class="text-info">{{ getTotalTransfered(callsData) }}</th>
+                                            <th class="text-info">{{ getTotalMissed(callsData) }}</th>
                                             <th class="text-info">{{ getTotalLeads(callsData) }}</th>
                                             <th class="text-info">{{ getTotalBonus(callsData) }}</th>
                                             <th class="text-info">{{ getTotalSalary(callsData) }}</th>
@@ -225,6 +231,8 @@
                                         <tr>
                                             <th>Имя</th>
                                             <th>Звонки</th>
+                                            <th>Трансферед</th>
+                                            <th>Пропущеный</th>
                                             <th>Лиды</th>
                                             <th>Бонус
                                                 <button type="button" class="btn btn-danger" @click="showBonusInfo()">
@@ -243,6 +251,8 @@
                                         <tr v-for="(item, idx) in weekDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                             <th>{{ item.username }}</th>
                                             <th>{{ item.outgoing + item.incoming }}</th>
+                                            <th>{{ item.transfered }}</th>
+                                            <th>{{ item.missed }}</th>
                                             <th>{{ item.leads }}</th>
                                             <th>{{ getBonusByCalls(item) }}</th>
                                             <th>{{ getSalaryByCall(item) }}</th>
@@ -251,6 +261,8 @@
                                         <tr>
                                             <th class="text-info">Total</th>
                                             <th class="text-info">{{ getTotalCalls(weekDataArray) }}</th>
+                                            <th class="text-info">{{ getTotalTransfered(weekDataArray) }}</th>
+                                            <th class="text-info">{{ getTotalMissed(weekDataArray) }}</th>
                                             <th class="text-info">{{ getTotalLeads(weekDataArray) }}</th>
                                             <th class="text-info">{{ getTotalBonus(weekDataArray) }}</th>
                                             <th class="text-info">{{ getTotalSalary(weekDataArray) }}</th>
@@ -274,6 +286,8 @@
                                         <tr>
                                             <th>Имя</th>
                                             <th>Звонки</th>
+                                            <th>Трансферед</th>
+                                            <th>Пропущеный</th>
                                             <th>Лиды</th>
                                             <th>Бонус
                                                 <button type="button" class="btn btn-danger" @click="showBonusInfo()">
@@ -292,6 +306,8 @@
                                         <tr v-for="(item, idx) in monthDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                             <th>{{ item.username }}</th>
                                             <th>{{ item.outgoing + item.incoming }}</th>
+                                            <th>{{ item.transfered }}</th>
+                                            <th>{{ item.missed }}</th>
                                             <th>{{ item.leads }}</th>
                                             <th>{{ getBonusByCalls(item) }}</th>
                                             <th>{{ getSalaryByCall(item) }}</th>
@@ -300,6 +316,8 @@
                                         <tr>
                                             <th class="text-info">Total</th>
                                             <th class="text-info">{{ getTotalCalls(monthDataArray) }}</th>
+                                            <th class="text-info">{{ getTotalTransfered(monthDataArray) }}</th>
+                                            <th class="text-info">{{ getTotalMissed(monthDataArray) }}</th>
                                             <th class="text-info">{{ getTotalLeads(monthDataArray) }}</th>
                                             <th class="text-info">{{ getTotalBonus(monthDataArray) }}</th>
                                             <th class="text-info">{{ getTotalSalary(monthDataArray) }}</th>
@@ -1197,6 +1215,22 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                 })
 
                 return allLeads
+            },
+            getTotalTransfered(array) {
+                let allTransfers = 0
+
+                array.forEach((e) => {
+                    allTransfers += e.transfered
+                })
+                return allTransfers
+            },
+            getTotalMissed(array) {
+                let allMissed = 0
+
+                array.forEach((r) => {
+                    allMissed += r.missed
+                })
+                return allMissed
             },
             getTotalCalls(array) {
                 let allCalls = 0
