@@ -917,24 +917,24 @@ body {
             },
             async getSalaryAndBonusWeek() {
                 try {
-                    const response = await fetch(`/skorozvon/get/week/${dayjs(new Date).startOf('week').format('YYYY-MM-DD')}`, {
+                    const response = await fetch(`/skorozvon/get/weeklyData/${dayjs(new Date).startOf('week').format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }).then(response => response.json()).then(data => this.weekDataArray = data.data)
+                    }).then(response => response.json()).then(data => this.weekDataArray = data.stats)
                 } catch (e) {
                     console.log(e)
                 }
             },
             async getSalaryAndBonusMonth() {
                 try {
-                    const response = await fetch(`/skorozvon/get/month/${dayjs().startOf('month').format('YYYY-MM-DD')}`, {
+                    const response = await fetch(`/skorozvon/get/monthlyData/${dayjs().startOf('month').format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }).then(response => response.json()).then(data => this.monthDataArray = data.data)
+                    }).then(response => response.json()).then(data => this.monthDataArray = data.stats)
                 } catch (e) {
                     console.log(e)
                 }

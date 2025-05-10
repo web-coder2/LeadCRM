@@ -275,42 +275,6 @@ async function createOrUpdateUserStats(dateStr) {
     console.log(`Статистика за ${dateStr} успешно обновлена.`);
 }
 
-async function processRange(startDateStr, endDateStr) {
-    const startDate = new Date(startDateStr)
-    const endDate = new Date(endDateStr)
-  
-    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-      const dateStr = date.toISOString().split('T')[0]
-      await createOrUpdateUserStats(dateStr)
-    }
-  
-    const data = await UsersStats.find({
-      date: { $gte: startDateStr, $lte: endDateStr }
-    });
-  
-    const resultMap = {}
-    data.forEach(item => {
-      const username = item.username || 'Не определено';
-  
-      if (!resultMap[username]) {
-        resultMap[username] = {
-          username,
-          totalCalls: 0,
-          totalLeads: 0,
-          salary: 0,
-          bonus: 0
-        };
-      }
-  
-      resultMap[username].totalCalls += item.totalCalls || 0;
-      resultMap[username].totalLeads += item.totalLeads || 0;
-      resultMap[username].salary += item.salary || 0;
-      resultMap[username].bonus += item.bonus || 0;
-    });
-
-    return Object.values(resultMap);
-}
-
 router.get('/skorozvon/get/allData/:date', async (req, res) => {
     try {
       const date = req.params.date;
@@ -329,110 +293,127 @@ router.get('/skorozvon/get/allData/:date', async (req, res) => {
     }
 });
 
-// --- РОУТ ДЛЯ НЕДЕЛИ ---
-router.get('/skorozvon/get/week/:date', async (req, res) => {
-    try {
-      const { date } = req.params;
-      const inputDate = new Date(date);
-      const dayOfWeek = inputDate.getDay(); // 0 (воскресенье) - 6 (суббота)
-      const diffToMonday = (dayOfWeek + 6) % 7; // чтобы получить понедельник
-      const start = new Date(inputDate);
-      start.setDate(inputDate.getDate() - diffToMonday);
-      start.setHours(0,0,0,0);
-      const end = new Date(start);
-      end.setDate(start.getDate() + 6);
-      end.setHours(23,59,59,999);
-      const startStr = start.toISOString().split('T')[0];
-      const endStr = end.toISOString().split('T')[0];
+// Функции для работы с датами (можете использовать moment.js или date-fns)
+function getDatesRange(startDate, numDays) {
+    const dates = [];
+    let currentDate = new Date(startDate);
   
-      // Обработка каждого дня недели
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        await createOrUpdateUserStats(dateStr);
+    for (let i = 0; i < numDays; i++) {
+      dates.push(formatDate(new Date(currentDate))); // Форматируем дату в строку, подходящую для вашей БД
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+  }
+  
+  function formatDate(date) {
+    // Форматирует дату в строку "YYYY-MM-DD" (или другой формат, используемый в вашей базе данных)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  function calculateEndDate(startDate, numDays) {
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + numDays - 1); // Вычитаем 1, потому что включаем начальную дату
+    return formatDate(endDate);
+  }
+  
+  
+  
+  // Функция для суммирования статистики
+  function sumUserStats(statsArrays) {
+    const summedStatsMap = new Map(); // Для удобства и эффективности
+  
+    for (const statsArray of statsArrays) {
+      if (!statsArray || !Array.isArray(statsArray)) {
+        console.warn("Invalid statsArray:", statsArray);
+        continue; // Пропускаем этот массив, если он недействителен
       }
   
-      // Собираем и суммируем за неделю
-      const data = await UsersStats.find({ date: { $gte: startStr, $lte: endStr } });
-      const resultMap = {};
-  
-      data.forEach(item => {
-        const username = item.username || 'Не определено';
-        if (!resultMap[username]) {
-          resultMap[username] = {
-            username,
+      for (const userStat of statsArray) {
+        const username = userStat.username;
+        if (!summedStatsMap.has(username)) {
+          // Инициализация записи, если её нет
+          summedStatsMap.set(username, {
+            username: username,
             totalCalls: 0,
             totalLeads: 0,
             salary: 0,
-            bonus: 0
-          };
+            bonus: 0,
+          });
         }
-        resultMap[username].totalCalls += item.totalCalls || 0;
-        resultMap[username].totalLeads += item.totalLeads || 0;
-        resultMap[username].salary += item.salary || 0;
-        resultMap[username].bonus += item.bonus || 0;
-      });
+        const summedStat = summedStatsMap.get(username);
+        summedStat.totalCalls += userStat.totalCalls;
+        summedStat.totalLeads += userStat.totalLeads;
+        summedStat.salary += userStat.salary;
+        summedStat.bonus += userStat.bonus;
+      }
+    }
   
-      res.json({
-        period: 'week',
-        startDate: startStr,
-        endDate: endStr,
-        data: Object.values(resultMap)
-      });
-    } catch (err) {
-      console.error(err);
+    // Преобразование Map обратно в массив объектов
+    return Array.from(summedStatsMap.values());
+  }
+  
+  
+  
+  // Роут для получения данных за неделю (передаем только начальную дату)
+  router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
+    try {
+      const startDate = req.params.startDate;
+      const numDays = 7; // Длительность недели
+      const endDate = calculateEndDate(startDate, numDays);
+      const dates = getDatesRange(startDate, numDays); // Используем numDays вместо endDate в getDatesRange
+  
+      // Сначала обновляем статистику за все дни
+      for (const date of dates) {
+        await createOrUpdateUserStats(date);
+      }
+  
+      // Затем получаем статистику из базы данных
+      const usersStatsArrays = await Promise.all(
+        dates.map(date => UsersStats.findOne({ date }).then(doc => doc ? doc.stats : null))
+      );
+  
+      // Суммируем статистику
+      const summedStats = sumUserStats(usersStatsArrays);
+  
+      res.json({ startDate, endDate, stats: summedStats });
+  
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ message: 'Ошибка сервера' });
     }
   });
   
-  // --- РОУТ ДЛЯ МЕСЯЦА ---
-  router.get('/skorozvon/get/month/:date', async (req, res) => {
-    try {
-      const { date } = req.params;
-      const inputDate = new Date(date);
-      const start = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
-      const end = new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 0);
-      const startStr = start.toISOString().split('T')[0];
-      const endStr = end.toISOString().split('T')[0];
   
-      // Обработка каждого дня месяца
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        await createOrUpdateUserStats(dateStr);
+  // Роут для получения данных за месяц (передаем только начальную дату)
+  router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
+    try {
+      const startDate = req.params.startDate;
+      const numDays = 30; // Длительность месяца (можно сделать 31 или использовать более точный расчет)
+      const endDate = calculateEndDate(startDate, numDays);
+      const dates = getDatesRange(startDate, numDays);
+  
+      // Сначала обновляем статистику за все дни
+      for (const date of dates) {
+        await createOrUpdateUserStats(date);
       }
   
-      // Собираем и суммируем за месяц
-      const data = await UsersStats.find({ date: { $gte: startStr, $lte: endStr } });
-      const resultMap = {};
+      // Затем получаем статистику из базы данных
+      const usersStatsArrays = await Promise.all(
+        dates.map(date => UsersStats.findOne({ date }).then(doc => doc ? doc.stats : null))
+      );
   
-      data.forEach(item => {
-        const username = item.username || 'Не определено';
-        if (!resultMap[username]) {
-          resultMap[username] = {
-            username,
-            totalCalls: 0,
-            totalLeads: 0,
-            salary: 0,
-            bonus: 0
-          };
-        }
-        resultMap[username].totalCalls += item.totalCalls || 0;
-        resultMap[username].totalLeads += item.totalLeads || 0;
-        resultMap[username].salary += item.salary || 0;
-        resultMap[username].bonus += item.bonus || 0;
-      });
+      // Суммируем статистику
+      const summedStats = sumUserStats(usersStatsArrays);
   
-      res.json({
-        period: 'month',
-        startDate: startStr,
-        endDate: endStr,
-        data: Object.values(resultMap)
-      });
-    } catch (err) {
-      console.error(err);
+      res.json({ startDate, endDate, stats: summedStats });
+  
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ message: 'Ошибка сервера' });
     }
   });
-
-
 
 module.exports = router
