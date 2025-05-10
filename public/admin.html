@@ -176,8 +176,6 @@
                                         <tr>
                                             <th>Имя</th>
                                             <th>Звонки</th>
-                                            <th>Трансферед</th>
-                                            <th>Пропущеный</th>
                                             <th>Лиды</th>
                                             <th>Бонус
                                                 <button type="button" class="btn btn-danger" @click="showBonusInfo()">
@@ -195,23 +193,11 @@
                                     <tbody>
                                         <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                             <th>{{ item.username }}</th>
-                                            <th>{{ item.outgoing + item.incoming }}</th>
-                                            <th>{{ item.transfered }}</th>
-                                            <th>{{ item.missed }}</th>
-                                            <th>{{ item.leads }}</th>
-                                            <th>{{ getBonusByCalls(item) }}</th>
-                                            <th>{{ getSalaryByCall(item) }}</th>
-                                            <th>{{ getSalaryByCall(item) + getBonusByCalls(item) }}</th>
-                                        </tr>
-                                        <tr>
-                                            <th class="text-info">Total</th>
-                                            <th class="text-info">{{ getTotalCalls(callsData) }}</th>
-                                            <th class="text-info">{{ getTotalTransfered(callsData) }}</th>
-                                            <th class="text-info">{{ getTotalMissed(callsData) }}</th>
-                                            <th class="text-info">{{ getTotalLeads(callsData) }}</th>
-                                            <th class="text-info">{{ getTotalBonus(callsData) }}</th>
-                                            <th class="text-info">{{ getTotalSalary(callsData) }}</th>
-                                            <th class="text-info">{{ getTotalSalary(callsData) + getTotalBonus(callsData) }}</th>
+                                            <th>{{ item.totalCalls}}</th>
+                                            <th>{{ item.totalLeads }}</th>
+                                            <th>{{ item.bonus }}</th>
+                                            <th>{{ item.salary }}</th>
+                                            <th>{{ item.bonus + item.salary }}</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -231,8 +217,6 @@
                                         <tr>
                                             <th>Имя</th>
                                             <th>Звонки</th>
-                                            <th>Трансферед</th>
-                                            <th>Пропущеный</th>
                                             <th>Лиды</th>
                                             <th>Бонус
                                                 <button type="button" class="btn btn-danger" @click="showBonusInfo()">
@@ -250,23 +234,11 @@
                                     <tbody>
                                         <tr v-for="(item, idx) in weekDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                             <th>{{ item.username }}</th>
-                                            <th>{{ item.outgoing + item.incoming }}</th>
-                                            <th>{{ item.transfered }}</th>
-                                            <th>{{ item.missed }}</th>
-                                            <th>{{ item.leads }}</th>
-                                            <th>{{ getBonusByCalls(item) }}</th>
-                                            <th>{{ getSalaryByCall(item) }}</th>
-                                            <th>{{ getSalaryByCall(item) + getBonusByCalls(item) }}</th>
-                                        </tr>
-                                        <tr>
-                                            <th class="text-info">Total</th>
-                                            <th class="text-info">{{ getTotalCalls(weekDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalTransfered(weekDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalMissed(weekDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalLeads(weekDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalBonus(weekDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalSalary(weekDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalSalary(weekDataArray) + getTotalBonus(weekDataArray) }}</th>
+                                            <th>{{ item.totalCalls}}</th>
+                                            <th>{{ item.totalLeads }}</th>
+                                            <th>{{ item.bonus }}</th>
+                                            <th>{{ item.salary }}</th>
+                                            <th>{{ item.bonus + item.salary }}</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -286,8 +258,6 @@
                                         <tr>
                                             <th>Имя</th>
                                             <th>Звонки</th>
-                                            <th>Трансферед</th>
-                                            <th>Пропущеный</th>
                                             <th>Лиды</th>
                                             <th>Бонус
                                                 <button type="button" class="btn btn-danger" @click="showBonusInfo()">
@@ -305,23 +275,11 @@
                                     <tbody>
                                         <tr v-for="(item, idx) in monthDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
                                             <th>{{ item.username }}</th>
-                                            <th>{{ item.outgoing + item.incoming }}</th>
-                                            <th>{{ item.transfered }}</th>
-                                            <th>{{ item.missed }}</th>
-                                            <th>{{ item.leads }}</th>
-                                            <th>{{ getBonusByCalls(item) }}</th>
-                                            <th>{{ getSalaryByCall(item) }}</th>
-                                            <th>{{ getSalaryByCall(item) + getBonusByCalls(item) }}</th>
-                                        </tr>
-                                        <tr>
-                                            <th class="text-info">Total</th>
-                                            <th class="text-info">{{ getTotalCalls(monthDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalTransfered(monthDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalMissed(monthDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalLeads(monthDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalBonus(monthDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalSalary(monthDataArray) }}</th>
-                                            <th class="text-info">{{ getTotalSalary(monthDataArray) + getTotalBonus(monthDataArray) }}</th>
+                                            <th>{{ item.totalCalls}}</th>
+                                            <th>{{ item.totalLeads }}</th>
+                                            <th>{{ item.bonus }}</th>
+                                            <th>{{ item.salary }}</th>
+                                            <th>{{ item.bonus + item.salary }}</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -608,74 +566,6 @@ body {
 
 <script>
 
-function updateCallsWithLeads(callsData, leadsData, tableTime) {
-    if (!Array.isArray(callsData) || !Array.isArray(leadsData) || typeof tableTime !== 'string') {
-        console.error('Некорректные входные данные для updateCallsWithLeads.')
-        return callsData
-    }
-
-    const updatedCallsData = JSON.parse(JSON.stringify(callsData))
-
-    const userMap = new Map()
-    updatedCallsData.forEach(user => {
-        const cleanedUsername = user.username ? user.username.replace(/\s+/g, '').toLowerCase() : ''
-        if (cleanedUsername) {
-            userMap.set(cleanedUsername, user);
-            if (user.leads === undefined) {
-                user.leads = 0;
-            }
-        }
-    })
-
-    leadsData.forEach(lead => {
-        if (lead.starter && lead.date && lead.date === tableTime) {
-            const cleanedStarter = lead.starter.replace(/\s+/g, '').toLowerCase();
-            const user = userMap.get(cleanedStarter);
-            if (user) {
-                user.leads++;
-            }
-        }
-    })
-    return updatedCallsData
-}
-
-function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
-    if (
-        !Array.isArray(callsData) ||
-        !Array.isArray(leadsData) ||
-        !Array.isArray(tableTimeArray)
-    ) {
-        console.error('Некорректные входные данные для updateCallsWithLeads.');
-        return callsData;
-    }
-
-    const updatedCallsData = JSON.parse(JSON.stringify(callsData));
-
-    const userMap = new Map();
-    updatedCallsData.forEach(user => {
-        const cleanedUsername = user.username ? user.username.replace(/\s+/g, '').toLowerCase() : '';
-        if (cleanedUsername) {
-            userMap.set(cleanedUsername, user);
-            if (user.leads === undefined) {
-                user.leads = 0;
-            }
-        }
-    });
-
-    // Обрабатываем лиды
-    leadsData.forEach(lead => {
-        if (lead.starter && lead.date && tableTimeArray.includes(lead.date)) {
-            const cleanedStarter = lead.starter.replace(/\s+/g, '').toLowerCase();
-            const user = userMap.get(cleanedStarter);
-            if (user) {
-                user.leads = (user.leads || 0) + 1;
-            }
-        }
-    });
-
-    return updatedCallsData;
-}
-
     new Vue({
         el: '#app',
         data: {
@@ -704,15 +594,16 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             filterShow: false,
             fitlerLeads: [],
             deletingLeadIdx: 0,
+            
+            tableTime: dayjs(new Date).format('YYYY-MM-DD'),
+
+            weekDataArrayLoading: false,
+            monthDataArrayLoading: false,
+            tableLoader: false,
 
             callsData: [],
-            tableLoader: false,
-            tableTime: dayjs(new Date).format('YYYY-MM-DD'),
-            weekDataResponse: [],
-            weekDataArrayLoading: false,
-            monthDataResponse: [],
-            monthDataArrayLoading: false,
             monthDataArray: [],
+            weekDataArray: [],
 
             koefCalls: 2,
             koefLeads: 125,
@@ -757,9 +648,6 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                 this.filterLeaders = ""
                 this.filterIsSend = "qwerty"
             },
-            toggleSidebar() {
-                this.isCollapsed = !this.isCollapsed
-            },
             updateWinSize() {
                 this.winSize = window.innerWidth
             },
@@ -783,7 +671,7 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
             saveFilters() {
 
                 this.filteredLeads = this.leads.filter(lead => {
-                // Фильтр по дате
+
                 if (this.filterDate) {
                     const leadDate = dayjs(lead.date).format('YYYY-MM-DD')
                     const filterDate = dayjs(this.filterDate).format('YYYY-MM-DD')
@@ -791,8 +679,6 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                         return false
                     }
                 }
-
-                // Фильтр по конечной дате
                 if (this.filterDateEnd) {
                     const leadDateEnd = dayjs(lead.date).format('YYYY-MM-DD')
                     const filterDateEnd = dayjs(this.filterDateEnd).format('YYYY-MM-DD')
@@ -800,20 +686,16 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                         return false
                     }
                 }
-
-                // Фильтр по брокеру
                 if (this.filterBroker != "") {
                     if (lead.broker !== this.filterBroker) {
                         return false
                     }
                 }
-                // Фильтр по ледорубу
                 if (this.filterLeaders != "") {
                     if (lead.starter !== this.filterLeaders[0] && lead.starter !== this.filterLeaders[1]) {
                         return false
                     }
                 }
-                // фильтр по filterIsSend
                 if (this.filterIsSend != "qwerty") {
                     if (lead.isSend !== this.filterIsSend) {
                         return false
@@ -822,14 +704,6 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
 
                 return true;
             });
-
-            },
-            getColorSend(item) {
-                if (item == true) {
-                    return "btn-success"
-                } else if (item == false) {
-                    return "btn-danger"
-                }
             },
             fetchLeads() {
 
@@ -972,14 +846,6 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                 console.error('Error:', error);
               });
             },
-            async getUsersSkorozvon() {
-                const result = await fetch('/skorozvon/get/users', {
-                    method: "GET",
-                    headers : {
-                        'Content-Type' : 'application/json'
-                    }
-                }).then(response => response.json()).then(data => this.usersData = data.usersData)
-            },
             async getCallsSkorozvon() {
                 this.tableLoader = true
 
@@ -991,61 +857,13 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                         },
                     });
 
-                    if (!response.ok) {
-                        const errorData = await response.json()
-                        console.error('Ошибка при получении данных:', response.status, errorData)
-                        this.callsData = []
-                        this.tableLoader = false
-                        return
-                    }
-
-                    const data = await response.json();
-
-                    if (!data || !data.calls || !Array.isArray(data.calls)) {
-                        console.warn('Получены некорректные данные или массив звонков пуст/отсутствует.');
-                        this.callsData = []
-                        this.tableLoader = false
-                        return
-                    }
-
-                    const rawCalls = data.calls
-
-                    const groupedCalls = {}
-
-                    rawCalls.forEach(call => {
-                        const username = call.username
-                        const callType = call.call_type
-
-                        if (!groupedCalls[username]) {
-                            groupedCalls[username] = {
-                                username: username,
-                                'incoming': 0,
-                                'outgoing': 0,
-                                'transfered': 0,
-                                'missed' : 0,
-                            }
-                        }
-
-                        if (groupedCalls[username].hasOwnProperty(callType)) {
-                            groupedCalls[username][callType]++
-                        } else {
-                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`)
-                        }
-                    });
-
-                    this.callsData = Object.values(groupedCalls);
-
-                    console.log("Сгруппированные данные звонков:", this.callsData);
+                    await this.getSalaryAndBonus()
 
                 } catch (error) {
                     console.error('Ошибка при выполнении запроса или обработке данных:', error);
-                    this.callsData = []
                 } finally {
                     this.tableLoader = false
                 }
-
-
-                this.callsData = updateCallsWithLeads(this.callsData, this.leads, this.tableTime)
             },
             async getCallsWeekSkorozvon() {
                 try {
@@ -1058,74 +876,18 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                    }).then(resp => resp.json()).then(data => this.weekDataResponse = data)
-
-                    let someData = this.weekDataResponse.data
-
-                    someData.forEach((w) => {
-                        w.calls.forEach((item) => {
-                            weekDataArray.push(item)
-                        })
                     })
 
-                    const groupedCalls = {}
-
-                    weekDataArray.forEach(call => {
-                        const username = call.username
-                        const callType = call.call_type
-
-                        if (!groupedCalls[username]) {
-                            groupedCalls[username] = {
-                                username: username,
-                                'incoming': 0,
-                                'outgoing': 0,
-                                'transfered': 0,
-                                'missed' : 0,
-                            }
-                        }
-
-                        if (groupedCalls[username].hasOwnProperty(callType)) {
-                            groupedCalls[username][callType]++
-                        } else {
-                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`)
-                        }
-                    });
-
-                    const today = new Date()
-                    const currentDay = today.getDay()
-                    const daysSinceMonday = (currentDay + 6) % 7
-                    const mondayDate = new Date(today)
-                    mondayDate.setDate(today.getDate() - daysSinceMonday)
-
-                    const timeDateArray = [];
-                    const currentDate = new Date(mondayDate);
-
-                    while (currentDate <= today) {
-                        const year = currentDate.getFullYear()
-                        const month = String(currentDate.getMonth() + 1).padStart(2, '0')
-                        const day = String(currentDate.getDate()).padStart(2, '0')
-                        const formattedDate = `${year}-${month}-${day}`
-                        timeDateArray.push(formattedDate)
-                        currentDate.setDate(currentDate.getDate() + 1)
-                    }
-
-                    this.weekDataArray = Object.values(groupedCalls);
-                    this.weekDataArray = updateCallsWithLeadsWeek(this.weekDataArray, this.leads, timeDateArray)
-
-                    console.log(this.weekDataArray)
-
+                    await this.getSalaryAndBonusWeek()
                     this.weekDataArrayLoading = false
-
                 } catch (e) {
-                    console.log('error ...' , e)
+                    console.log(e)
                 }
 
             },
             async getCallsMonthSkorozvon() {
                 try {
                     this.monthDataArrayLoading = true;
-                    let monthDataArray = [];
-
                     const startOfMonthStr = dayjs().startOf('month').format('YYYY-MM-DD');
                     const response = await fetch(`/skorozvon/get/monthCalls/${startOfMonthStr}`, {
                         method: "GET",
@@ -1133,139 +895,52 @@ function updateCallsWithLeadsWeek(callsData, leadsData, tableTimeArray) {
                             'Content-Type': 'application/json'
                         },
                     });
-                    const data = await response.json();
 
-                    this.monthDataResponse = data;
-
-                    data.data.forEach(w => {
-                        w.calls.forEach(item => {
-                            monthDataArray.push(item);
-                        });
-                    });
-
-                    const groupedCalls = {};
-                    monthDataArray.forEach(call => {
-                        const username = call.username;
-                        const callType = call.call_type;
-
-                        if (!groupedCalls[username]) {
-                            groupedCalls[username] = {
-                                username: username,
-                                'incoming': 0,
-                                'outgoing': 0,
-                                'transfered': 0,
-                                'missed': 0,
-                            };
-                        }
-
-                        if (groupedCalls[username].hasOwnProperty(callType)) {
-                            groupedCalls[username][callType]++;
-                        } else {
-                            console.warn(`Встречен неизвестный тип звонка: ${callType} для пользователя ${username}`);
-                        }
-                    });
-
-                    const today = new Date();
-                    const startOfMonth = dayjs().startOf('month');
-                    const currentDate = new Date(startOfMonth);
-
-                    const dateArray = [];
-                    while (currentDate <= today) {
-                        const year = currentDate.getFullYear();
-                        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                        const day = String(currentDate.getDate()).padStart(2, '0');
-                        const formattedDate = `${year}-${month}-${day}`;
-                        dateArray.push(formattedDate);
-                        currentDate.setDate(currentDate.getDate() + 1);
-                    }
-
-                    this.monthDataArray = Object.values(groupedCalls);
-                    this.monthDataArray = updateCallsWithLeadsWeek(this.monthDataArray, this.leads, dateArray);
-
-                    console.log(this.monthDataArray);
+                    await this.getSalaryAndBonusMonth()
                     this.monthDataArrayLoading = false;
                 } catch (e) {
-                    console.log('error ...', e);
+                    console.log(e);
                     this.monthDataArrayLoading = false;
+                }
+            },
+            async getSalaryAndBonus() {
+                try {
+                    const response = await fetch(`/skorozvon/get/allData/${this.tableTime}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => response.json()).then(data => this.callsData = data.stats)
+                } catch (e) {
+                    console.log(e)
+                }
+            },
+            async getSalaryAndBonusWeek() {
+                try {
+                    const response = await fetch(`/skorozvon/get/week/${dayjs(new Date).startOf('week').format('YYYY-MM-DD')}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => response.json()).then(data => this.weekDataArray = data.data)
+                } catch (e) {
+                    console.log(e)
+                }
+            },
+            async getSalaryAndBonusMonth() {
+                try {
+                    const response = await fetch(`/skorozvon/get/month/${dayjs().startOf('month').format('YYYY-MM-DD')}`, {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => response.json()).then(data => this.monthDataArray = data.data)
+                } catch (e) {
+                    console.log(e)
                 }
             },
             changeUserDataShow() {
                 this.usersDataShow =! this.usersDataShow
-            },
-            getSalaryByCall(item) {
-                // let salary = Math.floor(item.outgoing * (this.koefN + item.outgoing * this.koefX + item.leads * this.koefY) + item.leads * (this.cost * this.koefZ))
-                // return salary
-
-                let salary = Math.floor((item.incoming + item.outgoing) * this.koefCalls + item.leads * this.koefLeads)
-                return salary
-
-            },
-            getBonusByCalls(item) {
-                //let bonus = Math.floor((item.outgoing + item.incoming) * ((item.outgoing + item.incoming) * this.koefBonusCalls + item.leads * this.koefBonusLeads))
-
-                let bonus = Math.floor( (item.incoming + item.outgoing) * ( ( (item.incoming + item.outgoing) * this.koefBonusCalls  ) +  (item.leads * this.koefBonusLeads)  )  )
-
-                return bonus
-            },
-            getTotalLeads(array) {
-                let allLeads = 0
-
-                array.forEach((e) => {
-                    allLeads += e.leads
-                })
-
-                return allLeads
-            },
-            getTotalTransfered(array) {
-                let allTransfers = 0
-
-                array.forEach((e) => {
-                    allTransfers += e.transfered
-                })
-                return allTransfers
-            },
-            getTotalMissed(array) {
-                let allMissed = 0
-
-                array.forEach((r) => {
-                    allMissed += r.missed
-                })
-                return allMissed
-            },
-            getTotalCalls(array) {
-                let allCalls = 0
-
-                console.log(array)
-
-                array.forEach((e) => {
-                    if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") {
-                        allCalls += e.outgoing
-                        allCalls += e.incoming
-                    }
-                })
-
-                return allCalls
-            },
-            getTotalSalary(array) {
-                let allSalary = 0
-
-                array.forEach((e) => {
-                    if (e.username !== "Не определено" && e.username !== "Симаков Владимир Станиславович") { 
-                        allSalary += this.getSalaryByCall(e)
-                    }
-                })
-
-                return allSalary
-            },
-            getTotalBonus(array) {
-                let allBonus = 0
-
-                array.forEach((q) => {
-                    if (q.username !== "Не определено" && q.username !== "Симаков Владимир Станиславович") {
-                        allBonus += this.getBonusByCalls(q)
-                    }
-                })
-                return allBonus
             },
             showSalaryInfo() {
                 $('#infoModal').modal('show');
