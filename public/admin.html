@@ -133,8 +133,7 @@
                             <td>{{ user.role.role }}</td>
                             <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
                             <td>
-                                <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера
-                                </button>
+                            <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера</button>
                             </td>
                         </tr>
                         </tbody>
@@ -187,17 +186,21 @@
                                                     <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
                                                 </button>
                                             </th>
-                                            <th>Итог</th>
+                                            <th>Итог
+                                                <button type="button" class="btn btn-danger" @click="showTotalInfo()">
+                                                    <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                                </button>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in callsData" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                        <tr v-for="(item, idx) in callsData" :class="{'totaler' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ item.username }}</th>
-                                            <th>{{ item.totalCalls}}</th>
-                                            <th>{{ item.totalLeads }}</th>
-                                            <th>{{ item.bonus }}</th>
-                                            <th>{{ item.salary }}</th>
-                                            <th>{{ item.bonus + item.salary }}</th>
+                                            <th>{{ Math.round(item.totalCalls) }}</th>
+                                            <th>{{ Math.round(item.totalLeads) }}</th>
+                                            <th>{{ Math.round(item.bonus) }}</th>
+                                            <th>{{ Math.round(item.salary) }}</th>
+                                            <th>{{ Math.round(item.bonus + item.salary) }}</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -228,17 +231,21 @@
                                                     <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
                                                 </button>
                                             </th>
-                                            <th>Итог</th>
+                                            <th>Итог
+                                                <button type="button" class="btn btn-danger" @click="showTotalInfo()">
+                                                    <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                                </button>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in weekDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                        <tr v-for="(item, idx) in weekDataArray" :class="{'totaler' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ item.username }}</th>
-                                            <th>{{ item.totalCalls}}</th>
-                                            <th>{{ item.totalLeads }}</th>
-                                            <th>{{ item.bonus }}</th>
-                                            <th>{{ item.salary }}</th>
-                                            <th>{{ item.bonus + item.salary }}</th>
+                                            <th>{{ Math.round(item.totalCalls) }}</th>
+                                            <th>{{ Math.round(item.totalLeads) }}</th>
+                                            <th>{{ Math.round(item.bonus) }}</th>
+                                            <th>{{ Math.round(item.salary) }}</th>
+                                            <th>{{ Math.round(item.bonus + item.salary) }}</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -269,17 +276,21 @@
                                                     <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
                                                 </button>
                                             </th>
-                                            <th>Итог</th>
+                                            <th>Итог
+                                                <button type="button" class="btn btn-danger" @click="showTotalInfo()">
+                                                    <i class="fas fa-question-circle fa-lg" style="color: white;"></i>
+                                                </button>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in monthDataArray" v-if="item.username != 'Не определено' && item.username != 'Симаков Владимир Станиславович' " :key="idx">
+                                        <tr v-for="(item, idx) in monthDataArray" :class="{'totaler' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ item.username }}</th>
-                                            <th>{{ item.totalCalls}}</th>
-                                            <th>{{ item.totalLeads }}</th>
-                                            <th>{{ item.bonus }}</th>
-                                            <th>{{ item.salary }}</th>
-                                            <th>{{ item.bonus + item.salary }}</th>
+                                            <th>{{ Math.round(item.totalCalls) }}</th>
+                                            <th>{{ Math.round(item.totalLeads) }}</th>
+                                            <th>{{ Math.round(item.bonus) }}</th>
+                                            <th>{{ Math.round(item.salary) }}</th>
+                                            <th>{{ Math.round(item.bonus + item.salary) }}</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -311,15 +322,31 @@
         
                     <div class="modal fade" id="infoModalBonus" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
+                            <div class="modal-content bg-dark">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-info" id="infoModalLabel">Информация о Бонусах</h5>
+                                    <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body bg-dark">
+                                    <p class="text-light">Чтобы получить бонус звони больше и делай переводы больше</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="infoModalTotal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
                         <div class="modal-content bg-dark">
                             <div class="modal-header">
-                            <h5 class="modal-title text-info" id="infoModalLabel">Информация о Бонусах</h5>
+                            <h5 class="modal-title text-info" id="infoModalLabel">Информация о Итого</h5>
                             <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             </div>
                             <div class="modal-body bg-dark">
-                                <p class="text-light">Чтобы получить бонус звони больше и делай переводы больше</p>
+                                <p class="text-light">Итого = Зарплата + Бонус</p>
                             </div>
                         </div>
                         </div>
@@ -508,6 +535,10 @@ body {
     -webkit-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
     -moz-box-shadow: 0px 2px 11px 35px rgba(191, 28, 28, 0.319);
     box-shadow: 0px 2px 23px 25px rgba(191, 28, 28, 0.319);
+}
+
+.totaler {
+    color: green;
 }
 
 .table-container {
@@ -947,6 +978,9 @@ body {
             },
             showBonusInfo() {
                 $('#infoModalBonus').modal('show');
+            },
+            showTotalInfo() {
+                $('infoModalTotal').modal('show');
             },
             createChart() {
 
