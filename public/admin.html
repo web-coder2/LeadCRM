@@ -80,9 +80,6 @@
                         </div>
                         <div class="col">
                             <select class="form-control bg-dark text-light" v-model="newUser.role" required>
-                                <!--<option value="leadorub">ледоруб</option>
-                                <option value="broker">брокер</option>
-                                <option value="admin">Админ</option>-->
                                 <option v-for="(item, idx) in allRoles" :value="item.role">{{ item.role }}</option>
                             </select>
                         </div>
@@ -194,7 +191,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in callsData" :class="{'totaler' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
+                                        <tr v-for="(item, idx) in callsData" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ item.username }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
@@ -239,7 +236,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in weekDataArray" :class="{'totaler' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
+                                        <tr v-for="(item, idx) in weekDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ item.username }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
@@ -284,7 +281,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in monthDataArray" :class="{'totaler' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
+                                        <tr v-for="(item, idx) in monthDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ item.username }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
@@ -306,17 +303,33 @@
         
                     <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
-                        <div class="modal-content bg-dark">
-                            <div class="modal-header">
-                            <h5 class="modal-title text-info" id="infoModalLabel">Информация о Зарплате</h5>
-                            <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            </div>
-                            <div class="modal-body bg-dark">
-                                <p class="text-light">Заплата = звонки * 2 + лиды * 125 + Бонус</p>
+                            <div class="modal-content bg-dark">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-info" id="infoModalLabel">Информация о Зарплате</h5>
+                                    <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body bg-dark">
+                                    <p class="text-light">Заплата = звонки * 2 + лиды * 125 + Бонус</p>
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="modal fade" id="infoModalTotal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content bg-dark">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-info" id="infoModalLabel">Информация о Итого</h5>
+                                    <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body bg-dark">
+                                    <p class="text-light">Итого = Зарплата + Бонус</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
         
@@ -335,22 +348,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="modal fade" id="infoModalTotal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                        <div class="modal-content bg-dark">
-                            <div class="modal-header">
-                            <h5 class="modal-title text-info" id="infoModalLabel">Информация о Итого</h5>
-                            <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            </div>
-                            <div class="modal-body bg-dark">
-                                <p class="text-light">Итого = Зарплата + Бонус</p>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
         
                 </div>
             </div>
@@ -359,7 +356,7 @@
 
 
 
-            <div v-if="activeTabs == 'leads'">
+            <div class="main-block" v-if="activeTabs == 'leads'">
                 <div class="mt-5 mb-5">
                     <button class="btn btn-outline-danger" @click="filterShow =! filterShow">Фильтры</button>
                     <div v-if="filterShow" class="form-row mt-3">
@@ -376,7 +373,6 @@
                                 <option value="">Все Лидорубы</option>
                                 <option v-for="(item, idx) in users" :value="[item.login, item.name]" v-if="item.role.role == 'leadorub'">{{ item.name }}</option>
                             </select>
-                            <!-- select обработан или не обработан filterIsSend -->
                             <select class="form-control bg-dark text-light mt-3" v-model="filterIsSend" required>
                                 <option value="qwerty">Все состояния</option>
                                 <option :value="true">Все обработные</option>
@@ -444,11 +440,9 @@
                             <th class="table-column2">Телефон лида звонка</th>
                             <th class="table-column2">Имя клиента</th>
                             <th class="table-column">Коментарий к звонку</th>
-                            <!-- <th class="table-column2">Статус лида на момент</th> -->
                             <th class="table-column">Обработан ?</th>
                             <th class="table-column">Какому брокеру</th>
                             <th class="table-column2">Какой Ледоруб</th>
-                            <!--<th class="table-column">Назначить брокера (если лид без брокера)</th>-->
                             <th class="table-column">Назначить брокера</th>
                             <th class="table-column">Действия-удалить</th>
                         </tr>
@@ -496,7 +490,7 @@
             </div>
 
 
-            <div v-show="activeTabs == 'dashboard'">
+            <div class="main-block" v-show="activeTabs == 'dashboard'">
                 <div class="mt-5">
                     <h4 class="text-light">Прогресс по лидам</h4>
                     <div class="progress mt-3 mb-5">
@@ -537,10 +531,6 @@ body {
     box-shadow: 0px 2px 23px 25px rgba(191, 28, 28, 0.319);
 }
 
-.totaler {
-    color: green;
-}
-
 .table-container {
     width: 100%;
     overflow-x: auto;
@@ -554,10 +544,6 @@ body {
 .table-column2 {
     white-space: nowrap;
     width: 100px;
-}
-
-.bigAss {
-    font-size: 30px;
 }
 
 @media (max-width: 480px) {
@@ -980,7 +966,7 @@ body {
                 $('#infoModalBonus').modal('show');
             },
             showTotalInfo() {
-                $('infoModalTotal').modal('show');
+                $('#infoModalTotal').modal('show');
             },
             createChart() {
 
