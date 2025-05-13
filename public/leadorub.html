@@ -35,18 +35,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" @click="activeTab = 'statistics'">
-                        <i class="fas fa-chart-bar text-info"></i> 
-                        <span>Статистика ледоруба</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" @click="activeTab = 'createLead'">
-                        <i class="fas fa-plus-circle text-success"></i>
-                        <span>Создать лид</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="/logout">
                         <i class="fas fa-sign-out-alt text-danger"></i>
                         <span>Выйти</span>
@@ -55,48 +43,6 @@
             </ul>
         </div>
     </nav>
-
-
-    <div v-if="activeTab == 'statistics'">
-        <div class="form-container mt-5">
-
-            <div class="mb-5 mt-3">
-                <h2 class="text-light">Личный кабинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h2>
-            </div>
-
-            <h2 class="text-warning mt-5 mb-3">Статистика лидоруба</h2>
-            <h6 class="text-light">Лидов за прошлую неделю <span class="text-primary">{{ leadLastWeek }} лидов</span></h6>
-            <h6 class="text-light">Лидов за эту неделю <span class="text-primary">{{ leadThisWeek }} лидов</span></h6>
-            <h6 class="text-light">Лидов за этот день <span class="text-primary">{{ leadToday }} лидов</span></h6>
-        </div>
-    </div>
-
-    <div v-if="activeTab == 'createLead'">
-        <div class="form-container mt-5">
-
-            <div class="mb-5 mt-3">
-                <h2 class="text-light">Личный кабинет: <i style="font-family: cursive; font-size: 30px;" class="text-info">{{ userName }}</i></h2>
-            </div>
-
-            <form @submit.prevent="createLead">
-                <div class="form-group mt-5">
-                    <label for="phone" class="text-light">Телефон:</label>
-                    <input type="text" class="form-control bg-dark text-light inputer" id="phone" v-model="newLead.phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="client_name" class="text-light">Имя клиента:</label>
-                    <input type="text" class="form-control bg-dark text-light inputer" id="client_name" v-model="newLead.client_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="comment" class="text-light">Коментарий к звонку:</label>
-                    <textarea class="form-control bg-dark text-light textareaer" id="comment" v-model="newLead.comment" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-outline-primary">Создать лид</button>
-            </form>
-            <div v-if="message" class="mt-3 alert bg-dark text-primary">{{ message }}</div>
-        </div>
-    </div>
-
 
     <div v-if="activeTab == 'skorozvon'">
         <div class="form-container mt-5">
@@ -124,9 +70,16 @@
                           <input type="date" v-model="tableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;">
                           <button @click="getCallsSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
-                        <button class="btn btn-outline-dark mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
-                          <i class="fas fa-plus-circle text-success"></i>
-                          <span>Создать лид</span>
+
+                        <div class="col-12 col-md-3 mt-3">
+                            <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                            <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                            <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        </div>
+
+                        <button class="btn bigAss btn-outline-dark w-md-auto mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
+                            <i class="fas fa-plus-circle text-success"></i>
+                            <span>Создать лид</span>
                         </button>
                     </div>
                     <h3 class="text-light">Таблица показателей за {{ dayOfDay }}</h3>
@@ -210,9 +163,16 @@
                           <input type="date" v-model="weekTableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;">
                           <button @click="getCallsWeekSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
-                        <button class="btn btn-outline-dark mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
-                          <i class="fas fa-plus-circle text-success"></i>
-                          <span>Создать лид</span>
+
+                        <div class="col-12 col-md-3 mt-3">
+                            <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                            <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                            <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        </div>
+
+                        <button class="btn bigAss btn-outline-dark w-md-auto mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
+                            <i class="fas fa-plus-circle text-success"></i>
+                            <span>Создать лид</span>
                         </button>
                     </div>
                     <h3 class="text-light mt-5">Таблица результатов за {{ weekOfDay }}</h3>
@@ -270,9 +230,16 @@
                             </select>
                             <button @click="getCallsMonthSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
-                        <button class="btn btn-outline-dark mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
-                          <i class="fas fa-plus-circle text-success"></i>
-                          <span>Создать лид</span>
+
+                        <div class="col-12 col-md-3 mt-3">
+                            <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                            <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                            <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        </div>
+
+                        <button class="btn bigAss btn-outline-dark w-md-auto mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
+                            <i class="fas fa-plus-circle text-success"></i>
+                            <span>Создать лид</span>
                         </button>
                     </div>
                     <h3 class="text-light mt-5">Таблица результатов за {{ monthOfDay }}</h3>
@@ -428,6 +395,9 @@ body {
     .inputer {
         width: 100%;
     }
+    .bigAss {
+        width: 100%;
+    }
 }
 
 </style>
@@ -460,7 +430,7 @@ body {
 
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
             weekTableTime: dayjs(new Date).format('YYYY-MM-DD'),
-            monthTableTime: dayjs(new Date).format('YYYY-MM-DD'),
+            monthTableTime: `${dayjs(new Date).format('YYYY-MM')}-01`,
 
             callsData: [],
             weekDataArray: [],
@@ -702,12 +672,15 @@ body {
                 for (let i = 0; i < this.allLeads.length; i++) {
 
                     if (this.allLeads[i]['starter'] == this.userName || this.allLeads[i]['starter'] == this.userLogin) {
-                        if (this.allLeads[i]['date'] == dayjs(new Date).format("YYYY-MM-DD")) {
+
+                        let leadDate = dayjs(this.allLeads[i]['date']).format('YYYY-MM-DD')
+
+                        if (leadDate == dayjs(new Date).format("YYYY-MM-DD")) {
                             this.leadToday++
                             this.leadThisWeek++
-                        } else if (this.allLeads[i]['date'] <= endNowWeek && this.allLeads[i]['date'] >= startNowWeek) {
+                        } else if (leadDate <= endNowWeek && leadDate >= startNowWeek) {
                             this.leadThisWeek ++ 
-                        } if (this.allLeads[i]['date'] >= startLastWeek && this.allLeads[i]['date'] <= endLastWeek) {
+                        } if (leadDate >= startLastWeek && leadDate <= endLastWeek) {
                             this.leadLastWeek++
                         }
                     }
