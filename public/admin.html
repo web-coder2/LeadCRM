@@ -64,8 +64,8 @@
         </div>
     </nav>
     <div>
-        <div class="main-block">
-            <div v-if="activeTabs == 'users'">
+        <div>
+            <div class="main-block" v-if="activeTabs == 'users'">
                 <h3 class="mt-5 mb-3 text-light">Создать нового юзера</h3>
                 <form @submit.prevent="createUser" class="mt-5">
                     <div class="form-row">
@@ -140,7 +140,7 @@
 
 
 
-            <div v-if="activeTabs == 'skorozvon'">
+            <div class="main-block" v-if="activeTabs == 'skorozvon'">
                 <div class="form-container mt-5">
 
                     <!-- Nav tabs -->
@@ -384,6 +384,7 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-outline-warning" @click="saveFilters(); starterFilter=true">Применить</button>
                         <button type="button" class="btn btn-outline-danger ml-3" @click="resetFilters()">Сбросить</button>
+                        <button type="button" class="btn btn-outline-info ml-3" @click="downloadLeads()">Выгрузка лидов</button>
                     </div>
                 </div>
 
@@ -684,6 +685,31 @@ body {
                 .then(data => {
                     this.allRoles = data.roles
                 })
+            },
+            downloadLeads() {
+                console.log(this.filteredLeads)
+                let leadsPhonesArray = []
+
+                this.filteredLeads.forEach((f) => {
+                    let phone = f.phone.replace(/\D/g, '')
+                    leadsPhonesArray.push(phone)
+                })
+
+                console.log(leadsPhonesArray)
+
+                const content = leadsPhonesArray.join('\n');
+
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'numbers.txt';
+
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             },
             saveFilters() {
 
