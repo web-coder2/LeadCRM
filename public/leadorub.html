@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/locale/ru.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="icon" href="logo.jpg" type="image/x-icon">
 </head>
@@ -127,8 +128,8 @@
                           <i class="fas fa-plus-circle text-success"></i>
                           <span>Создать лид</span>
                         </button>
-                      </div>
-                    <h3 class="text-light">Таблица показателей за {{ tableTime }}</h3>
+                    </div>
+                    <h3 class="text-light">Таблица показателей за {{ dayOfDay }}</h3>
                     <div class="table-container mt-5 mb-5" v-if="!tableLoader">
                         <table class="table table-bordered table-striped table-dark">
                             <thead class="bg-danger text-light">
@@ -175,7 +176,7 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content bg-dark text-light">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="darkModalLabel">Создать лид</h5>
+                                <h5 class="modal-title text-info" id="darkModalLabel">Создать лид</h5>
                                 <button type="button" class="close text-light" data-dismiss="modal" aria-label="Закрыть">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -183,18 +184,18 @@
                             <div class="modal-body">
                                 <form @submit.prevent="createLead">
                                     <div class="form-group">
-                                        <label for="input1">Телефон</label>
+                                        <label class="text-info" for="input1">Телефон</label>
                                         <input type="text" class="form-control bg-dark text-light" id="input1" v-model="newLead.phone" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="input2">Имя клиента</label>
+                                        <label class="text-info" for="input2">Имя клиента</label>
                                         <input type="text" class="form-control bg-dark text-light" id="input2" v-model="newLead.client_name" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="textarea">Коментарий к звонку</label>
+                                        <label class="text-info" for="textarea">Коментарий к звонку</label>
                                         <textarea class="form-control bg-dark text-light" id="textarea" rows="4"  v-model="newLead.comment" rows="3" required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-outline-primary">Создать лид</button>
+                                    <button type="submit" class="btn btn-outline-info">Создать лид</button>
                                 </form>
                                 <!-- <div v-if="message" class="mt-3 alert bg-dark text-primary">{{ message }}</div> -->
                             </div>       
@@ -204,7 +205,17 @@
 
 
                 <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                    <h3 class="text-light mt-5">Таблица результатов за неделю</h3>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 mb-3">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                          <input type="date" v-model="weekTableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;">
+                          <button @click="getCallsWeekSkorozvon()" class="btn btn-outline-light">Применить</button>
+                        </div>
+                        <button class="btn btn-outline-dark mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
+                          <i class="fas fa-plus-circle text-success"></i>
+                          <span>Создать лид</span>
+                        </button>
+                    </div>
+                    <h3 class="text-light mt-5">Таблица результатов за {{ weekOfDay }}</h3>
                     <div class="table-container mt-5 mb-5" v-if="!weekDataArrayLoading">
                         <table class="table table-bordered table-striped table-dark">
                             <thead class="bg-danger text-light">
@@ -249,7 +260,22 @@
 
 
                 <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
-                    <h3 class="text-light mt-5">Таблица результатов за Месяц</h3>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 mb-3">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                          <!-- <input type="date" v-model="monthTableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;"> -->
+                            <select v-model="monthTableTime" class="form-control bg-dark text-light dateInput mr-3">
+                                <option v-for="(item, index) in monthValues" :value="item">
+                                    {{ monthLabels[index] }}
+                                </option>
+                            </select>
+                            <button @click="getCallsMonthSkorozvon()" class="btn btn-outline-light">Применить</button>
+                        </div>
+                        <button class="btn btn-outline-dark mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
+                          <i class="fas fa-plus-circle text-success"></i>
+                          <span>Создать лид</span>
+                        </button>
+                    </div>
+                    <h3 class="text-light mt-5">Таблица результатов за {{ monthOfDay }}</h3>
                     <div class="table-container mt-5 mb-5" v-if="!monthDataArrayLoading">
                         <table class="table table-bordered table-striped table-dark">
                             <thead class="bg-danger text-light">
@@ -305,7 +331,7 @@
                             </button>
                         </div>
                         <div class="modal-body bg-dark">
-                            <p class="text-light">Заплата = звонки * 2 + лиды * 125 + Бонус</p>
+                            <p class="text-light">Заплата = звонки * 2 + лиды * 125</p>
                         </div>
                     </div>
                 </div>
@@ -408,6 +434,8 @@ body {
 
 <script>
 
+    dayjs.locale('ru');
+
     new Vue({
         el: '#app',
         data: {
@@ -429,7 +457,10 @@ body {
             leadThisWeekWidth: 0,
             leadLastWeekWidth: 0,
             activeTab: 'skorozvon',
+
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
+            weekTableTime: dayjs(new Date).format('YYYY-MM-DD'),
+            monthTableTime: dayjs(new Date).format('YYYY-MM-DD'),
 
             callsData: [],
             weekDataArray: [],
@@ -452,6 +483,36 @@ body {
             await this.getCallsSkorozvon()
             await this.getCallsWeekSkorozvon()
             await this.getCallsMonthSkorozvon()
+        },
+        computed: {
+            dayOfDay() {
+                return dayjs(this.tableTime).format('D MMM')
+            },
+            weekOfDay() {
+                return `${dayjs(this.weekTableTime).startOf('week').format('D MMM')} - ${dayjs(this.weekTableTime).endOf('week').format('D MMM')}`
+            },
+            monthOfDay() {
+                return dayjs(this.monthTableTime).format('MMMM')
+            },
+            monthLabels() {
+                const months = [
+                    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+                ];
+
+                return months
+            },
+            monthValues() {
+                const array = []
+                let year = dayjs(new Date).format('YYYY')
+
+                for (let i = 0; i < 12; i++) {
+                    let monthStartDate = dayjs(`${year}-${String(i + 1).padStart(2, '0')}-01`).format('YYYY-MM-DD');
+                    array.push(monthStartDate)
+                }
+
+                return array
+            }
         },
         methods: {
             createLead() {
@@ -556,7 +617,7 @@ body {
             },
             async getSalaryAndBonusWeek() {
                 try {
-                    const response = await fetch(`/skorozvon/get/weeklyData/${dayjs(new Date).startOf('week').format('YYYY-MM-DD')}`, {
+                    const response = await fetch(`/skorozvon/get/weeklyData/${dayjs(this.weekTableTime).startOf('week').format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
@@ -568,7 +629,7 @@ body {
             },
             async getSalaryAndBonusMonth() {
                 try {
-                    const response = await fetch(`/skorozvon/get/monthlyData/${dayjs().startOf('month').format('YYYY-MM-DD')}`, {
+                    const response = await fetch(`/skorozvon/get/monthlyData/${dayjs(this.monthTableTime).startOf('month').format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
