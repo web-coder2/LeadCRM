@@ -255,11 +255,11 @@ async function createOrUpdateUserStats(dateStr) {
     const totalCalls = callCounts[username];
     const leadsCount = leadsCountMap[username] || 0;
 
-    const incoming = totalCalls;
-    const outgoing = totalCalls;
-
-    const salary = (incoming + outgoing) + leadsCount * 125;
-    const bonus = (incoming + outgoing) * ((incoming + outgoing) * 0.0001 + leadsCount * 0.01);
+    const salary = (totalCalls * 2) + leadsCount * 125;
+    const bonusCalls = (totalCalls * 0.0001)
+    const bonusLeads = (leadsCount * 0.01 )
+    const bonus = totalCalls * (bonusCalls + bonusLeads)
+  
 
     const userStat = {
       username,
