@@ -109,7 +109,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, idx) in callsData" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
-                                    <th>{{ item.username }}</th>
+                                    <th>{{ getDefaultName(item.username) }}</th>
                                     <th>{{ Math.round(item.totalCalls) }}</th>
                                     <th>{{ Math.round(item.totalLeads) }}</th>
                                     <th>{{ Math.round(item.bonus) }}</th>
@@ -202,7 +202,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, idx) in weekDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
-                                    <th>{{ item.username }}</th>
+                                    <th>{{ getDefaultName(item.username) }}</th>
                                     <th>{{ Math.round(item.totalCalls) }}</th>
                                     <th>{{ Math.round(item.totalLeads) }}</th>
                                     <th>{{ Math.round(item.bonus) }}</th>
@@ -269,7 +269,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, idx) in monthDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
-                                    <th>{{ item.username }}</th>
+                                    <th>{{ getDefaultName(item.username) }}</th>
                                     <th>{{ Math.round(item.totalCalls) }}</th>
                                     <th>{{ Math.round(item.totalLeads) }}</th>
                                     <th>{{ Math.round(item.bonus) }}</th>
@@ -362,6 +362,10 @@ body {
 
 .nav-item:hover {
     background-color: rgb(42, 41, 41);
+}
+
+th {
+    white-space: nowrap;
 }
 
 .dateInput {
@@ -505,6 +509,16 @@ body {
                     console.error('Error:', error);
                     this.message = 'Ошибка при отправке запроса.';
                 });
+            },
+            getDefaultName(string) {
+
+                let someName = string
+
+                if (string.slice(-2) === 'лд') {
+                    someName = string.slice(0, -2) + ' ЛД'
+                }
+
+                return someName
             },
             fetchUsers() {
                 fetch('/api/admin/users')

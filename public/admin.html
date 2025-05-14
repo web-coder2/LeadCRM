@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/locale/ru.js"></script>
     <link rel="icon" href="logo.jpg" type="image/x-icon">
 </head>
 <body>
@@ -114,12 +115,12 @@
                     <table class="table table-striped mt-3 table-dark table-bordered">
                         <thead class="bg-danger text-light">
                         <tr>
-                            <th style="white-space: nowrap;">Имя</th>
-                            <th style="white-space: nowrap;">Логин</th>
-                            <th style="white-space: nowrap;">Пароль</th>
-                            <th style="white-space: nowrap;">Роль</th>
-                            <th style="white-space: nowrap;">Статус</th>
-                            <th style="white-space: nowrap;">Действия-удалить</th>
+                            <th>Имя</th>
+                            <th>Логин</th>
+                            <th>Пароль</th>
+                            <th>Роль</th>
+                            <th>Статус</th>
+                            <th>Действия-удалить</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -161,11 +162,11 @@
         
         
                         <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                            <div class="d-flex">
-                                <input type="date" v-model="tableTime" class="form-control bg-dark text-light mt-5 mb-3 dateInput">
-                                <button @click="getCallsSkorozvon()" class="btn btn-outline-light mt-5 mb-3 ml-3">Применить</button>
+                            <div class="d-flex align-items-center mb-2 mb-md-0 mt-5 mb-3">
+                                <input type="date" v-model="tableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;">
+                                <button @click="getCallsSkorozvon()" class="btn btn-outline-light">Применить</button>
                             </div>
-                            <h3 class="text-light">Таблица показателей за {{ tableTime }}</h3>
+                            <h3 class="text-light mt-5">Таблица показателей за {{ dayOfDay }}</h3>
                             <div class="table-container mt-5 mb-5" v-if="!tableLoader">
                                 <table class="table table-bordered table-striped table-dark">
                                     <thead class="bg-danger text-light">
@@ -192,7 +193,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, idx) in callsData" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
-                                            <th>{{ item.username }}</th>
+                                            <th>{{ getDefaultName(item.username) }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
                                             <th>{{ Math.round(item.bonus) }}</th>
@@ -210,7 +211,11 @@
         
         
                         <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                            <h3 class="text-light mt-5">Таблица результатов за неделю</h3>
+                            <div class="d-flex align-items-center mb-2 mb-md-0 mt-5 mb-3">
+                                <input type="date" v-model="weekTableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;">
+                                <button @click="getCallsWeekSkorozvon()" class="btn btn-outline-light">Применить</button>
+                            </div>
+                            <h3 class="text-light mt-5">Таблица результатов за {{ weekOfDay }}</h3>
                             <div class="table-container mt-5 mb-5" v-if="!weekDataArrayLoading">
                                 <table class="table table-bordered table-striped table-dark">
                                     <thead class="bg-danger text-light">
@@ -237,7 +242,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, idx) in weekDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
-                                            <th>{{ item.username }}</th>
+                                            <th>{{ getDefaultName(item.username) }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
                                             <th>{{ Math.round(item.bonus) }}</th>
@@ -255,7 +260,16 @@
         
         
                         <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
-                            <h3 class="text-light mt-5">Таблица результатов за Месяц</h3>
+                            <div class="d-flex align-items-center mb-2 mb-md-0 mt-5 mb-3">
+                                <!-- <input type="date" v-model="monthTableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;"> -->
+                                <select v-model="monthTableTime" class="form-control bg-dark text-light dateInput mr-3">
+                                    <option v-for="(item, index) in monthValues" :value="item">
+                                        {{ monthLabels[index] }}
+                                    </option>
+                                </select>
+                                <button @click="getCallsMonthSkorozvon()" class="btn btn-outline-light">Применить</button>
+                            </div>
+                            <h3 class="text-light mt-5">Таблица результатов за {{ monthOfDay }}</h3>
                             <div class="table-container mt-5 mb-5" v-if="!monthDataArrayLoading">
                                 <table class="table table-bordered table-striped table-dark">
                                     <thead class="bg-danger text-light">
@@ -282,7 +296,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, idx) in monthDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
-                                            <th>{{ item.username }}</th>
+                                            <th>{{ getDefaultName(item.username) }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
                                             <th>{{ Math.round(item.bonus) }}</th>
@@ -401,13 +415,13 @@
                     <table class="table table-bordered table-striped table-dark">
                         <thead class="bg-danger text-light">
                             <tr>
-                                <th class="table-column">Дата лида созданого</th>
-                                <th class="table-column2">Телефон лида звонка</th>
-                                <th class="table-column2">Имя клиента</th>
-                                <th class="table-column">Коментарий к звонку</th>
-                                <th class="table-column">Обработан ?</th>
-                                <th class="table-column">Какому брокеру</th>
-                                <th class="table-column2">Какой Ледоруб</th>
+                                <th>Дата лида</th>
+                                <th>Телефон лида</th>
+                                <th>Имя клиента</th>
+                                <th>Коментарий</th>
+                                <th>Обработан ?</th>
+                                <th>Какому брокеру</th>
+                                <th>Какой Ледоруб</th>
                             </tr>
                         </thead>
                         <tbody v-for="(lead, index) in filteredLeads" v-if="filteredLeads.length > 0 || starterFilter == false">
@@ -437,15 +451,15 @@
                     <table class="table table-striped table-dark table-bordered">
                         <thead class="bg-danger text-light">
                         <tr>
-                            <th class="table-column">Дата лида созданого</th>
-                            <th class="table-column2">Телефон лида звонка</th>
-                            <th class="table-column2">Имя клиента</th>
-                            <th class="table-column">Коментарий к звонку</th>
-                            <th class="table-column">Обработан ?</th>
-                            <th class="table-column">Какому брокеру</th>
-                            <th class="table-column2">Какой Ледоруб</th>
-                            <th class="table-column">Назначить брокера</th>
-                            <th class="table-column">Действия-удалить</th>
+                            <th>Дата лида</th>
+                            <th>Телефон лида</th>
+                            <th>Имя клиента</th>
+                            <th>Коментарий</th>
+                            <th>Обработан ?</th>
+                            <th>Какому брокеру</th>
+                            <th>Какой Ледоруб</th>
+                            <th>Назначить брокера</th>
+                            <th>Действия-удалить</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -537,14 +551,8 @@ body {
     overflow-x: auto;
 }
 
-.table-column {
+th {
     white-space: nowrap;
-    width: 200px;
-}
-
-.table-column2 {
-    white-space: nowrap;
-    width: 100px;
 }
 
 @media (max-width: 480px) {
@@ -584,6 +592,8 @@ body {
 
 <script>
 
+    dayjs.locale('ru');
+
     new Vue({
         el: '#app',
         data: {
@@ -614,6 +624,8 @@ body {
             deletingLeadIdx: 0,
             
             tableTime: dayjs(new Date).format('YYYY-MM-DD'),
+            weekTableTime: dayjs(new Date).format('YYYY-MM-DD'),
+            monthTableTime: `${dayjs(new Date).format('YYYY-MM')}-01`,
 
             weekDataArrayLoading: false,
             monthDataArrayLoading: false,
@@ -657,6 +669,34 @@ body {
                 let totalLeads = this.leads.length;
                 let processedLeads = this.leads.filter(lead => lead.isSend).length
                 return Math.round((processedLeads / totalLeads) * 100)
+            },
+            dayOfDay() {
+                return dayjs(this.tableTime).format('D MMM')
+            },
+            weekOfDay() {
+                return `${dayjs(this.weekTableTime).startOf('week').format('D MMM')} - ${dayjs(this.weekTableTime).endOf('week').format('D MMM')}`
+            },
+            monthOfDay() {
+                return dayjs(this.monthTableTime).format('MMMM')
+            },
+            monthLabels() {
+                const months = [
+                    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+                ];
+
+                return months
+            },
+            monthValues() {
+                const array = []
+                let year = dayjs(new Date).format('YYYY')
+
+                for (let i = 0; i < 12; i++) {
+                    let monthStartDate = dayjs(`${year}-${String(i + 1).padStart(2, '0')}-01`).format('YYYY-MM-DD');
+                    array.push(monthStartDate)
+                }
+
+                return array
             }
         },
         methods: {
@@ -668,6 +708,13 @@ body {
             },
             updateWinSize() {
                 this.winSize = window.innerWidth
+            },
+            getDefaultName(string) {
+                let someName = string
+                if (string.slice(-2) === 'лд') {
+                    someName = string.slice(0, -2) + ' ЛД'
+                }
+                return someName
             },
             async addNewRole() {
                 await fetch('/api/role/add', {
@@ -960,7 +1007,7 @@ body {
             },
             async getSalaryAndBonusWeek() {
                 try {
-                    const response = await fetch(`/skorozvon/get/weeklyData/${dayjs(new Date).startOf('week').format('YYYY-MM-DD')}`, {
+                    const response = await fetch(`/skorozvon/get/weeklyData/${dayjs(this.weekTableTime).startOf('week').format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
@@ -972,7 +1019,7 @@ body {
             },
             async getSalaryAndBonusMonth() {
                 try {
-                    const response = await fetch(`/skorozvon/get/monthlyData/${dayjs().startOf('month').format('YYYY-MM-DD')}`, {
+                    const response = await fetch(`/skorozvon/get/monthlyData/${dayjs(this.monthTableTime).startOf('month').format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'

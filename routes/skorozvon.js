@@ -271,10 +271,18 @@ async function createOrUpdateUserStats(dateStr) {
 
     usersStatsArray.push(userStat);
 
-    totalStats.totalCalls += totalCalls;
-    totalStats.totalLeads += leadsCount;
-    totalStats.salary += salary;
-    totalStats.bonus += bonus;
+    // если нужно чтобы неопределено НЕ считался в тотал тогда оставить условие иначе закоментить его (if () {})
+
+    if (userStat.username !== 'неопределено' && userStat.username !== 'симаковвладимирстаниславович') {
+
+      totalStats.totalCalls += totalCalls;
+      totalStats.totalLeads += leadsCount;
+      totalStats.salary += salary;
+      totalStats.bonus += bonus;
+
+    } 
+
+
   }
 
   usersStatsArray.push(totalStats);
@@ -362,10 +370,18 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
           usersAggregated[stat.username].bonus += stat.bonus;
 
           // считаем итоговые показатели
-          overallTotal.totalCalls += stat.totalCalls;
-          overallTotal.totalLeads += stat.totalLeads;
-          overallTotal.salary += stat.salary;
-          overallTotal.bonus += stat.bonus;
+
+          // если нужно чтобы неопределено НЕ считался в тотал тогда оставить условие иначе закоментить его (if () {})
+          
+          if (stat.username !== 'неопределено' && stat.username !== 'симаковвладимирстаниславович') {
+
+            overallTotal.totalCalls += stat.totalCalls;
+            overallTotal.totalLeads += stat.totalLeads;
+            overallTotal.salary += stat.salary;
+            overallTotal.bonus += stat.bonus;
+          
+          }
+
         }
       }
     }
@@ -434,10 +450,18 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
           usersAggregated[stat.username].salary += stat.salary;
           usersAggregated[stat.username].bonus += stat.bonus;
 
-          overallTotal.totalCalls += stat.totalCalls;
-          overallTotal.totalLeads += stat.totalLeads;
-          overallTotal.salary += stat.salary;
-          overallTotal.bonus += stat.bonus;
+          
+          // если нужно чтобы неопределено НЕ считался в тотал тогда оставить условие иначе закоментить его (if () {})
+
+          if (stat.username !== 'неопределено' && stat.username !== 'симаковвладимирстаниславович') {
+
+            overallTotal.totalCalls += stat.totalCalls;
+            overallTotal.totalLeads += stat.totalLeads;
+            overallTotal.salary += stat.salary;
+            overallTotal.bonus += stat.bonus;
+
+          }
+
         }
       }
     }
