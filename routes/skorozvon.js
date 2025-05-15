@@ -16,6 +16,9 @@ const skorozvonUSER = process.env.skorozvonUSER
 const skorozvonID = process.env.skorozvonID
 const skorozvonSecret = process.env.skorozvonSecret
 
+const residenceBaseUrl = process.env.residenceBaseUrl
+const residenceToken = process.env.residenceToken
+
 
 async function getAuthSkorozvon() {
     const response = await axios.post('https://api.skorozvon.ru/oauth/token', {
@@ -29,6 +32,27 @@ async function getAuthSkorozvon() {
         "token" : response.data.access_token
     })
 }
+
+// в этой функции должна быть получение лидов и отправка по АПИ на получение сколько из них холдов и занесение в БД
+
+async function getHoldFromLeads(date) {
+
+  const allLeadsPhones = []
+  
+  const allLeads = await Leads.find({
+    'date' : date
+  })
+
+  allLeads.forEach((e) => {
+    let phone = e.phone.replace(/\D+/g, '')
+    allLeadsPhones.push(phone)
+  })
+
+
+
+}
+
+getHoldFromLeads(dayjs(new Date).format('YYYY-MM-DD'))
 
 
 async function getAndSetSkorozvonToDB(timeDay) {
