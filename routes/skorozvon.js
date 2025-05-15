@@ -3,11 +3,13 @@ const axios = require('axios')
 const router = express.Router()
 const dotenv = require('dotenv')
 const dayjs = require('dayjs')
-
+const fs = require('fs')
+const path = require('path')
+const FormData = require('form-data')
 
 const skorozvonCalls = require('../models/skorozvonCalls.js')
-const Leads = require('../models/leads');
-const UsersStats = require('../models/UsersStats');
+const Leads = require('../models/leads')
+const UsersStats = require('../models/UsersStats')
 
 dotenv.config()
 
@@ -35,29 +37,59 @@ async function getAuthSkorozvon() {
 
 // в этой функции должна быть получение лидов и отправка по АПИ на получение сколько из них холдов и занесение в БД
 
-async function getHoldFromLeads(date) {
-
-  const allLeadsPhones = []
-  
-  const allLeads = await Leads.find({
-    'date' : date
-  })
-
-  allLeads.forEach((e) => {
-    let phone = e.phone.replace(/\D+/g, '')
-    allLeadsPhones.push(phone)
-  })
-
-
-
+function clearAndWritePhones(array) {
+  let fileData = path.join(__dirname, '..', 'phones.txt')
+  const data = array.join('\n')
+  fs.writeFileSync(fileData, data, 'utf8')
 }
 
-getHoldFromLeads(dayjs(new Date).format('YYYY-MM-DD'))
+async function getHoldFromLeads(date) {
+  const allLeadsPhones = []
+
+  const allLeads = await Leads.find({ 'date': date })
+
+  allLeads.forEach(e => {
+    let phone = e.phone.replace(/\D+/g, '')
+    allLeadsPhones.push(phone);
+  })
+
+  // Очистка и запись номеров в файл
+  clearAndWritePhones(allLeadsPhones)
+
+  // Чтение файла
+  const filePath = path.join(__dirname, '..', 'phones.txt')
+  const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+  // Создание form-data
+  const form = new FormData()
+  form.append('file', fileContent, 'phones.txt')
+
+  // Отправка запроса
+  const holdResponse = await axios.post(
+    `${residenceBaseUrl}/statistics/counting-holds`,
+    form,
+    {
+      headers: {
+        ...form.getHeaders(),
+        'Authorization': `Bearer ${residenceToken}`,
+      },
+      params: {
+        'startedAt[]': ['gte:' + date, 'lte:' + date],
+        'limit': 0
+      }
+    }
+  );
+
+  console.log(holdResponse.data, '!!!!!!!!!!!!!!')
+}
+
+getHoldFromLeads('2025-05-15')
 
 
 async function getAndSetSkorozvonToDB(timeDay) {
     try {
         let date = dayjs(timeDay).format('YYYY-MM-DD')
+
         let unixDateStart = parseInt(dayjs(date).unix())
         let unixDateEnd = unixDateStart + (24 * 60 * 60)
 
