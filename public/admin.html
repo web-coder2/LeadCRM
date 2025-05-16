@@ -17,8 +17,6 @@
 <body>
 <div id="app">
 
-
-    <!-- Верхний навбар -->
     <nav class="navbar navbar-expand-md navbar-dark">
         <a class="navbar-brand">
             <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
@@ -143,8 +141,6 @@
 
             <div class="main-block" v-if="activeTabs == 'skorozvon'">
                 <div class="form-container mt-5">
-
-                    <!-- Nav tabs -->
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Сегодня</a>
@@ -192,7 +188,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in callsData" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
+                                        <tr v-for="(item, idx) in callsData.stats" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ getDefaultName(item.username) }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
@@ -202,6 +198,11 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <div v-if="!tableLoader && callsData">
+                                    <h4 class="text-light">Сумма офферов: {{ callsData.sumOffer }}</h4>
+                                    <h4 class="text-light">Сумма salary: {{ callsData.sumSalary }}</h4>
+                                    <h4 class="text-light">Кол-во холдов: {{ callsData.countHold }}</h4>
+                                </div>
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
                                 <strong class="text-light">Загрузка таблицы</strong>
@@ -241,7 +242,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in weekDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
+                                        <tr v-for="(item, idx) in weekDataArray.stats" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ getDefaultName(item.username) }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
@@ -251,6 +252,12 @@
                                         </tr>
                                     </tbody>
                                 </table>
+
+                                <div v-if="!weekDataArrayLoading && weekDataArray.totalWeekDataHold">
+                                    <h4 class="text-light">Итоговая сумма оферов за неделю: {{ weekDataArray.totalWeekDataHold.sumOffer }}</h4>
+                                    <h4 class="text-light">Итоговая сумма salary за неделю: {{ weekDataArray.totalWeekDataHold.sumSalary }}</h4>
+                                    <h4 class="text-light">Итоговая кол-во холдов за неделю: {{ weekDataArray.totalWeekDataHold.countHold }}</h4>
+                                </div>
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="weekDataArrayLoading">
                                 <strong class="text-light">Загрузка таблицы</strong>
@@ -295,7 +302,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(item, idx) in monthDataArray" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
+                                        <tr v-for="(item, idx) in monthDataArray.stats" :class="{'text-success' : item.username === 'total' }" v-if="item.username != 'неопределено' && item.username != 'симаковвладимирстаниславович' " :key="idx">
                                             <th>{{ getDefaultName(item.username) }}</th>
                                             <th>{{ Math.round(item.totalCalls) }}</th>
                                             <th>{{ Math.round(item.totalLeads) }}</th>
@@ -305,6 +312,13 @@
                                         </tr>
                                     </tbody>
                                 </table>
+
+                                <div v-if="!monthDataArrayLoading && monthDataArray.totalMonthHolData">
+                                    <h4 class="text-light">Итоговая сумма оферов за Месяц: {{ monthDataArray.totalMonthHolData.sumOffer }}</h4>
+                                    <h4 class="text-light">Итоговая сумма salary за Месяц: {{ monthDataArray.totalMonthHolData.sumSalary }}</h4>
+                                    <h4 class="text-light">Итоговая кол-во холдов за Месяц: {{ monthDataArray.totalMonthHolData.countHold }}</h4>
+                                </div>
+
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="monthDataArrayLoading">
                                 <strong class="text-light">Загрузка таблицы</strong>
@@ -650,8 +664,8 @@ th {
             this.isDesktop = this.winSize > 480 ? true : false
 
 
-            await this.fetchLeads();
-            await this.fetchUsers();
+            await this.fetchLeads()
+            await this.fetchUsers()
             await this.getAllRoles()
             await this.getCallsSkorozvon()
             await this.getCallsWeekSkorozvon()
@@ -1000,7 +1014,7 @@ th {
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }).then(response => response.json()).then(data => this.callsData = data.stats)
+                    }).then(response => response.json()).then(data => this.callsData = data)
                 } catch (e) {
                     console.log(e)
                 }
@@ -1012,7 +1026,7 @@ th {
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }).then(response => response.json()).then(data => this.weekDataArray = data.stats)
+                    }).then(response => response.json()).then(data => this.weekDataArray = data)
                 } catch (e) {
                     console.log(e)
                 }
@@ -1024,7 +1038,7 @@ th {
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }).then(response => response.json()).then(data => this.monthDataArray = data.stats)
+                    }).then(response => response.json()).then(data => this.monthDataArray = data)
                 } catch (e) {
                     console.log(e)
                 }

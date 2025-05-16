@@ -10,7 +10,10 @@ const userStatSchema = new Schema({
 
 const dailyUserStatsSchema = new Schema({
   date: { type: String, required: true, unique: true },
-  stats: { type: [userStatSchema], default: [] }
+  stats: { type: [userStatSchema], default: [] },
+  sumOffer : { type: Number, default: 0 },
+  sumSalary : { type: Number, default: 0 },
+  countHold : { type: Number, default: 0 }
 });
 
 module.exports = model('DailyUserStats', dailyUserStatsSchema);

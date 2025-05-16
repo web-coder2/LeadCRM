@@ -35,7 +35,8 @@ async function getAuthSkorozvon() {
     })
 }
 
-// в этой функции должна быть получение лидов и отправка по АПИ на получение сколько из них холдов и занесение в БД
+
+
 
 function clearAndWritePhones(array) {
   let fileData = path.join(__dirname, '..', 'phones.txt')
@@ -49,42 +50,31 @@ async function getHoldFromLeads(date) {
   const allLeads = await Leads.find({ 'date': date })
 
   allLeads.forEach(e => {
-    let phone = e.phone.replace(/\D+/g, '')
-    allLeadsPhones.push(phone);
+    let phone = parseInt(e.phone.replace(/\D+/g, ''))
+    allLeadsPhones.push(phone)
   })
 
-  // Очистка и запись номеров в файл
   clearAndWritePhones(allLeadsPhones)
 
-  // Чтение файла
-  const filePath = path.join(__dirname, '..', 'phones.txt')
-  const fileContent = fs.readFileSync(filePath, 'utf-8')
+  let data = new FormData()
+  data.append('file', fs.createReadStream(path.join(__dirname, '..', 'phones.txt')))
 
-  // Создание form-data
-  const form = new FormData()
-  form.append('file', fileContent, 'phones.txt')
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://residence.hbnetwork.ru/api/statistics/counting-holds?startedAt[]=gte:2025-04-10&startedAt[]=lte:2025-05-16&_limit=0',
+    headers: {
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjZiNjU5YjBlZWE3YzQwODVmOTAxNTciLCJsb2dpbiI6Iml2YW4iLCJpYXQiOjE3MjI2ODc5MzcsImV4cCI6Mzc3MjI2ODQzMzd9.9_UL1lKPhouKkbN9_ZMsjOEcqB87v5OujNae40aZxIs',
+      ...data.getHeaders()
+    },
+    data: data
+  }
 
-  // Отправка запроса
-  const holdResponse = await axios.post(
-    `${residenceBaseUrl}/statistics/counting-holds`,
-    form,
-    {
-      headers: {
-        ...form.getHeaders(),
-        'Authorization': `Bearer ${residenceToken}`,
-      },
-      params: {
-        'startedAt[]': ['gte:' + date, 'lte:' + date],
-        'limit': 0
-      }
-    }
-  );
+  const response = await axios.request(config)
+  const holdResponse = response.data
 
-  console.log(holdResponse.data, '!!!!!!!!!!!!!!')
+  return holdResponse
 }
-
-getHoldFromLeads('2025-05-15')
-
 
 async function getAndSetSkorozvonToDB(timeDay) {
     try {
@@ -138,9 +128,6 @@ async function getAndSetSkorozvonToDB(timeDay) {
                 new: true
             }
         );
-
-        console.log(`Перезаписана запись за ${date} с ${dayRecord.calls.length} звонками.`);
-
     } catch (error) {
         console.error('Ошибка при получении и перезаписи данных Skorozvon:', error);
     }
@@ -153,7 +140,6 @@ async function processDates(datesArray) {
         let callsRecord = await skorozvonCalls.findOne({ date: dateStr })
 
         if (!callsRecord) {
-            console.log(`Записи о звонках за ${dateStr} не найдены. Выполняем getAndSetSkorozvonToDB.`)
             try {
                 await getAndSetSkorozvonToDB(dateStr)
                 callsRecord = await skorozvonCalls.findOne({ date: dateStr })
@@ -187,7 +173,6 @@ router.get('/skorozvon/get/calls/:timeDate', async (req, res) => {
         let callsRecord = await skorozvonCalls.findOne({ date: timeDateParam })
 
         if (!callsRecord) {
-            console.log(`Записи о звонках за ${timeDateParam} не найдены. Выполняем getAndSetSkorozvonToDB.`)
             try {
                 await getAndSetSkorozvonToDB(timeDateParam);
 
@@ -261,32 +246,34 @@ router.get('/skorozvon/get/monthCalls/:timeDate', async (req, res) => {
 })
 
 function normalizeName(name) {
-  if (!name) return '';
-  return name.replace(/\s+/g, '').toLowerCase();
+  if (!name) return ''
+  return name.replace(/\s+/g, '').toLowerCase()
 }
 
 async function createOrUpdateUserStats(dateStr) {
-  // Находим записи звонков за указанную дату
-  const callRecord = await skorozvonCalls.findOne({ date: dateStr });
+  
+  let dataHoldResponse = await getHoldFromLeads(dateStr)
+
+  let sumOffer = dataHoldResponse.data.sumOffer
+  let sumSalary = dataHoldResponse.data.sumSalary
+  let countHold = dataHoldResponse.data.count
+
+  const callRecord = await skorozvonCalls.findOne({ date: dateStr })
 
   if (!callRecord || !callRecord.calls || callRecord.calls.length === 0) {
-    console.log(`Нет вызовов за ${dateStr}`);
-    return;
+    return
   }
 
-  // Получаем лидов за ту же дату
-  const leads = await Leads.find({ date: dateStr });
+  const leads = await Leads.find({ date: dateStr })
+  const leadsCountMap = {}
 
-  // Создаем карту количества лидов по нормализованному имени
-  const leadsCountMap = {};
   for (const lead of leads) {
     if (lead.starter) {
-      const normalizedStarter = normalizeName(lead.starter);
-      leadsCountMap[normalizedStarter] = (leadsCountMap[normalizedStarter] || 0) + 1;
+      const normalizedStarter = normalizeName(lead.starter)
+      leadsCountMap[normalizedStarter] = (leadsCountMap[normalizedStarter] || 0) + 1
     }
   }
 
-  // Создаем карту количества звонков по нормализованному имени
   const callCounts = {};
   for (const call of callRecord.calls) {
     const usernameRaw = call.username || 'Не определено';
@@ -298,7 +285,6 @@ async function createOrUpdateUserStats(dateStr) {
   }
 
   const usersStatsArray = [];
-  // Итоговая статистика по всем пользователям
   const totalStats = {
     username: 'total',
     totalCalls: 0,
@@ -335,21 +321,16 @@ async function createOrUpdateUserStats(dateStr) {
       totalStats.totalLeads += leadsCount;
       totalStats.salary += salary;
       totalStats.bonus += bonus;
-
     } 
-
-
   }
 
   usersStatsArray.push(totalStats);
 
   await UsersStats.findOneAndUpdate(
     { date: dateStr },
-    { date: dateStr, stats: usersStatsArray },
+    { date: dateStr, stats: usersStatsArray, sumOffer: sumOffer, sumSalary: sumSalary, countHold: countHold },
     { upsert: true }
   );
-
-  console.log(`Статистика за ${dateStr} успешно обновлена.`);
 }
 
 router.get('/skorozvon/get/allData/:date', async (req, res) => {
@@ -363,7 +344,7 @@ router.get('/skorozvon/get/allData/:date', async (req, res) => {
         return res.status(404).json({ message: 'Данные за указанную дату не найдены' });
       }
   
-      res.json({ date: data.date, stats: data.stats });
+      res.json({ date: data.date, stats: data.stats, sumOffer: data.sumOffer, sumSalary: data.sumSalary, countHold: data.countHold });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Ошибка сервера' });
@@ -381,16 +362,13 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
 
     const dates = [];
     for (let i = 0; i < 7; i++) {
-      // создаем новый объект, чтобы не менять оригинал startDate
       dates.push(startDate.clone().add(i, 'day').format('YYYY-MM-DD'));
     }
 
-    // Обновляем статистику за каждый день
     for (const date of dates) {
       await createOrUpdateUserStats(date);
     }
 
-    // Объекты для хранения сумм по всем пользователям
     const usersAggregated = {}; // { username: { totalCalls, totalLeads, salary, bonus } }
 
     const overallTotal = {
@@ -401,14 +379,26 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
       bonus: 0
     };
 
-    // Проходим по датам и собираем данные
+    var totalWeekDataHold = {
+      sumOffer: 0,
+      sumSalary: 0,
+      countHold: 0
+    }
+
     for (const date of dates) {
       const data = await UsersStats.findOne({ date });
-      if (data && data.stats) {
-        for (const stat of data.stats) {
-          if (stat.username === 'total') continue; // пропускаем общий итог внутри каждого дня
 
-          // если пользователя еще нет в объекте, добавляем
+      if (data && data.stats) {
+
+        totalWeekDataHold.sumOffer += data.sumOffer
+        totalWeekDataHold.sumSalary += data.sumSalary
+        totalWeekDataHold.countHold += data.countHold
+
+        console.log(totalWeekDataHold, data.countHold, data.date)
+
+        for (const stat of data.stats) {
+          if (stat.username === 'total') continue
+
           if (!usersAggregated[stat.username]) {
             usersAggregated[stat.username] = {
               username: stat.username,
@@ -424,10 +414,6 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
           usersAggregated[stat.username].totalLeads += stat.totalLeads;
           usersAggregated[stat.username].salary += stat.salary;
           usersAggregated[stat.username].bonus += stat.bonus;
-
-          // считаем итоговые показатели
-
-          // если нужно чтобы неопределено НЕ считался в тотал тогда оставить условие иначе закоментить его (if () {})
           
           if (stat.username !== 'неопределено' && stat.username !== 'симаковвладимирстаниславович') {
 
@@ -449,7 +435,8 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
 
     res.json({
       period: `Week ${startDate.format('YYYY-MM-DD')} - ${startDate.clone().add(6, 'day').format('YYYY-MM-DD')}`,
-      stats: usersArray
+      stats: usersArray,
+      totalWeekDataHold: totalWeekDataHold
     });
   } catch (error) {
     console.error(error);
@@ -477,6 +464,7 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
     }
 
     const usersAggregated = {};
+
     const overallTotal = {
       username: 'total',
       totalCalls: 0,
@@ -485,8 +473,21 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
       bonus: 0
     };
 
+    const totalMonthHolData = {
+      sumOffer: 0,
+      sumSalary: 0,
+      countHold: 0
+    }
+
     for (const date of dates) {
       const data = await UsersStats.findOne({ date });
+
+      if (data) {
+        totalMonthHolData.sumOffer += data.sumOffer
+        totalMonthHolData.sumSalary += data.sumSalary
+        totalMonthHolData.countHold += data.countHold
+      }
+
       if (data && data.stats) {
         for (const stat of data.stats) {
           if (stat.username === 'total') continue;
@@ -506,9 +507,6 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
           usersAggregated[stat.username].salary += stat.salary;
           usersAggregated[stat.username].bonus += stat.bonus;
 
-          
-          // если нужно чтобы неопределено НЕ считался в тотал тогда оставить условие иначе закоментить его (if () {})
-
           if (stat.username !== 'неопределено' && stat.username !== 'симаковвладимирстаниславович') {
 
             overallTotal.totalCalls += stat.totalCalls;
@@ -527,7 +525,8 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
 
     res.json({
       period: `Month ${startDate.format('YYYY-MM-DD')} - ${startDate.add(daysInMonth - 1, 'day').format('YYYY-MM-DD')}`,
-      stats: usersArray
+      stats: usersArray,
+      totalMonthHolData: totalMonthHolData
     });
   } catch (error) {
     console.error(error);
