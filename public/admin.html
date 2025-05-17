@@ -481,7 +481,7 @@
                             <td>{{ lead.comment }}</td>
                             <td><input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"></td>
                             <td>{{lead.broker}}</td>
-                            <td>{{lead.starter}}</td>
+                            <td>{{lead.starter.login}}</td>
                         </tbody>
                         <tbody v-if="filteredLeads.length == 0 && starterFilter == true">
                             <td>нет данных</td>

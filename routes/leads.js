@@ -1,5 +1,6 @@
 const { Router } = require('express')
 const LeadsModel = require("../models/leads.js")
+const UserModel = require('../models/users.js')
 const dayjs = require('dayjs')
 
 const router = Router()
@@ -11,6 +12,14 @@ router.post('/api/leadorub/leads', async function (req, res) {
     const { phone, client_name, comment } = req.body;
     let broker = ""
 
+    console.log(req.session.name)
+
+    const refName = await UserModel.findOne({
+        'name' : req.session.name
+    })
+
+    console.log(refName)
+
     let newLead = LeadsModel({
         date: dayjs(new Date).format('YYYY-MM-DD'),
         phone: phone,
@@ -18,7 +27,7 @@ router.post('/api/leadorub/leads', async function (req, res) {
         comment: comment,
         isSend: false,
         broker: broker,
-        starter: req.session.name
+        starter: refName._id
     })
 
     console.log('lead created by ', newLead)
@@ -81,7 +90,7 @@ router.delete('/api/leads/:index', async function (req, res) {
 // ПОЛУЧИТЬ ВСЕ ЛИДЫ
 
 router.get('/api/leads', async function (req, res) {
-    const allLeads = await LeadsModel.find()
+    const allLeads = await LeadsModel.find().populate('starter')
     res.json(allLeads)
 })
 

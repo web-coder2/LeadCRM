@@ -25,8 +25,7 @@ const leadSchema = new Schema({
         required: false
     },
     "starter": {
-        //type: Schema.Types.ObjectId,
-        type: String,
+        type: Schema.Types.ObjectId,
         ref: "UsersSchema",
         required: true
     },
