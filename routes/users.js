@@ -62,4 +62,30 @@ router.delete('/api/admin/users/:login', async function (req, res) {
 
 })
 
+
+// ОБНОВИТЬ ЮЗЕРА
+
+router.post('/api/admin/users/:userLogin', async function(req, res) {
+
+    const userLogin = req.params.userLogin
+    const updatedUserObj = req.body.updatedData
+
+    try {
+        const result = await UserModel.updateOne(
+          { login: userLogin },
+          { $set: updatedUserObj }
+        );
+    
+        if (result.nModified === 0) {
+          return res.status(404).json({ message: 'Пользователь не найден или данные не обновлены' });
+        }
+    
+        res.json({ message: 'Пользователь успешно обновлен' });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Ошибка сервера', error: err.message });
+      }
+
+})
+
 module.exports = router

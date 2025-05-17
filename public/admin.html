@@ -119,6 +119,7 @@
                             <th>Роль</th>
                             <th>Статус</th>
                             <th>Действия-удалить</th>
+                            <th>Изменить юзера</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -129,13 +130,48 @@
                             <td>{{ user.role.role }}</td>
                             <td :style="{'color' : user.status ? 'green' : 'red'}">{{ user.status ? 'Online' : 'Offline' }}</td>
                             <td>
-                            <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера</button>
+                                <button class="btn btn-outline-danger btn-sm" @click="deleteUser(user.login)" :disabled="user.role.role === 'admin'">Удалить юзера</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-warning" data-toggle="modal" data-target="#updateUser" @click="beforeUpdateUser(user)">Изменить юзера</button>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <div class="modal fade" id="updateUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog bg-dark" role="document">
+                  <div class="modal-content bg-dark">
+                    <div class="modal-header bg-dark">
+                      <h5 class="modal-title text-light" id="myModalLabel">Обновить юзера</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body bg-dark">
+                      <form>
+                        <div class="form-group">
+                          <label for="name" class="text-light">Имя</label>
+                          <input type="text" v-model="updatedUser.name" class="form-control bg-dark text-light" id="name" placeholder="Введите ваше имя">
+                        </div>
+                        <div class="form-group">
+                          <label for="login" class="text-light">Логин</label>
+                          <input type="text" v-model="updatedUser.login" class="form-control bg-dark text-light" id="login" placeholder="Введите логин">
+                        </div>
+                        <div class="form-group">
+                          <label for="password" class="text-light">Пароль</label>
+                          <input type="text" v-model="updatedUser.password" class="form-control bg-dark text-light" id="password" placeholder="Введите пароль">
+                        </div>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" @click="updateUser()">Обновить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
 
 
@@ -199,9 +235,9 @@
                                     </tbody>
                                 </table>
                                 <div v-if="!tableLoader && callsData">
-                                    <h4 class="text-light">Сумма офферов: {{ callsData.sumOffer }}</h4>
-                                    <h4 class="text-light">Сумма salary: {{ callsData.sumSalary }}</h4>
-                                    <h4 class="text-light">Кол-во холдов: {{ callsData.countHold }}</h4>
+                                    <h4 class="text-light">Сумма офферов: <span class="text-danger">{{ callsData.sumOffer }}</span></h4>
+                                    <h4 class="text-light">Сумма salary: <span class="text-danger">{{ callsData.sumSalary }}</span></h4>
+                                    <h4 class="text-light">Кол-во холдов: <span class="text-danger">{{ callsData.countHold }}</span></h4>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
@@ -254,9 +290,9 @@
                                 </table>
 
                                 <div v-if="!weekDataArrayLoading && weekDataArray.totalWeekDataHold">
-                                    <h4 class="text-light">Итоговая сумма оферов за неделю: {{ weekDataArray.totalWeekDataHold.sumOffer }}</h4>
-                                    <h4 class="text-light">Итоговая сумма salary за неделю: {{ weekDataArray.totalWeekDataHold.sumSalary }}</h4>
-                                    <h4 class="text-light">Итоговая кол-во холдов за неделю: {{ weekDataArray.totalWeekDataHold.countHold }}</h4>
+                                    <h4 class="text-light">Итоговая сумма оферов за неделю: <span class="text-danger">{{ weekDataArray.totalWeekDataHold.sumOffer }}</span></h4>
+                                    <h4 class="text-light">Итоговая сумма salary за неделю: <span class="text-danger">{{ weekDataArray.totalWeekDataHold.sumSalary }}</span></h4>
+                                    <h4 class="text-light">Итоговая кол-во холдов за неделю: <span class="text-danger">{{ weekDataArray.totalWeekDataHold.countHold }}</span></h4>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="weekDataArrayLoading">
@@ -314,9 +350,9 @@
                                 </table>
 
                                 <div v-if="!monthDataArrayLoading && monthDataArray.totalMonthHolData">
-                                    <h4 class="text-light">Итоговая сумма оферов за Месяц: {{ monthDataArray.totalMonthHolData.sumOffer }}</h4>
-                                    <h4 class="text-light">Итоговая сумма salary за Месяц: {{ monthDataArray.totalMonthHolData.sumSalary }}</h4>
-                                    <h4 class="text-light">Итоговая кол-во холдов за Месяц: {{ monthDataArray.totalMonthHolData.countHold }}</h4>
+                                    <h4 class="text-light">Итоговая сумма оферов за Месяц: <span class="text-danger">{{ monthDataArray.totalMonthHolData.sumOffer }}</span></h4>
+                                    <h4 class="text-light">Итоговая сумма salary за Месяц: <span class="text-danger">{{ monthDataArray.totalMonthHolData.sumSalary }}</span></h4>
+                                    <h4 class="text-light">Итоговая кол-во холдов за Месяц: <span class="text-danger">{{ monthDataArray.totalMonthHolData.countHold }}</span></h4>
                                 </div>
 
                             </div>
@@ -622,6 +658,7 @@ th {
             newRoleInput: '',
             allRoles: null,
             isCollapsed: false,
+            updatedUser: {},
 
             filterDate: null,
             filterDateEnd: null,
@@ -879,6 +916,31 @@ th {
                 .catch(error => {
                     console.error('Error:', error);
                     this.userMessage = 'Error creating user.';
+                });
+            },
+            beforeUpdateUser(user) {
+                this.updatedUserLogin = user.login
+                this.updatedUser = user
+            },
+            updateUser() {
+                fetch(`/api/admin/users/${this.updatedUserLogin}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        'updatedData' : this.updatedUser
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        this.fetchUsers();
+                    } else {
+                        console.error('Failed to update user');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                 });
             },
             deleteUser(login) {
