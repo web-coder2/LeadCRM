@@ -70,10 +70,14 @@ async function getHoldFromLeads(date) {
     data: data
   }
 
-  const response = await axios.request(config)
-  const holdResponse = response.data
+  try {
+    const response = await axios.request(config)
+    const holdResponse = response.data
 
-  return holdResponse
+    return holdResponse
+  } catch (e) {
+    //console.log(e)
+  }
 }
 
 async function getAndSetSkorozvonToDB(timeDay) {
@@ -254,9 +258,15 @@ async function createOrUpdateUserStats(dateStr) {
   
   let dataHoldResponse = await getHoldFromLeads(dateStr)
 
-  let sumOffer = dataHoldResponse.data.sumOffer
-  let sumSalary = dataHoldResponse.data.sumSalary
-  let countHold = dataHoldResponse.data.count
+  if (dataHoldResponse) {
+    var sumOffer = dataHoldResponse.data.sumOffer
+    var sumSalary = dataHoldResponse.data.sumSalary
+    var countHold = dataHoldResponse.data.count
+  } else {
+    var sumOffer = 0
+    var sumSalary = 0
+    var countHold = 0
+  }
 
   const callRecord = await skorozvonCalls.findOne({ date: dateStr })
 
@@ -268,8 +278,8 @@ async function createOrUpdateUserStats(dateStr) {
   const leadsCountMap = {}
 
   for (const lead of leads) {
+    console.log('#####################', lead)
     if (lead.starter) {
-      console.log(lead.starter)
       const normalizedStarter = normalizeName(lead.starter.name)
       leadsCountMap[normalizedStarter] = (leadsCountMap[normalizedStarter] || 0) + 1
     }
