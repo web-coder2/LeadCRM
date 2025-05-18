@@ -264,12 +264,13 @@ async function createOrUpdateUserStats(dateStr) {
     return
   }
 
-  const leads = await Leads.find({ date: dateStr })
+  const leads = await Leads.find({ date: dateStr }).populate('starter')
   const leadsCountMap = {}
 
   for (const lead of leads) {
     if (lead.starter) {
-      const normalizedStarter = normalizeName(lead.starter)
+      console.log(lead.starter)
+      const normalizedStarter = normalizeName(lead.starter.name)
       leadsCountMap[normalizedStarter] = (leadsCountMap[normalizedStarter] || 0) + 1
     }
   }

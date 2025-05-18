@@ -481,7 +481,7 @@
                             <td>{{ lead.comment }}</td>
                             <td><input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)"></td>
                             <td>{{lead.broker}}</td>
-                            <td>{{lead.starter.login}}</td>
+                            <td>{{lead.starter ? lead.starter.name : 'не определено'}}</td>
                         </tbody>
                         <tbody v-if="filteredLeads.length == 0 && starterFilter == true">
                             <td>нет данных</td>
@@ -522,7 +522,7 @@
                                 <input type="checkbox" v-model="lead.isSend" @change="updateLead(index, lead)">
                             </td>
                             <td>{{lead.broker}}</td>
-                            <td>{{lead.starter}}</td>
+                            <td>{{lead.starter ? lead.starter.name : 'не определено'}}</td>
                             <td>
                                 <select class="form-control bg-dark text-light" v-model="lead.newBroker" @change="assignBroker(index, lead)">
                                     <option v-for="broker in brokers" :key="broker.login" :value="broker.login">{{ broker.name }}</option>
@@ -810,39 +810,39 @@ th {
                 URL.revokeObjectURL(url);
             },
             saveFilters() {
-
-                this.filteredLeads = this.leads.filter(lead => {
-
+            this.filteredLeads = this.leads.filter(lead => {
                 if (this.filterDate) {
-                    const leadDate = dayjs(lead.date).format('YYYY-MM-DD')
-                    const filterDate = dayjs(this.filterDate).format('YYYY-MM-DD')
-                    if (leadDate < filterDate) {
-                        return false
-                    }
+                const leadDate = dayjs(lead.date).format('YYYY-MM-DD');
+                const filterDate = dayjs(this.filterDate).format('YYYY-MM-DD');
+                if (leadDate < filterDate) {
+                    return false;
+                }
                 }
                 if (this.filterDateEnd) {
-                    const leadDateEnd = dayjs(lead.date).format('YYYY-MM-DD')
-                    const filterDateEnd = dayjs(this.filterDateEnd).format('YYYY-MM-DD')
-                    if (leadDateEnd > filterDateEnd) {
-                        return false
-                    }
+                const leadDateEnd = dayjs(lead.date).format('YYYY-MM-DD');
+                const filterDateEnd = dayjs(this.filterDateEnd).format('YYYY-MM-DD');
+                if (leadDateEnd > filterDateEnd) {
+                    return false;
+                }
                 }
                 if (this.filterBroker != "") {
-                    if (lead.broker !== this.filterBroker) {
-                        return false
-                    }
+                if (lead.broker !== this.filterBroker) {
+                    return false;
+                }
                 }
                 if (this.filterLeaders != "") {
-                    if (lead.starter !== this.filterLeaders[0] && lead.starter !== this.filterLeaders[1]) {
-                        return false
-                    }
+                if (
+                    !lead.starter ||
+                    (lead.starter.name !== this.filterLeaders[0] && lead.starter.name !== this.filterLeaders[1])
+                ) {
+                    return false;
+                }
                 }
                 if (this.filterIsSend != "qwerty") {
-                    if (lead.isSend !== this.filterIsSend) {
-                        return false
-                    }
+                if (lead.isSend !== this.filterIsSend) {
+                    return false;
                 }
-
+                }
                 return true;
             });
             },

@@ -11,6 +11,7 @@ const RoleModel = require('./models/ranks.js')
 
 // ИМПОРТ МОДЕЛЕЙ
 const UserModel = require("./models/users.js")
+const LeadModel = require("./models/leads.js")
 
 // ИМПОРТ РОУТОВ
 const usersRoute = require('./routes/users.js')
@@ -31,6 +32,72 @@ const MONGO_PASS = process.env.DATABASE_PASSWORD
 const MONGO_PORT = process.env.DATABASE_PORT
 const DATABASE_NAME = process.env.DATABASE_NAME
 
+
+// async function setReferenceNotStringName() {
+
+//     const allLeads = await LeadModel.find()
+    
+//     allLeads.forEach(async (lead) => {
+//         const leadStarter = lead.starter
+//         const userReferenceByStarterName = await UserModel.find({
+//             "name" : leadStarter
+//         })
+//         const userReferenceId = userReferenceByStarterName._id
+//         const updatedResult = await LeadModel.updateOne({
+//             "starter" : leadStarter,
+//             "starter" : userReferenceId
+//         })
+//     })
+
+// }
+
+async function setReferenceNotStringName() {
+    const allLeads = await LeadModel.find()
+
+    for (const lead of allLeads) {
+        const leadStarter = lead.starter
+        const userReferences = await UserModel.find({ "name": leadStarter })
+
+        if (userReferences.length > 0) {
+            const userReferenceId = userReferences[0]._id
+
+            await LeadModel.updateOne(
+                { _id: lead._id },
+                { $set: { starter: userReferenceId } }
+            );
+        } else {
+            console.warn(`Пользователь с именем ${leadStarter} не найден`)
+        }
+    }
+}
+
+async function convertStarterToObjectId() {
+    const leads = await LeadModel.find({ starter: { $type: 'string' } });
+  
+    for (const lead of leads) {
+      const starterValue = lead.starter;
+  
+      // Проверка, соответствует ли строка формату ObjectId
+      if (/^[a-fA-F0-9]{24}$/.test(starterValue)) {
+        try {
+          const newObjectId = new mongoose.Types.ObjectId(starterValue);
+          await LeadModel.updateOne(
+            { _id: lead._id },
+            { $set: { starter: newObjectId } }
+          );
+          console.log(`Обновлен lead ${lead._id} с starter ${starterValue}`);
+        } catch (err) {
+          console.error(`Ошибка при преобразовании ${starterValue}:`, err);
+        }
+      } else {
+        console.log(`Значение ${starterValue} не является валидным ObjectId, пропускаем`);
+      }
+    }
+  }
+  
+//convertStarterToObjectId().then(() => console.log('Обновление завершено')).catch(console.error);
+
+//setReferenceNotStringName()
 
 
 // Middleware
