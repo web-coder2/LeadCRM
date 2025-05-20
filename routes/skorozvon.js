@@ -256,7 +256,17 @@ function normalizeName(name) {
 
 async function createOrUpdateUserStats(dateStr) {
   
-  let dataHoldResponse = await getHoldFromLeads(dateStr)
+  if ( new Date().getHours() >= 22 && new Date().getHours() <= 23 ) {   
+    var dataHoldResponse = await getHoldFromLeads(dateStr)
+  } else {
+    var dataHoldResponse = {
+      data : {
+        sumOffer : 0,
+        sumSalary : 0,
+        count : 0
+      }
+    }
+  }
 
   if (dataHoldResponse) {
     var sumOffer = dataHoldResponse.data.sumOffer
@@ -324,7 +334,6 @@ async function createOrUpdateUserStats(dateStr) {
 
     usersStatsArray.push(userStat);
 
-    // если нужно чтобы неопределено НЕ считался в тотал тогда оставить условие иначе закоментить его (if () {})
 
     if (userStat.username !== 'неопределено' && userStat.username !== 'симаковвладимирстаниславович') {
 

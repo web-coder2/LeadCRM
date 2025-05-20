@@ -105,8 +105,6 @@ async function getAndSetSkorozvonToDB() {
             }
         );
 
-        console.log(`Перезаписана запись за ${date} с ${dayRecord.calls.length} звонками.`);
-
     } catch (error) {
         console.error('Ошибка при получении и перезаписи данных Skorozvon:', error);
     }

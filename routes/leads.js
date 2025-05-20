@@ -20,24 +20,31 @@ router.post('/api/leadorub/leads', async function (req, res) {
 
     console.log(refName)
 
-    let newLead = LeadsModel({
-        date: dayjs(new Date).format('YYYY-MM-DD'),
-        phone: phone,
-        client_name: client_name,
-        comment: comment,
-        isSend: false,
-        broker: broker,
-        starter: refName._id
-    })
+    if (refName !== null) {
 
-    console.log('lead created by ', newLead)
+        let newLead = LeadsModel({
+            date: dayjs(new Date).format('YYYY-MM-DD'),
+            phone: phone,
+            client_name: client_name,
+            comment: comment,
+            isSend: false,
+            broker: broker,
+            starter: refName._id
+        })
 
-    try {
-        const result = await newLead.save()
-        res.status(200).send('lead created')
-    } catch (e) {
-        console.log(e)
-        res.status(500).send('failed create lead')
+        console.log('lead created by ', newLead)
+
+        try {
+            const result = await newLead.save()
+            res.status(200).send('lead created')
+        } catch (e) {
+            console.log(e)
+            res.status(500).send('failed create lead')
+        }
+
+
+    } else {
+        console.log('unLogined created lead')
     }
     
 });
