@@ -687,6 +687,8 @@ th {
             activeTabs: 'users',
             winSize: 0,
             isDesktop: false,
+            callsDashboardUsers: [],
+            callsDashboardCalls: []
         },
         async beforeMount() {
 
@@ -853,8 +855,7 @@ th {
                     const counts = [];
 
                     this.leads.forEach((r) => {
-                        const starter = r.starter
-
+                        const starter = r.starter ? r.starter.name : 'Не определно'
                         const index = starters.indexOf(starter);
                         
                         if (index === -1) {
@@ -1008,13 +1009,41 @@ th {
             async getCallsSkorozvon() {
                 this.tableLoader = true
 
+                this.callsDashboardCalls = []
+
+                let responseData
+
                 try {
                     const response = await fetch(`/skorozvon/get/calls/${dayjs(this.tableTime).format('YYYY-MM-DD')}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                    });
+                    }).then(resp => resp.json()).then(data => responseData = data)
+
+                    const groupedByUsername = responseData.calls.reduce((acc, call) => {
+                        const username = call.username
+                        if (!acc[username]) {
+                            acc[username] = {
+                                "countOfCalls" : 0
+                            }
+                        }
+                        acc[username].countOfCalls++
+                        return acc;
+                        }, {}
+                    )
+
+                    console.log(groupedByUsername)
+
+                    Object.keys(groupedByUsername).forEach((assassin) => {
+                        this.callsDashboardUsers.push(assassin)
+                    })
+
+                    Object.values(groupedByUsername).forEach((asasa) => {
+                        this.callsDashboardCalls.push(asasa.countOfCalls)
+                    })
+
+                    console.log(this.callsDashboardCalls, this.callsDashboardUsers)
 
                     await this.getSalaryAndBonus()
 
@@ -1046,20 +1075,20 @@ th {
             },
             async getCallsMonthSkorozvon() {
                 try {
-                    this.monthDataArrayLoading = true;
-                    const startOfMonthStr = dayjs().startOf('month').format('YYYY-MM-DD');
+                    this.monthDataArrayLoading = true
+                    const startOfMonthStr = dayjs().startOf('month').format('YYYY-MM-DD')
                     const response = await fetch(`/skorozvon/get/monthCalls/${startOfMonthStr}`, {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                    });
+                    })
 
                     await this.getSalaryAndBonusMonth()
-                    this.monthDataArrayLoading = false;
+                    this.monthDataArrayLoading = false
                 } catch (e) {
-                    console.log(e);
-                    this.monthDataArrayLoading = false;
+                    console.log(e)
+                    this.monthDataArrayLoading = false
                 }
             },
             async getSalaryAndBonus() {
@@ -1111,26 +1140,43 @@ th {
                 $('#infoModalTotal').modal('show');
             },
             createChart() {
-
                 const data = {
                     labels: this.userLeadsArray,
                     datasets: [{
-                    label: 'Количество лидов',
-                    data: this.userCountArray,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
-                    borderWidth: 1,
-                    pointRadius: 8,
-                    pointHoverRadius: 14
-                    }]
+                        label: 'Количество лидов',
+                        data: this.userCountArray,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1,
+                        pointRadius: 10,
+                        pointHoverRadius: 20
+                    }//, 
+                    // {
+                    //     label: 'Количество звонков за день',
+                    //     data: this.callsDashboardCalls,
+                    //     backgroundColor: [
+                    //         'rgba(255, 99, 132, 0.2)',
+                    //         'rgba(54, 162, 235, 0.2)',
+                    //         'rgba(255, 206, 86, 0.2)'
+                    //     ],
+                    //     borderColor: [
+                    //         'rgba(255, 99, 132, 1)',
+                    //         'rgba(54, 162, 235, 1)',
+                    //         'rgba(255, 206, 86, 1)'
+                    //     ],
+                    //     borderWidth: 1,
+                    //     pointRadius: 10,
+                    //     pointHoverRadius: 20
+                    // }]
+                ]
                 };
 
                 if (this.myChart) {

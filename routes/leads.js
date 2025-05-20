@@ -12,13 +12,9 @@ router.post('/api/leadorub/leads', async function (req, res) {
     const { phone, client_name, comment } = req.body;
     let broker = ""
 
-    console.log(req.session.name)
-
     const refName = await UserModel.findOne({
         'name' : req.session.name
     })
-
-    console.log(refName)
 
     if (refName !== null) {
 
@@ -31,8 +27,6 @@ router.post('/api/leadorub/leads', async function (req, res) {
             broker: broker,
             starter: refName._id
         })
-
-        console.log('lead created by ', newLead)
 
         try {
             const result = await newLead.save()

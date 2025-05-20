@@ -115,6 +115,6 @@ crone.schedule(crone1Hour, () => {
     resetLeadByBroker()
 })
 
-crone.schedule(crone10Minutes, () => {
+crone.schedule(crone1Hour, () => {
     getAndSetSkorozvonToDB()
 })

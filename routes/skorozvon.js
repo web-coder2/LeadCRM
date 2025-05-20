@@ -255,18 +255,24 @@ function normalizeName(name) {
 }
 
 async function createOrUpdateUserStats(dateStr) {
-  
-  if ( new Date().getHours() >= 22 && new Date().getHours() <= 23 ) {   
+
+  if (dateStr !== new Date ) {
     var dataHoldResponse = await getHoldFromLeads(dateStr)
-  } else {
-    var dataHoldResponse = {
-      data : {
-        sumOffer : 0,
-        sumSalary : 0,
-        count : 0
+  } else if (dateStr == new Date) {
+    if ( new Date().getHours() >= 22 && new Date().getHours() <= 23 ) {
+      var dataHoldResponse = await getHoldFromLeads(dateStr)
+    } else {
+      var dataHoldResponse = {
+        data : {
+          sumOffer : 0,
+          sumSalary : 0,
+          count : 0
+        }
       }
     }
   }
+
+  //let dataHoldResponse = await getHoldFromLeads(dateStr)
 
   if (dataHoldResponse) {
     var sumOffer = dataHoldResponse.data.sumOffer
@@ -288,7 +294,6 @@ async function createOrUpdateUserStats(dateStr) {
   const leadsCountMap = {}
 
   for (const lead of leads) {
-    console.log('#####################', lead)
     if (lead.starter) {
       const normalizedStarter = normalizeName(lead.starter.name)
       leadsCountMap[normalizedStarter] = (leadsCountMap[normalizedStarter] || 0) + 1
