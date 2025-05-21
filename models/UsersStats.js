@@ -13,7 +13,7 @@ const dailyUserStatsSchema = new Schema({
   stats: { type: [userStatSchema], default: [] },
   sumOffer : { type: Number, default: 0 },
   sumSalary : { type: Number, default: 0 },
-  countHold : { type: Number, default: 0 }
+  countHold : { type: Number, default: 0 },
 });
 
 module.exports = model('DailyUserStats', dailyUserStatsSchema);

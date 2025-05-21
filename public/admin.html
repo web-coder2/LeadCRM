@@ -12,15 +12,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/locale/ru.js"></script>
-    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <link rel="icon" href="https://m-files.cdnvideo.ru/lpfile/1/7/1/17132b3c0df3b9802560ee27788e85d5/-/crop/0x0x640x640/-/resize/94/-/resize/1920/f.png" type="image/x-icon">
 </head>
 <body>
 <div id="app">
 
     <nav class="navbar navbar-expand-md navbar-dark">
         <a class="navbar-brand">
-            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-            <span>HBA-LeadCRM</span>
+            <img src="https://m-files.cdnvideo.ru/lpfile/1/7/1/17132b3c0df3b9802560ee27788e85d5/-/crop/0x0x640x640/-/resize/94/-/resize/1920/f.png" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
+            <span>HBA | ЛИДОРУБ</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,7 @@
                         </thead>
                         <tbody>
                         <tr v-for="user in users" :key="user.login">
-                            <td><img class="imger" :src="user.role == 'admin' ? 'admin.jpeg' : 'logo.jpg' "> {{ user.name }}</td>
+                            <td><img class="imger" :src="user.avatarIMG"> {{ user.name }}</td>
                             <td>{{ user.login }}</td>
                             <td>{{ user.password }}</td>
                             <td>{{ user.role.role }}</td>
@@ -160,6 +160,10 @@
                           <label for="login" class="text-light">Логин</label>
                           <input type="text" v-model="updatedUser.login" class="form-control bg-dark text-light" id="login" placeholder="Введите логин">
                         </div>
+                        <div class="form-group">
+                            <label for="avatar" class="text-light">Сылка на аватарку юзера</label>
+                            <input type="text" v-model="updatedUser.avatarIMG" class="form-control bg-dark text-light" id="avatar" placeholder="сылка на аватарку">
+                          </div>
                         <div class="form-group">
                           <label for="password" class="text-light">Пароль</label>
                           <input type="text" v-model="updatedUser.password" class="form-control bg-dark text-light" id="password" placeholder="Введите пароль">
@@ -238,6 +242,7 @@
                                     <h4 class="text-light">Сумма офферов: <span class="text-danger">{{ callsData.sumOffer }}</span></h4>
                                     <h4 class="text-light">Сумма salary: <span class="text-danger">{{ callsData.sumSalary }}</span></h4>
                                     <h4 class="text-light">Кол-во холдов: <span class="text-danger">{{ callsData.countHold }}</span></h4>
+                                    <h4 class="text-light">Чистая прибыль: <span class="text-danger">{{ calculateClearSalary(callsData.sumOffer, callsData.sumSalary, (callsData.stats[callsData.stats.length - 1].salary + callsData.stats[callsData.stats.length - 1].bonus), 1) }}</span></h4>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="tableLoader">
@@ -293,6 +298,7 @@
                                     <h4 class="text-light">Итоговая сумма оферов за неделю: <span class="text-danger">{{ weekDataArray.totalWeekDataHold.sumOffer }}</span></h4>
                                     <h4 class="text-light">Итоговая сумма salary за неделю: <span class="text-danger">{{ weekDataArray.totalWeekDataHold.sumSalary }}</span></h4>
                                     <h4 class="text-light">Итоговая кол-во холдов за неделю: <span class="text-danger">{{ weekDataArray.totalWeekDataHold.countHold }}</span></h4>
+                                    <h4 class="text-light">Чистая прибыль: <span class="text-danger">{{ calculateClearSalary(weekDataArray.totalWeekDataHold.sumOffer, weekDataArray.totalWeekDataHold.sumSalary, (weekDataArray.stats[weekDataArray.stats.length - 1].salary + weekDataArray.stats[weekDataArray.stats.length - 1].bonus), 5) }}</span></h4>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center mt-5 mb-5" v-if="weekDataArrayLoading">
@@ -353,6 +359,7 @@
                                     <h4 class="text-light">Итоговая сумма оферов за Месяц: <span class="text-danger">{{ monthDataArray.totalMonthHolData.sumOffer }}</span></h4>
                                     <h4 class="text-light">Итоговая сумма salary за Месяц: <span class="text-danger">{{ monthDataArray.totalMonthHolData.sumSalary }}</span></h4>
                                     <h4 class="text-light">Итоговая кол-во холдов за Месяц: <span class="text-danger">{{ monthDataArray.totalMonthHolData.countHold }}</span></h4>
+                                    <h4 class="text-light">Чистая прибыль: <span class="text-danger">{{ calculateClearSalary(monthDataArray.totalMonthHolData.sumOffer, monthDataArray.totalMonthHolData.sumSalary, (monthDataArray.stats[monthDataArray.stats.length - 1].salary + monthDataArray.stats[monthDataArray.stats.length - 1].bonus), 20) }}</span></h4>
                                 </div>
 
                             </div>
@@ -623,8 +630,8 @@ th {
 }
 
 .imger {
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
     border-radius: 30px;
 }
 
@@ -642,7 +649,7 @@ th {
 
 <script>
 
-    dayjs.locale('ru');
+    dayjs.locale('ru')
 
     new Vue({
         el: '#app',
@@ -754,6 +761,10 @@ th {
             },
             updateWinSize() {
                 this.winSize = window.innerWidth
+            },
+            calculateClearSalary(sumOffer, sumSalary, leadorubsSalary, daysOfWorking) {
+                let clearOfficeSalary = Math.floor( (sumOffer * 0.6 * 0.93) - sumSalary - leadorubsSalary - (3000 * daysOfWorking) )
+                return clearOfficeSalary
             },
             getDefaultName(string) {
                 let someName = string

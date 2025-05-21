@@ -11,15 +11,15 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/locale/ru.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <link rel="icon" href="https://m-files.cdnvideo.ru/lpfile/1/7/1/17132b3c0df3b9802560ee27788e85d5/-/crop/0x0x640x640/-/resize/94/-/resize/1920/f.png" type="image/x-icon">
 </head>
 <body>
 <div id="app">
     
     <nav class="navbar navbar-expand-md navbar-dark">
         <a class="navbar-brand">
-            <img src="logo.jpg" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
-            <span>HBA-LeadCRM</span>
+            <img src="https://m-files.cdnvideo.ru/lpfile/1/7/1/17132b3c0df3b9802560ee27788e85d5/-/crop/0x0x640x640/-/resize/94/-/resize/1920/f.png" style="height: 40px; max-width: 40px; margin-right: 10px; border-radius: 10px;">
+            <span>HBA | ЛИДОРУБ</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,10 +71,13 @@
                           <button @click="getCallsSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
 
-                        <div class="col-12 col-md-3 mt-3">
-                            <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
-                            <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
-                            <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        <div class="col-12 col-md-3 mt-3 d-flex">
+                            <img :src="avatarIMG" class="imger">
+                            <div>
+                                <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                                <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                                <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                            </div>
                         </div>
 
                         <button class="btn bigAss btn-outline-dark w-md-auto mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
@@ -141,6 +144,10 @@
                                         <input type="text" class="form-control bg-dark text-light" id="input1" v-model="newLead.phone" required>
                                     </div>
                                     <div class="form-group">
+                                        <label class="text-info" for="inputeDateAsasa">Задать дату для лида</label>
+                                        <input type="date" class="form control bg-dark text-light" id="inputeDateAsasa" v-model="newLead.date" required>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="text-info" for="input2">Имя клиента</label>
                                         <input type="text" class="form-control bg-dark text-light" id="input2" v-model="newLead.client_name" required>
                                     </div>
@@ -164,10 +171,13 @@
                           <button @click="getCallsWeekSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
 
-                        <div class="col-12 col-md-3 mt-3">
-                            <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
-                            <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
-                            <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        <div class="col-12 col-md-3 mt-3 d-flex">
+                            <img :src="avatarIMG" class="imger">
+                            <div>
+                                <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                                <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                                <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                            </div>
                         </div>
 
                         <button class="btn bigAss btn-outline-dark w-md-auto mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
@@ -231,10 +241,13 @@
                             <button @click="getCallsMonthSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
 
-                        <div class="col-12 col-md-3 mt-3">
-                            <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
-                            <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
-                            <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        <div class="col-12 col-md-3 mt-3 d-flex">
+                            <img :src="avatarIMG" class="imger">
+                            <div>
+                                <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                                <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                                <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                            </div>
                         </div>
 
                         <button class="btn bigAss btn-outline-dark w-md-auto mt-2 mt-md-0" data-toggle="modal" data-target="#darkModal">
@@ -376,6 +389,12 @@ th {
     width: 300px;
 }
 
+.imger {
+    height: 100px;
+    width: 100px;
+    border-radius: 30px;
+}
+
 .textareaer {
     width: 600px;
 }
@@ -402,6 +421,12 @@ th {
     .bigAss {
         width: 100%;
     }
+    .imger {
+        height: 80px;
+        width: 80px;
+        border-radius: 30px;
+        margin-left: -10%;
+    }
 }
 
 </style>
@@ -416,7 +441,8 @@ th {
             newLead: {
                 phone: '+7',
                 client_name: '',
-                comment: ''
+                comment: '',
+                date: dayjs(new Date).format('YYYY-MM-DD'),
             },
             message: null,
             userName: "",
@@ -495,7 +521,7 @@ th {
                 .then(response => {
                     if (response.ok) {
                         this.message = 'Лид успешно создан!';
-                        this.newLead = {phone: '+7', client_name: '', comment: ''};
+                        this.newLead = {phone: '+7', client_name: '', comment: '', date: new Date};
                     } else {
                         this.message = 'Ошибка создания лида.';
                     }
@@ -622,8 +648,9 @@ th {
                 fetch('/api/broker/profile')
                     .then(response => response.json())
                     .then(data => {
-                        this.userName = data[0].name;
+                        this.userName = data[0].name
                         this.userLogin = data[0].login
+                        this.avatarIMG = data[0].avatarIMG
                     })
                     .catch(error => {
                         console.error('Error:', error);

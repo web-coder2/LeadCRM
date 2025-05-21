@@ -9,7 +9,7 @@ const router = Router()
 
 router.post('/api/leadorub/leads', async function (req, res) {
 
-    const { phone, client_name, comment } = req.body;
+    const { phone, client_name, comment, date } = req.body;
     let broker = ""
 
     const refName = await UserModel.findOne({
@@ -19,7 +19,7 @@ router.post('/api/leadorub/leads', async function (req, res) {
     if (refName !== null) {
 
         let newLead = LeadsModel({
-            date: dayjs(new Date).format('YYYY-MM-DD'),
+            date: dayjs(date).format('YYYY-MM-DD'),
             phone: phone,
             client_name: client_name,
             comment: comment,

@@ -22,6 +22,11 @@ const users = new Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+    avatarIMG: {
+        type: String,
+        required: false,
+        default: ""
     }
 })
 
