@@ -163,7 +163,12 @@
                         <div class="form-group">
                             <label for="avatar" class="text-light">Сылка на аватарку юзера</label>
                             <input type="text" v-model="updatedUser.avatarIMG" class="form-control bg-dark text-light" id="avatar" placeholder="сылка на аватарку">
-                          </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="avatarFile" class="text-light">загрузить файл для аватарки</label>
+                            <input  type="file" accept="image/*" />
+                            <button class="btn btn-outline-light" @click="uploadAvatar">Загрузить</button>
+                        </div>
                         <div class="form-group">
                           <label for="password" class="text-light">Пароль</label>
                           <input type="text" v-model="updatedUser.password" class="form-control bg-dark text-light" id="password" placeholder="Введите пароль">
@@ -171,7 +176,7 @@
                       </form>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-primary" @click="updateUser()">Обновить</button>
+                      <button type="button" class="btn btn-outline-light" @click="updateUser()">Обновить</button>
                     </div>
                   </div>
                 </div>
@@ -765,6 +770,24 @@ th {
             calculateClearSalary(sumOffer, sumSalary, leadorubsSalary, daysOfWorking) {
                 let clearOfficeSalary = Math.floor( (sumOffer * 0.6 * 0.93) - sumSalary - leadorubsSalary - (3000 * daysOfWorking) )
                 return clearOfficeSalary
+            },
+            async uploadAvatar() {
+                if (!this.selectedFile) return;
+
+                const formData = new FormData();
+                formData.append('avatar', this.selectedFile);
+
+                try {
+                    const response = await axios.post(`http://localhost:3000/api/upload-avatar/${this.userId}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+                    alert(response.data.message)
+                } catch (err) {
+                    console.error('Ошибка загрузки:', err)
+                    alert('Ошибка при загрузке файла')
+                }
             },
             getDefaultName(string) {
                 let someName = string

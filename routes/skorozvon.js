@@ -75,14 +75,14 @@ async function getHoldFromLeads(date) {
     const holdResponse = response.data
 
     return holdResponse
-  } catch (e) {
-    //console.log(e)
-  }
+  } catch (e) {}
 }
 
 async function getAndSetSkorozvonToDB(timeDay) {
     try {
         let date = dayjs(timeDay).format('YYYY-MM-DD')
+
+        console.log(timeDay)
 
         let unixDateStart = parseInt(dayjs(date).unix())
         let unixDateEnd = unixDateStart + (24 * 60 * 60)
@@ -154,7 +154,7 @@ async function processDates(datesArray) {
                     results.push({ date: dateStr, calls: callsRecord.calls })
                 }
             } catch (error) {
-                console.error('Ошибка при выполнении getAndSetSkorozvonToDB:', error.message)
+                console.error('Ошибка при выполнении ', error.message)
                 results.push({ date: dateStr, calls: [], error: error.message })
             }
         } else {
@@ -188,7 +188,7 @@ router.get('/skorozvon/get/calls/:timeDate', async (req, res) => {
                 }
 
             } catch (dbSaveError) {
-                 console.error('Ошибка при выполнении getAndSetSkorozvonToDB:', dbSaveError.message)
+                 console.error('Ошибка при выполнении ', dbSaveError.message)
                  return res.status(500).json({ message: 'Ошибка при попытке получить и сохранить данные о звонках.', error: dbSaveError.message })
             }
         }
@@ -256,33 +256,20 @@ function normalizeName(name) {
 
 async function createOrUpdateUserStats(dateStr) {
 
-  if (dateStr !== new Date ) {
-    var dataHoldResponse = await getHoldFromLeads(dateStr)
-  } else if (dateStr == new Date) {
-    if ( new Date().getHours() >= 22 && new Date().getHours() <= 23 ) {
-      var dataHoldResponse = await getHoldFromLeads(dateStr)
-    } else {
-      var dataHoldResponse = {
-        data : {
-          sumOffer : 0,
-          sumSalary : 0,
-          count : 0
-        }
-      }
-    }
-  }
+
+  // ВЫЗОВ ЭТОЙ ФУНКЦИИ УБЬЕТ РЕЗЕДЕНЦИЮ НИЗАШТО НЕ РАСКОМЕНТИ ЭТУТ БЛОК КОДА
 
   //let dataHoldResponse = await getHoldFromLeads(dateStr)
 
-  if (dataHoldResponse) {
-    var sumOffer = dataHoldResponse.data.sumOffer
-    var sumSalary = dataHoldResponse.data.sumSalary
-    var countHold = dataHoldResponse.data.count
-  } else {
-    var sumOffer = 0
-    var sumSalary = 0
-    var countHold = 0
-  }
+  //var sumOffer = dataHoldResponse.data.sumOffer
+  //var sumSalary = dataHoldResponse.data.sumSalary
+  //var countHold = dataHoldResponse.data.count
+
+  // ОПАСНАЯ ЗОНА ЗАКОНЧИЛАСЬ 
+
+  var sumOffer = 0
+  var sumSalary = 0
+  var countHold = 0
 
   const callRecord = await skorozvonCalls.findOne({ date: dateStr })
 
@@ -301,6 +288,7 @@ async function createOrUpdateUserStats(dateStr) {
   }
 
   const callCounts = {};
+
   for (const call of callRecord.calls) {
     const usernameRaw = call.username || 'Не определено';
     const normalizedUsername = normalizeName(usernameRaw);
@@ -351,6 +339,7 @@ async function createOrUpdateUserStats(dateStr) {
 
   usersStatsArray.push(totalStats);
 
+
   await UsersStats.findOneAndUpdate(
     { date: dateStr },
     { date: dateStr, stats: usersStatsArray, sumOffer: sumOffer, sumSalary: sumSalary, countHold: countHold },
@@ -361,6 +350,7 @@ async function createOrUpdateUserStats(dateStr) {
 router.get('/skorozvon/get/allData/:date', async (req, res) => {
     try {
       const date = req.params.date;
+
       await createOrUpdateUserStats(date);
 
       const data = await UsersStats.findOne({ date });
@@ -379,8 +369,9 @@ router.get('/skorozvon/get/allData/:date', async (req, res) => {
   
 router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
   try {
-    const startDateStr = req.params.startDate;
-    const startDate = dayjs(startDateStr, 'YYYY-MM-DD');
+    const startDateStr = req.params.startDate
+    const startDate = dayjs(startDateStr, 'YYYY-MM-DD')
+
     if (!startDate.isValid()) {
       return res.status(400).json({ message: 'Некорректная дата' });
     }
@@ -418,8 +409,6 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
         totalWeekDataHold.sumOffer += data.sumOffer
         totalWeekDataHold.sumSalary += data.sumSalary
         totalWeekDataHold.countHold += data.countHold
-
-        console.log(totalWeekDataHold, data.countHold, data.date)
 
         for (const stat of data.stats) {
           if (stat.username === 'total') continue
@@ -478,9 +467,22 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
       return res.status(400).json({ message: 'Некорректная дата' });
     }
 
-    const daysInMonth = startDate.daysInMonth();
+    const today = dayjs()
+    const isCurrentMonth = startDate.year() === today.year() && startDate.month() === today.month()
+
+    let endDate
+
+    if (isCurrentMonth) {
+      endDate = today
+    } else {
+      endDate = startDate.endOf('month')
+    }
+
+    const daysCount = endDate.diff(startDate, 'day') + 1
+
+
     const dates = [];
-    for (let i = 0; i < daysInMonth; i++) {
+    for (let i = 0; i < daysCount; i++) {
       dates.push(startDate.add(i, 'day').format('YYYY-MM-DD'));
     }
 
@@ -549,7 +551,7 @@ router.get('/skorozvon/get/monthlyData/:startDate', async (req, res) => {
     usersArray.push(overallTotal);
 
     res.json({
-      period: `Month ${startDate.format('YYYY-MM-DD')} - ${startDate.add(daysInMonth - 1, 'day').format('YYYY-MM-DD')}`,
+      period: `Month ${startDate.format('YYYY-MM-DD')} - ${startDate.add(daysCount - 1, 'day').format('YYYY-MM-DD')}`,
       stats: usersArray,
       totalMonthHolData: totalMonthHolData
     });
