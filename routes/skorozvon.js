@@ -172,24 +172,26 @@ router.get('/skorozvon/get/calls/:timeDate', async (req, res) => {
             return res.status(400).json({ message: 'Некорректный формат даты. Используйте YYYY-MM-DD.' })
         }
 
+        await getAndSetSkorozvonToDB(timeDateParam)
+        
         let callsRecord = await skorozvonCalls.findOne({ date: timeDateParam })
 
-        if (!callsRecord) {
-            try {
-                await getAndSetSkorozvonToDB(timeDateParam);
+        // if (!callsRecord) {
+        //     try {
+        //         await getAndSetSkorozvonToDB(timeDateParam);
 
-                callsRecord = await skorozvonCalls.findOne({ date: timeDateParam })
+        //         callsRecord = await skorozvonCalls.findOne({ date: timeDateParam })
 
-                if (!callsRecord) {
-                     console.warn(`Записи о звонках за ${timeDateParam} не найдены даже после попытки получения и сохранения.`);
-                     return res.json({ date: timeDateParam, calls: [] })
-                }
+        //         if (!callsRecord) {
+        //              console.warn(`Записи о звонках за ${timeDateParam} не найдены даже после попытки получения и сохранения.`);
+        //              return res.json({ date: timeDateParam, calls: [] })
+        //         }
 
-            } catch (dbSaveError) {
-                 console.error('Ошибка при выполнении ', dbSaveError.message)
-                 return res.status(500).json({ message: 'Ошибка при попытке получить и сохранить данные о звонках.', error: dbSaveError.message })
-            }
-        }
+        //     } catch (dbSaveError) {
+        //          console.error('Ошибка при выполнении ', dbSaveError.message)
+        //          return res.status(500).json({ message: 'Ошибка при попытке получить и сохранить данные о звонках.', error: dbSaveError.message })
+        //     }
+        // }
 
         res.json(callsRecord)
 
