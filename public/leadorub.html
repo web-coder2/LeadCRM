@@ -71,12 +71,15 @@
                           <button @click="getCallsSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
 
-                        <div class="col-12 col-md-3 mt-3 d-flex">
-                            <img :src="avatarIMG" class="imger">
-                            <div>
-                                <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
-                                <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
-                                <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                        <div class="col-12 col-md-5">
+                            <h4 class="text-light">{{ userName }}</h4>
+                            <div class="col-12 col-md-12 mt-3 d-flex">
+                                <img :src="avatarIMG" class="imger mr-3">
+                                <div>
+                                    <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
+                                    <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
+                                    <h6 class="text-light">За этот день <span class="text-info">{{ leadToday }} лидов</span></h6>
+                                </div>
                             </div>
                         </div>
 
@@ -170,9 +173,9 @@
                           <input type="date" v-model="weekTableTime" class="form-control bg-dark text-light dateInput mr-3" style="width: auto;">
                           <button @click="getCallsWeekSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
-
-                        <div class="col-12 col-md-3 mt-3 d-flex">
-                            <img :src="avatarIMG" class="imger">
+                        
+                        <div class="col-12 col-md-4 mt-3 d-flex">
+                            <img :src="avatarIMG" class="imger mr-5">
                             <div>
                                 <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
                                 <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
@@ -241,8 +244,8 @@
                             <button @click="getCallsMonthSkorozvon()" class="btn btn-outline-light">Применить</button>
                         </div>
 
-                        <div class="col-12 col-md-3 mt-3 d-flex">
-                            <img :src="avatarIMG" class="imger">
+                        <div class="col-12 col-md-4 mt-3 d-flex">
+                            <img :src="avatarIMG" class="imger mr-5">
                             <div>
                                 <h6 class="text-light">За прошлую неделю <span class="text-info">{{ leadLastWeek }} лидов</span></h6>
                                 <h6 class="text-light">За эту неделю <span class="text-info">{{ leadThisWeek }} лидов</span></h6>
@@ -447,6 +450,7 @@ th {
             message: null,
             userName: "",
             userLogin: "",
+            avatarIMG: null,
             allLeads: null,
 
             leadToday: 0,

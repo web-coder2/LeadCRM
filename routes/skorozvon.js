@@ -82,8 +82,6 @@ async function getAndSetSkorozvonToDB(timeDay) {
     try {
         let date = dayjs(timeDay).format('YYYY-MM-DD')
 
-        console.log(timeDay)
-
         let unixDateStart = parseInt(dayjs(date).unix())
         let unixDateEnd = unixDateStart + (24 * 60 * 60)
 
@@ -282,7 +280,8 @@ async function createOrUpdateUserStats(dateStr) {
 
   for (const lead of leads) {
     if (lead.starter) {
-      const normalizedStarter = normalizeName(lead.starter.name)
+      //const normalizedStarter = normalizeName(lead.starter.name)
+      const normalizedStarter = lead.starter.name
       leadsCountMap[normalizedStarter] = (leadsCountMap[normalizedStarter] || 0) + 1
     }
   }
@@ -290,8 +289,9 @@ async function createOrUpdateUserStats(dateStr) {
   const callCounts = {};
 
   for (const call of callRecord.calls) {
-    const usernameRaw = call.username || 'Не определено';
-    const normalizedUsername = normalizeName(usernameRaw);
+    const usernameRaw = call.username || 'Не определено'
+    //const normalizedUsername = normalizeName(usernameRaw)
+    const normalizedUsername = usernameRaw
     const callType = call.call_type;
     if (callType === 'incoming' || callType === 'outgoing') {
       callCounts[normalizedUsername] = (callCounts[normalizedUsername] || 0) + 1;
@@ -325,10 +325,11 @@ async function createOrUpdateUserStats(dateStr) {
       bonus
     };
 
-    usersStatsArray.push(userStat);
+    if (userStat.username !== 'Не определено' && userStat.username !== 'Симаков Владимир Станиславович') {
+      usersStatsArray.push(userStat);
+    }
 
-
-    if (userStat.username !== 'неопределено' && userStat.username !== 'симаковвладимирстаниславович') {
+    if (userStat.username !== 'Не определено' && userStat.username !== 'Симаков Владимир Станиславович') {
 
       totalStats.totalCalls += totalCalls;
       totalStats.totalLeads += leadsCount;
@@ -442,9 +443,7 @@ router.get('/skorozvon/get/weeklyData/:startDate', async (req, res) => {
       }
     }
 
-    // Формируем массив пользователей
     const usersArray = Object.values(usersAggregated);
-    // добавляем итоговую сумму в массив
     usersArray.push(overallTotal);
 
     res.json({

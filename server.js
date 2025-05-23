@@ -8,6 +8,8 @@ const dotenv = require('dotenv')
 const session = require('express-session')
 const RoleModel = require('./models/ranks.js')
 
+const multer = require('multer')
+const cors = require('cors')
 
 // ИМПОРТ МОДЕЛЕЙ
 const UserModel = require("./models/users.js")
@@ -50,6 +52,48 @@ const DATABASE_NAME = process.env.DATABASE_NAME
 //     })
 
 // }
+
+// ЗАГРУЗКА АВАТАРА ЮЗЕРА
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, uniqueSuffix + '-' + file.originalname)
+    }
+  })
+  const upload = multer({ storage: storage })
+
+app.use('/uploads', express.static('uploads'))
+
+app.post('/api/upload-avatar/:userLogin', upload.single('avatar'), async (req, res) => {
+    try {
+        const userLogin = req.params.userLogin;
+        let avatarPathOrUrl = ''
+
+        if (req.file) {
+            avatarPathOrUrl = req.file.path
+        } else if (req.body.avatarLink) {
+            avatarPathOrUrl = req.body.avatarLink
+        } else {
+            return res.status(400).json({ error: 'Нет файла или ссылки' })
+        }
+
+        let user = await UserModel.findOne({ login: userLogin })
+
+        if (!user) {
+            return res.status(404).json({ error: 'Пользователь не найден' })
+        }
+
+        await user.updateOne({ avatarIMG: avatarPathOrUrl })
+
+        res.json({ message: 'Аватар обновлён', path: avatarPathOrUrl })
+    } catch (err) {
+        res.status(500).json({ error: 'Ошибка при обновлении аватара' })
+    }
+});
 
 async function setReferenceNotStringName() {
     const allLeads = await LeadModel.find()

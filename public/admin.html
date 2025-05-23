@@ -161,12 +161,8 @@
                           <input type="text" v-model="updatedUser.login" class="form-control bg-dark text-light" id="login" placeholder="Введите логин">
                         </div>
                         <div class="form-group">
-                            <label for="avatar" class="text-light">Сылка на аватарку юзера</label>
-                            <input type="text" v-model="updatedUser.avatarIMG" class="form-control bg-dark text-light" id="avatar" placeholder="сылка на аватарку">
-                        </div>
-                        <div class="form-group">
                             <label for="avatarFile" class="text-light">загрузить файл для аватарки</label>
-                            <input  type="file" accept="image/*" />
+                            <input  type="file" @change="onFileSelected" accept="image/*" />
                             <button class="btn btn-outline-light" @click="uploadAvatar">Загрузить</button>
                         </div>
                         <div class="form-group">
@@ -695,6 +691,9 @@ th {
             callsData: [],
             monthDataArray: [],
             weekDataArray: [],
+
+
+            selectedFile: null,
             
             activeTabs: 'users',
             winSize: 0,
@@ -771,19 +770,36 @@ th {
                 let clearOfficeSalary = Math.floor( (sumOffer * 0.6 * 0.93) - sumSalary - leadorubsSalary - (3000 * daysOfWorking) )
                 return clearOfficeSalary
             },
-            async uploadAvatar() {
-                if (!this.selectedFile) return;
+            onFileSelected(event) {
+                const file = event.target.files[0]
 
-                const formData = new FormData();
-                formData.append('avatar', this.selectedFile);
+                this.updatedUser.avatarIMG = ""
+
+                if (file) {
+                    this.selectedFile = file
+                    this.avatarUrl = URL.createObjectURL(file)
+                }
+            },
+            async uploadAvatar() {
+                if (!this.selectedFile) return
+
+                const formData = new FormData()
+                formData.append('avatar', this.selectedFile)
 
                 try {
-                    const response = await axios.post(`http://localhost:3000/api/upload-avatar/${this.userId}`, formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
+                    const response = await fetch(`/api/upload-avatar/${this.updatedUserLogin}`, {
+                        method: 'POST',
+                        body: formData,
                     });
-                    alert(response.data.message)
+
+                    if (!response.ok) {
+                        const errorData = await response.json()
+                        throw new Error(errorData.error || 'Ошибка при загрузке файла')
+                    }
+
+                    const result = await response.json()
+                    console.log(result)
+                    alert(result.message)
                 } catch (err) {
                     console.error('Ошибка загрузки:', err)
                     alert('Ошибка при загрузке файла')
